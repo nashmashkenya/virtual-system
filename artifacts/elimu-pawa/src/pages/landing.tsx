@@ -262,7 +262,7 @@ export function LandingPage() {
         </nav>
 
         {/* ── Hero ── */}
-        <div className="grid items-center gap-10 pb-10 pt-6 lg:grid-cols-[1fr_430px] lg:gap-14 lg:pb-16 lg:pt-10">
+        <div className="grid items-center gap-6 pb-10 pt-6 lg:grid-cols-[1fr_430px] lg:gap-14 lg:pb-16 lg:pt-10">
 
           {/* Left — copy */}
           <div className="space-y-7">
