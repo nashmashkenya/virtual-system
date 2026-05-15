@@ -283,7 +283,7 @@ export function LandingPage() {
 
             <p className="max-w-[500px] text-[16px] leading-relaxed text-slate-400">
               Everything teachers and students need — live video, real-time chat, quizzes,
-              polls, and a collaborative whiteboard — all in one focused screen built for Africa.
+              polls, and a collaborative whiteboard — all in one focused screen built for Kenyan schools.
             </p>
 
             {/* Trust badges — each a different colour */}
