@@ -1,35 +1,49 @@
-# Python / Django
-__pycache__/
-*.py[cod]
-*$py.class
-*.sqlite3
-backend/db.sqlite3
-backend/media/
-backend/.env
-.venv/
-venv/
-*.egg-info/
-.pytest_cache/
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Node / Next.js
-node_modules/
-frontend/.next/
-frontend/out/
-frontend/build/
+# compiled output
+dist
+tmp
+out-tsc
 *.tsbuildinfo
+.expo
+.expo-shared
 
-# Secrets and local env (keep *.env.example templates)
-.env
-.env.local
-.env.*.local
-!**/.env.example
+# dependencies
+node_modules
 
-# Logs and OS
-*.log
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
 Thumbs.db
 
-# IDE
-.idea/
-.vscode/
-*.swp
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+# Replit
+.cache/
+.local/
