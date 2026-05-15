@@ -24,28 +24,33 @@ export function RegisterPanel() {
   const [error, setError] = useState("");
 
   const digits = phoneDigits(phoneNumber);
-  const autoPassword = digits.slice(0, 7);
-  const passwordReady = digits.length >= 7;
+  const autoPassword = digits.slice(0, 4);
+  const passwordReady = digits.length >= 4;
 
   const passwordHint = useMemo(() => {
     if (passwordReady) return `Your password will be: ${autoPassword}`;
-    return `Enter your phone number — your password is set automatically.`;
+    return `Enter your phone number — your 4-digit password is set automatically.`;
   }, [phoneNumber]);
 
   const handleSubmit = async () => {
     setError("");
     if (role === "teacher") {
-      if (!firstName.trim() || !email.trim() || !password) {
+      if (!firstName.trim() || !password) {
         setError("Please fill in all fields.");
+        return;
+      }
+      if (!/^\d{4}$/.test(password)) {
+        setError("PIN must be exactly 4 digits.");
         return;
       }
       setLoading(true);
       try {
+        const slug = firstName.trim().toLowerCase().replace(/\s+/g, ".");
         const result = await registerUser({
           first_name: firstName.trim(),
           last_name: "",
-          username: email.trim().toLowerCase(),
-          email: email.trim().toLowerCase(),
+          username: slug,
+          email: `${slug}@elimupawa.local`,
           password,
           role: "teacher",
         });
@@ -63,7 +68,7 @@ export function RegisterPanel() {
       return;
     }
     if (!passwordReady) {
-      setError("Enter at least 7 digits of your phone number.");
+      setError("Enter at least 4 digits of your phone number.");
       return;
     }
     setLoading(true);
@@ -142,15 +147,21 @@ export function RegisterPanel() {
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Your name</label>
               <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Grace Njeri" autoComplete="given-name" className={inputCls} />
+              <p className="mt-1.5 text-xs text-slate-400">Your login username will be set from your name.</p>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Email address</label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@school.com" type="email" autoComplete="email" className={inputCls} />
-              <p className="mt-1.5 text-xs text-slate-400">This will be your login username.</p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
-              <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" type="password" autoComplete="new-password" className={inputCls} />
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">4-digit PIN</label>
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                placeholder="e.g. 1234"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                autoComplete="new-password"
+                className={inputCls}
+              />
+              <p className="mt-1.5 text-xs text-slate-400">Choose any 4 numbers you'll remember.</p>
             </div>
           </>
         ) : (
@@ -197,7 +208,7 @@ export function RegisterPanel() {
                 <span className="leading-relaxed">
                   {passwordReady
                     ? <>Your login password will be <strong className="font-bold tracking-widest">{autoPassword}</strong> — remember it!</>
-                    : "Your password is automatically set from the first 7 digits of your phone number."}
+                    : "Your password is automatically set from the first 4 digits of your phone number."}
                 </span>
               </div>
             </div>
