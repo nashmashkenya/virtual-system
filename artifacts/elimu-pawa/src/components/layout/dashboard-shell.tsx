@@ -24,13 +24,11 @@ const navItems = {
   teacher: [
     { href: "/teacher", label: "Dashboard", icon: House },
     { href: "/teacher", label: "Courses", icon: GraduationCap },
-    { href: "/payments", label: "Payments", icon: CreditCard },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
   admin: [
     { href: "/teacher", label: "Dashboard", icon: House },
     { href: "/teacher", label: "Courses", icon: GraduationCap },
-    { href: "/payments", label: "Payments", icon: CreditCard },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
 } satisfies Record<DemoUser["role"], { href: string; label: string; icon: typeof House }[]>;
