@@ -24,12 +24,12 @@ export function RegisterPanel() {
   const [error, setError] = useState("");
 
   const digits = phoneDigits(phoneNumber);
-  const autoPassword = digits.slice(0, 4);
-  const passwordReady = digits.length >= 4;
+  const autoPassword = digits.slice(0, 7);
+  const passwordReady = digits.length >= 7;
 
   const passwordHint = useMemo(() => {
     if (passwordReady) return `Your password will be: ${autoPassword}`;
-    return `Enter your phone number — your 4-digit password is set automatically.`;
+    return `Enter your phone number — your password is the first 7 digits.`;
   }, [phoneNumber]);
 
   const handleSubmit = async () => {
@@ -68,7 +68,7 @@ export function RegisterPanel() {
       return;
     }
     if (!passwordReady) {
-      setError("Enter at least 4 digits of your phone number.");
+      setError("Enter at least 7 digits of your phone number.");
       return;
     }
     setLoading(true);
@@ -208,7 +208,7 @@ export function RegisterPanel() {
                 <span className="leading-relaxed">
                   {passwordReady
                     ? <>Your login password will be <strong className="font-bold tracking-widest">{autoPassword}</strong> — remember it!</>
-                    : "Your password is automatically set from the first 4 digits of your phone number."}
+                    : "Your password is automatically set from the first 7 digits of your phone number."}
                 </span>
               </div>
             </div>
