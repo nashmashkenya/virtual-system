@@ -26,42 +26,42 @@ const features = [
   {
     icon: MonitorPlay,
     title: "Live Video",
-    description: "Crystal-clear HD streaming with zero setup. Your lesson, front and center.",
+    description: "Students see your face, your screen, or both — with no lag and no extra app to install.",
     color: "from-blue-500 to-blue-600",
     glow: "rgba(59,130,246,0.25)",
   },
   {
     icon: MessageCircle,
-    title: "Real-time Chat",
-    description: "Questions, reactions, and discussion—right alongside the video.",
+    title: "Class Chat",
+    description: "Students ask questions and react without interrupting the flow of the lesson.",
     color: "from-violet-500 to-violet-600",
     glow: "rgba(139,92,246,0.25)",
   },
   {
     icon: BookOpen,
-    title: "Class Materials",
-    description: "Share files, links, and resources in one organized spot.",
+    title: "Materials Hub",
+    description: "Handouts, links, and slides stay pinned in one place — no more lost WhatsApp files.",
     color: "from-indigo-500 to-indigo-600",
     glow: "rgba(99,102,241,0.25)",
   },
   {
     icon: Mic2,
     title: "Polls & Quizzes",
-    description: "Keep students engaged with live polls and instant feedback.",
+    description: "Check understanding instantly. Results appear live so you know when to move on.",
     color: "from-sky-500 to-sky-600",
     glow: "rgba(14,165,233,0.25)",
   },
   {
     icon: LayoutDashboard,
     title: "Whiteboard",
-    description: "Draw, annotate, and explain ideas visually in real time.",
+    description: "Sketch equations, diagrams, and mind maps that every student can see and annotate.",
     color: "from-purple-500 to-purple-600",
     glow: "rgba(168,85,247,0.25)",
   },
   {
     icon: Users,
     title: "Breakout Rooms",
-    description: "Split students into small groups for collaborative work.",
+    description: "Send students into small groups, then pop in to check progress — all without leaving the page.",
     color: "from-blue-600 to-indigo-600",
     glow: "rgba(37,99,235,0.25)",
   },
@@ -75,9 +75,9 @@ const stats = [
 ];
 
 const steps = [
-  { step: "01", title: "Create your account", description: "Sign up in seconds — no credit card needed to get started." },
-  { step: "02", title: "Open your room", description: "Teachers launch a room; students join with one click." },
-  { step: "03", title: "Teach & learn", description: "Video, chat, polls, whiteboard — all in one focused screen." },
+  { step: "01", title: "Create your account", description: "Sign up in 30 seconds — no credit card, no IT setup required." },
+  { step: "02", title: "Open your room", description: "Teachers share a room link. Students click it and they're in — no downloads, no installs." },
+  { step: "03", title: "Focus on teaching", description: "Every control is exactly where you expect it. Spend your energy on the lesson, not the software." },
 ];
 
 export function LandingPage() {
@@ -147,7 +147,7 @@ export function LandingPage() {
                   <span className="text-[var(--text)]">Learn faster.</span>
                 </h1>
                 <p className="max-w-lg text-lg leading-relaxed text-[var(--subtext)]">
-                  ElimuPawa puts live video, chat, polls, whiteboard, and class materials in one calm screen — no juggling apps, no wasted time.
+                  Your entire online classroom in one focused screen — no juggling apps, no confusing menus, no wasted setup time.
                 </p>
               </div>
 
