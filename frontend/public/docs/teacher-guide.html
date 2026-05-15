@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ElimuPawa Classroom — Teacher User Guide</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --accent: #1d4ed8;
+      --bg: #ffffff;
+      --soft: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 11pt;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem;
+      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .toolbar strong { font-size: 0.95rem; }
+    .toolbar button {
+      cursor: pointer;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.55rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+    }
+    .toolbar button:hover { filter: brightness(1.08); }
+    .toolbar span { font-size: 0.8rem; color: var(--muted); max-width: 28rem; }
+    .wrap {
+      max-width: 48rem;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+    .cover {
+      text-align: center;
+      padding: 2rem 0 2.5rem;
+      border-bottom: 2px solid var(--line);
+      margin-bottom: 2rem;
+    }
+    .cover h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .cover .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .meta {
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    h2 {
+      margin: 2rem 0 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+      page-break-after: avoid;
+    }
+    h3 {
+      margin: 1.35rem 0 0.5rem;
+      font-size: 1.02rem;
+      font-weight: 600;
+      page-break-after: avoid;
+    }
+    p { margin: 0 0 0.85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: 0.35rem; }
+    .note {
+      background: var(--soft);
+      border-left: 4px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .note strong { color: var(--ink); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin: 0.75rem 0 1rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--soft); font-weight: 600; }
+    .toc {
+      background: var(--soft);
+      padding: 1rem 1.25rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .toc h2 { margin-top: 0; font-size: 1.1rem; }
+    .toc ol { margin-bottom: 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    code {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.9em;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      border-radius: 0.25rem;
+    }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    @media print {
+      .toolbar { display: none !important; }
+      body { font-size: 10.5pt; }
+      .wrap { padding: 0; max-width: none; }
+      a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: var(--muted); }
+      .toc a { text-decoration: none; color: inherit; }
+      .toc a::after { content: ""; }
+      h2 { page-break-before: auto; }
+    }
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <div>
+      <strong>Teacher User Guide</strong>
+      <span>Use “Download PDF” and choose <em>Save as PDF</em> (or Microsoft Print to PDF) in the print dialog.</span>
+    </div>
+    <button type="button" onclick="window.print()">Download PDF</button>
+  </div>
+
+  <main class="wrap">
+    <header class="cover">
+      <h1>ElimuPawa Classroom</h1>
+      <p class="sub">Teacher User Guide — from first sign-in to running your live class</p>
+      <p class="meta">Document version 1.0 · ElimuPawa Classroom</p>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#before">Before you begin</a></li>
+        <li><a href="#account">Create an account or sign in</a></li>
+        <li><a href="#nav">Teacher workspace layout</a></li>
+        <li><a href="#session">Create and configure a class session</a></li>
+        <li><a href="#live">Go live: video, screen share, and controls</a></li>
+        <li><a href="#broadcast-checklist">Broadcast lesson checklist (non-technical)</a></li>
+        <li><a href="#flow">Waiting room, breakouts, and students</a></li>
+        <li><a href="#engage">Polls, quizzes, Q&amp;A, and raised hands</a></li>
+        <li><a href="#whiteboard">Whiteboard and class materials</a></li>
+        <li><a href="#payments">Payments and settings</a></li>
+        <li><a href="#tips">Tips for a smooth lesson</a></li>
+        <li><a href="#demo">Demo accounts (testing)</a></li>
+      </ol>
+    </nav>
+
+    <section id="broadcast-quick-print">
+      <h2>Quick one-page checklist: Broadcast lesson</h2>
+      <p><strong>Print and keep this beside you during class.</strong></p>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>What to do</th>
+            <th>Done</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>20 min before</td>
+            <td>Open your class on <code>/teacher</code> and confirm <strong>Broadcast lecture</strong> mode.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>15 min before</td>
+            <td>Paste the correct <strong>YouTube live/watch link</strong> in class setup (Step 2).</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>10 min before</td>
+            <td>Open <strong>YouTube Studio</strong>; confirm camera, microphone, and slide/window source.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>5 min before</td>
+            <td>Start the YouTube stream and check video + audio on a second device if possible.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>Class start</td>
+            <td>Back in ElimuPawa, click <strong>Start class now</strong>.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>First minute</td>
+            <td>Post in chat: "Welcome. Please confirm you can hear and see."</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>During class</td>
+            <td>Teach via YouTube stream; use ElimuPawa for chat, Q&amp;A, polls, quizzes, and attendance.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>If problem</td>
+            <td>Recheck live link, stream status, and microphone source; then refresh the teacher page.</td>
+            <td>☐</td>
+          </tr>
+          <tr>
+            <td>Class end</td>
+            <td>Give closing message, end the stream, and end session cleanly in the teacher room.</td>
+            <td>☐</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <strong>Reminder:</strong> In broadcast mode, students mainly watch your YouTube Live feed. Some in-browser media controls are intentionally limited.
+      </div>
+    </section>
+
+    <section id="before">
+      <h2>1. Before you begin</h2>
+      <p>
+        ElimuPawa Classroom is a browser-based virtual classroom. As a teacher, you run sessions from the
+        <strong>Teacher meeting room</strong>, where you can share camera or screen, manage learners, and use
+        interactive tools (polls, quizzes, chat, Q&amp;A, whiteboard, and more).
+      </p>
+      <h3>What you need</h3>
+      <ul>
+        <li>A recent version of Chrome, Edge, or Firefox.</li>
+        <li>Stable internet; wired Ethernet is best for long live sessions.</li>
+        <li>Microphone and camera permissions allowed for your browser (and screen-sharing permission when you present slides).</li>
+      </ul>
+      <div class="note">
+        <strong>Tip:</strong> Open the app using the same URL you give students (for example <code>http://localhost:3000</code> during local development, or your school’s production URL). That keeps sign-in, cookies, and API calls aligned.
+      </div>
+    </section>
+
+    <section id="account">
+      <h2>2. Create an account or sign in</h2>
+      <ol>
+        <li>From the marketing home page, choose <strong>Sign in</strong> or <strong>Create account</strong>, or go directly to <code>/login</code> or <code>/register</code>.</li>
+        <li>Register with your email and password, or sign in if your administrator already created your account.</li>
+        <li>After a successful login, teachers are taken to the <strong>Teacher meeting room</strong> (<code>/teacher</code>).</li>
+      </ol>
+      <p>
+        If you forget your password, use <strong>Forgot password</strong> on the sign-in page. In local development with debug mode, the app may show a preview reset link so you can complete the flow without email delivery.
+      </p>
+    </section>
+
+    <section id="nav">
+      <h2>3. Teacher workspace layout</h2>
+      <p>While signed in as a teacher, the shell includes quick navigation (labels may appear more than once for convenience):</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dashboard / meeting room</td>
+            <td>Main surface at <code>/teacher</code> — session list, live stage, and teaching tools.</td>
+          </tr>
+          <tr>
+            <td>Courses / Classes</td>
+            <td>Entry points in the nav that lead back to your teacher dashboard context.</td>
+          </tr>
+          <tr>
+            <td>Payments</td>
+            <td>Billing and payment-related screens (<code>/payments</code>).</td>
+          </tr>
+          <tr>
+            <td>Settings</td>
+            <td>Appearance (e.g. dark mode), notifications, and workspace preferences (<code>/settings</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="session">
+      <h2>4. Create and configure a class session</h2>
+      <p>You need at least one <strong>session</strong> before you can open the live room. On the teacher dashboard, use <strong>Class setup</strong> (or equivalent session creation flow) to define:</p>
+      <ul>
+        <li><strong>Class name</strong> — visible to you and students.</li>
+        <li><strong>Start time</strong> — when the lesson is scheduled.</li>
+        <li><strong>Delivery mode</strong>:
+          <ul>
+            <li><strong>Interactive room</strong> — smaller groups, full participation, breakouts, and rich interaction.</li>
+            <li><strong>Broadcast lecture</strong> — larger audiences; the interface guides you toward a stable one-to-many flow (for example pairing with an external broadcast such as YouTube Live).</li>
+          </ul>
+        </li>
+        <li><strong>Description</strong> — optional details shown in the class context.</li>
+        <li><strong>Organization</strong> — ties the class to your school or tenant.</li>
+        <li><strong>Program / cohort (optional)</strong> — optional grouping for holiday programs or tracks.</li>
+        <li><strong>School roster</strong> — manage who belongs to the class; add students from your roster where the product allows.</li>
+        <li><strong>Students &amp; handouts</strong> — optional section to attach learners or files for this class.</li>
+        <li><strong>Async materials (links)</strong> — links appear on the student dashboard for this class so learners can prepare before or after the live session.</li>
+      </ul>
+      <p>Session rows may show states such as <em>Live now</em>, <em>Upcoming</em>, <em>Paid</em>, or <em>Locked</em>, depending on your configuration and payment rules.</p>
+    </section>
+
+    <section id="live">
+      <h2>5. Go live: video, screen share, and controls</h2>
+      <p>Select your session, then enter the live teaching experience.</p>
+      <h3>Starting the room</h3>
+      <ul>
+        <li>If you have no session yet, create one first; the UI prompts you to <strong>Create your first live room</strong>.</li>
+        <li>Choose <strong>Camera mode</strong> to teach face-to-face, or <strong>Screen share mode</strong> to present slides or applications.</li>
+      </ul>
+      <h3>Advanced controls (grouped in the UI)</h3>
+      <ul>
+        <li><strong>Media</strong> — mute/unmute, camera on/off, and related AV controls.</li>
+        <li><strong>Stage &amp; share</strong> — control what learners see and how content is shared.</li>
+        <li><strong>Recording</strong> — start or manage session recording where enabled.</li>
+        <li><strong>Class tools</strong> — shortcuts to polls, quizzes, attendance, and other teaching actions.</li>
+        <li><strong>Panels &amp; exit</strong> — show or hide side panels and leave the room safely.</li>
+      </ul>
+      <div class="note">
+        <strong>Broadcast mode:</strong> For very large lectures, follow the on-screen checklist (for example preparing a YouTube live stream in advance and going live several minutes before class).
+      </div>
+    </section>
+
+    <section id="broadcast-checklist">
+      <h2>6. Broadcast lesson checklist (non-technical teachers)</h2>
+      <p>
+        Use this checklist if your class is large and you selected <strong>Broadcast lecture</strong>. In this mode, students
+        usually watch your video through YouTube Live, while you still manage class tools in ElimuPawa Classroom.
+      </p>
+      <h3>Before class (10 to 20 minutes early)</h3>
+      <ol>
+        <li>Open your session on the teacher dashboard and confirm <strong>Delivery mode = Broadcast lecture</strong>.</li>
+        <li>In class setup, paste your <strong>YouTube live/watch link</strong> in Step 2.</li>
+        <li>If available, use <strong>Connect with Google</strong> once so the app can show stream status.</li>
+        <li>Open <strong>YouTube Studio</strong> and prepare your stream title, thumbnail, and audience settings.</li>
+        <li>Start your stream in YouTube a few minutes early and check that picture and sound are clear.</li>
+      </ol>
+      <h3>At class start</h3>
+      <ol>
+        <li>Return to the teacher dashboard and confirm the broadcast readiness checklist is complete.</li>
+        <li>Click <strong>Start class now</strong> in ElimuPawa Classroom.</li>
+        <li>Post one short chat message: "Welcome, please confirm you can hear and see."</li>
+        <li>Wait for confirmation from several students before beginning the lesson.</li>
+      </ol>
+      <h3>During class</h3>
+      <ul>
+        <li>Teach through your YouTube stream source (camera/slides/encoder) for the main lecture.</li>
+        <li>Use ElimuPawa for engagement: chat, Q&amp;A, polls, quizzes, attendance, and class monitoring.</li>
+        <li>For very large classes, keep it one-to-many; save small-group activity for a separate smaller session.</li>
+      </ul>
+      <h3>If something goes wrong</h3>
+      <ul>
+        <li><strong>No video for students:</strong> verify your YouTube link is correct and the stream is actually live.</li>
+        <li><strong>No sound:</strong> check your microphone in YouTube/encoder settings, then refresh the teacher page.</li>
+        <li><strong>Students joined late:</strong> repost the lesson link and give a quick recap in chat.</li>
+      </ul>
+      <div class="note">
+        <strong>Important:</strong> In broadcast mode, browser media controls (camera/mic/screen-share) can be limited. This is expected. Your main teaching video comes from YouTube Live.
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>7. Waiting room, breakouts, and students</h2>
+      <h3>Waiting room</h3>
+      <p>
+        When enabled for your session, learners wait in a <strong>Waiting room</strong> until you approve them.
+        Review the queue and admit people when you are ready so late joiners do not interrupt a sensitive moment.
+      </p>
+      <h3>Breakout rooms</h3>
+      <p>
+        Use <strong>Breakout rooms</strong> to split the class into smaller groups. You can start a timer, broadcast a short message to all breakouts,
+        and review a summary when groups return to the main room.
+      </p>
+      <h3>Students list</h3>
+      <p>
+        The <strong>Students</strong> panel lists everyone enrolled in the class. To add or remove learners, use <strong>Class setup</strong>
+        as directed on screen. Share the room code or join instructions according to your school’s process.
+      </p>
+      <h3>Ops snapshot (where shown)</h3>
+      <p>
+        Some deployments show an <strong>Ops snapshot</strong> with high-level counters (pending Q&amp;A, active sessions, waiting room, raised hands).
+        Use it as a quick health check during busy periods.
+      </p>
+    </section>
+
+    <section id="engage">
+      <h2>8. Polls, quizzes, Q&amp;A, and raised hands</h2>
+      <h3>Live actions</h3>
+      <p>The <strong>Live actions</strong> area highlights what needs attention during the call (for example marking items as resolved).</p>
+      <h3>Raise hand queue</h3>
+      <p>
+        Students can raise a virtual hand. The <strong>Raise hand queue</strong> shows who is waiting and may display a <strong>Live speaker</strong>
+        when someone is given the floor. Clear items as you address them so the queue stays manageable.
+      </p>
+      <h3>Poll control</h3>
+      <p>Create or activate live polls to check understanding or gather opinions. Close or advance polls when you move to the next topic.</p>
+      <h3>Quiz control</h3>
+      <p>Launch short <strong>quizzes</strong> for comprehension checks. Review outcomes before moving on.</p>
+      <h3>Q&amp;A queue</h3>
+      <p>
+        Text questions may arrive in the <strong>Q&amp;A queue</strong>. Answer verbally or in chat, then mark items done so duplicates do not pile up.
+        Bulk actions may be available for efficiency.
+      </p>
+      <h3>Chat moderation</h3>
+      <p>
+        Where available, use chat moderation tools to slow down fast-moving chat or remove disruptive messages so the channel stays usable in large classes.
+      </p>
+    </section>
+
+    <section id="whiteboard">
+      <h2>9. Whiteboard and class materials</h2>
+      <p>
+        The collaborative <strong>whiteboard</strong> lets you sketch and annotate during class. Changes typically save to the server; watch for save status
+        indicators if your network is slow. You may have options such as locking the board or present mode depending on your deployment.
+      </p>
+      <p>
+        <strong>Resources</strong> and <strong>async materials</strong> you attach in class setup help students find PDFs, links, and reference content from their own dashboard.
+      </p>
+    </section>
+
+    <section id="payments">
+      <h2>10. Payments and settings</h2>
+      <h3>Payments</h3>
+      <p>
+        Visit <strong>Payments</strong> (<code>/payments</code>) for fee-related screens. Some sessions may show as <em>Paid</em> or <em>Locked</em> until payment rules are satisfied—follow your school’s policy and the on-screen messaging.
+      </p>
+      <h3>Settings</h3>
+      <p>
+        Under <strong>Settings</strong> (<code>/settings</code>), adjust <strong>dark mode</strong>, notification preferences, mobile-oriented options,
+        and security-related messaging shown in the product. Changes apply across your classroom experience for a consistent look and feel.
+      </p>
+    </section>
+
+    <section id="tips">
+      <h2>11. Tips for a smooth lesson</h2>
+      <ul>
+        <li>Join five to ten minutes early to test camera, mic, and screen share.</li>
+        <li>Keep the raise-hand and Q&amp;A queues short by addressing items in batches.</li>
+        <li>For broadcast mode, rehearse the external stream (for example YouTube) before the first real audience.</li>
+        <li>Use breakout rooms for peer practice; set a visible timer so groups know when to return.</li>
+        <li>End the session from the room controls so students see a clear conclusion.</li>
+      </ul>
+    </section>
+
+    <section id="demo">
+      <h2>Appendix A. Demo accounts (testing only)</h2>
+      <p>These accounts are for trying the product locally or in a demo environment (password is often <code>password123</code> — confirm with your README or administrator):</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>grace.teacher</code></td><td>Teacher</td></tr>
+          <tr><td><code>aisha.student</code></td><td>Student</td></tr>
+          <tr><td><code>brian.student</code></td><td>Student</td></tr>
+        </tbody>
+      </table>
+      <p>Do not use demo credentials in production or share them outside your test team.</p>
+    </section>
+
+    <footer>
+      <p>
+        This guide describes the ElimuPawa Classroom teacher experience as implemented in the product shell.
+        Exact labels and availability of features may vary by deployment and configuration.
+      </p>
+      <p>To save as PDF: click <strong>Download PDF</strong> at the top, then in the system print dialog choose <strong>Save as PDF</strong> (macOS), <strong>Microsoft Print to PDF</strong> (Windows), or your browser’s equivalent.</p>
+    </footer>
+  </main>
+</body>
+</html>

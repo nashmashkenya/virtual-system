@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DEBUG: "true"
+      SECRET_KEY: ci-secret-key
+      ALLOWED_HOSTS: 127.0.0.1,localhost
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      OPS_METRICS_KEY: ci-ops-key
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: python manage.py test
+
+      - name: Smoke test health and ops metrics
+        run: |
+          python manage.py migrate --noinput
+          python manage.py runserver 127.0.0.1:8000 >/tmp/django.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          sleep 5
+
+          curl --fail --silent http://127.0.0.1:8000/health/detailed/ >/tmp/health.json
+          curl --fail --silent -H "X-Ops-Key: ci-ops-key" http://127.0.0.1:8000/api/ops/metrics/ >/tmp/metrics.json
+
+          python - <<'PY'
+          import json
+          with open("/tmp/health.json", "r", encoding="utf-8") as f:
+              health = json.load(f)
+          with open("/tmp/metrics.json", "r", encoding="utf-8") as f:
+              metrics = json.load(f)
+
+          assert isinstance(health, dict), "Health payload should be an object"
+          assert "database" in health, "Health payload missing database section"
+          assert isinstance(metrics, dict), "Metrics payload should be an object"
+          assert "pending_qa_count" in metrics, "Metrics payload missing pending_qa_count"
+          print("Health and metrics smoke checks passed.")
+          PY
+
+      - name: Alert on backend failure
+        if: failure()
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.CI_ALERT_WEBHOOK_URL }}
+        run: |
+          if [ -z "$ALERT_WEBHOOK_URL" ]; then
+            echo "CI alert webhook is not configured."
+            exit 0
+          fi
+          payload=$(cat <<EOF
+          {"text":"[CI] Backend checks failed for ${GITHUB_REPOSITORY} on ${GITHUB_REF_NAME}. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"}
+          EOF
+          )
+          curl -sS -X POST -H "Content-Type: application/json" -d "$payload" "$ALERT_WEBHOOK_URL"
+
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Alert on frontend failure
+        if: failure()
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.CI_ALERT_WEBHOOK_URL }}
+        run: |
+          if [ -z "$ALERT_WEBHOOK_URL" ]; then
+            echo "CI alert webhook is not configured."
+            exit 0
+          fi
+          payload=$(cat <<EOF
+          {"text":"[CI] Frontend checks failed for ${GITHUB_REPOSITORY} on ${GITHUB_REF_NAME}. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"}
+          EOF
+          )
+          curl -sS -X POST -H "Content-Type: application/json" -d "$payload" "$ALERT_WEBHOOK_URL"

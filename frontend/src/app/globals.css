@@ -1,0 +1,621 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9fafb;
+  --background-soft: #eff6ff;
+  --card: #ffffff;
+  --card-muted: #f3f4f6;
+  --text: #111827;
+  --subtext: #6b7280;
+  --border: rgba(148, 163, 184, 0.18);
+  --primary: #2563eb;
+  --secondary: #4f46e5;
+  --accent: #7c3aed;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --shadow-soft: 0 10px 35px rgba(37, 99, 235, 0.08);
+  --shadow-card: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+html.dark {
+  --background: #0f172a;
+  --background-soft: #111c34;
+  --card: #1e293b;
+  --card-muted: #162133;
+  --text: #f1f5f9;
+  --subtext: #94a3b8;
+  --border: rgba(148, 163, 184, 0.16);
+  --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.32);
+  --shadow-card: 0 24px 50px rgba(2, 6, 23, 0.4);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-text: var(--text);
+  --color-subtext: var(--subtext);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.1), transparent 28%),
+    var(--background);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(79, 70, 229, 0.22);
+}
+
+.surface-card {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.surface-muted {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card-muted) 92%, transparent);
+  border-radius: 16px;
+}
+
+.soft-ring {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.35s ease-out;
+}
+
+.success-pop {
+  animation: successPop 0.55s ease-out;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.15) 25%,
+    rgba(148, 163, 184, 0.28) 37%,
+    rgba(148, 163, 184, 0.15) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes successPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Teacher dashboard surfaces use an Office-like light palette; stage remains intentionally dark. */
+.teacher-dashboard-modern {
+  --office-bg: #f3f2f1;
+  --office-card: #ffffff;
+  --office-muted: #edebe9;
+  --office-text: #201f1e;
+  --office-subtext: #605e5c;
+  --office-border: #d2d0ce;
+  --office-primary: #0078d4;
+  --office-success-bg: #dff6dd;
+  --office-success-text: #107c10;
+  --office-warning-bg: #fff4ce;
+  --office-warning-text: #8a6f00;
+  --office-danger-bg: #fde7e9;
+  --office-danger-text: #a4262c;
+  --office-info-bg: #deecf9;
+  --office-info-text: #004578;
+}
+
+.teacher-dashboard-modern .bg-\[\#15171a\],
+.teacher-dashboard-modern .bg-\[\#15171a\]\/95,
+.teacher-dashboard-modern .bg-\[\#0f1114\] {
+  background-color: var(--office-card) !important;
+}
+
+.teacher-dashboard-modern .border-white\/10 {
+  border-color: var(--office-border) !important;
+}
+
+.teacher-dashboard-modern .bg-white\/5 {
+  background-color: var(--office-muted) !important;
+}
+
+.teacher-dashboard-modern .bg-black\/20,
+.teacher-dashboard-modern .bg-black\/25,
+.teacher-dashboard-modern .bg-black\/30 {
+  background-color: #eceff3 !important;
+}
+
+/* Force readable typography on modern light surfaces. */
+.teacher-dashboard-modern .text-white {
+  color: var(--office-text) !important;
+}
+
+.teacher-dashboard-modern .text-slate-300,
+.teacher-dashboard-modern .text-slate-200,
+.teacher-dashboard-modern .text-slate-400,
+.teacher-dashboard-modern .text-slate-500 {
+  color: var(--office-subtext) !important;
+}
+
+.teacher-dashboard-modern .text-rose-300 {
+  color: var(--office-danger-text) !important;
+}
+
+.teacher-dashboard-modern .text-amber-100,
+.teacher-dashboard-modern .text-amber-200 {
+  color: var(--office-warning-text) !important;
+}
+
+/* Office-style semantic badges/chips across the dashboard (excluding dark stage + dock). */
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-emerald-500\/20,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-emerald-400\/20,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-emerald-500\/80,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-emerald-500\/85 {
+  background: var(--office-success-bg) !important;
+  color: var(--office-success-text) !important;
+}
+
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-amber-400\/90,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-amber-400\/85,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-amber-400\/10,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-amber-500\/85 {
+  background: var(--office-warning-bg) !important;
+  color: var(--office-warning-text) !important;
+}
+
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-rose-500\/85,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-rose-500\/10,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-rose-500,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .border-rose-400\/30 {
+  background: var(--office-danger-bg) !important;
+  color: var(--office-danger-text) !important;
+  border-color: #d13438 !important;
+}
+
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-\[\#4285f4\]\/10,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-\[\#4285f4\]\/80,
+.teacher-dashboard-modern :not(.teacher-stage-screen):not(.jitsi-teacher-toolbar) .bg-\[\#4285f4\]\/85 {
+  background: var(--office-info-bg) !important;
+  color: var(--office-info-text) !important;
+}
+
+.teacher-dashboard-modern .rounded-\[32px\],
+.teacher-dashboard-modern .rounded-\[28px\] {
+  border-color: var(--office-border) !important;
+  background: var(--office-card) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.teacher-dashboard-modern .bg-\[\#4285f4\] {
+  background: linear-gradient(135deg, #0078d4, #106ebe) !important;
+  color: #ffffff !important;
+}
+
+.teacher-dashboard-modern input,
+.teacher-dashboard-modern select,
+.teacher-dashboard-modern textarea {
+  color: var(--office-text) !important;
+  background: #ffffff !important;
+  border-color: var(--office-border) !important;
+}
+
+.teacher-dashboard-modern input:focus,
+.teacher-dashboard-modern select:focus,
+.teacher-dashboard-modern textarea:focus {
+  border-color: var(--office-primary) !important;
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2) !important;
+}
+
+/* Keep stage viewport and its overlay content dark/video-first. */
+.teacher-dashboard-modern .teacher-stage-screen {
+  background-color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.teacher-dashboard-modern .teacher-stage-screen .text-white {
+  color: #ffffff !important;
+}
+
+.teacher-dashboard-modern .teacher-stage-screen .text-slate-200,
+.teacher-dashboard-modern .teacher-stage-screen .text-slate-300,
+.teacher-dashboard-modern .teacher-stage-screen .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+/* Keep bottom meeting toolbar white/readable despite modern light dashboard overrides. */
+.teacher-dashboard-modern .jitsi-teacher-toolbar,
+.teacher-dashboard-modern .jitsi-teacher-toolbar * {
+  color: #ffffff !important;
+}
+
+.teacher-dashboard-modern .jitsi-teacher-toolbar button:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.45);
+}
+
+/* Strong, unmistakable hover feedback for bottom controls */
+.teacher-dashboard-modern .jitsi-teacher-toolbar button {
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease,
+    outline-color 150ms ease !important;
+}
+
+.teacher-dashboard-modern .jitsi-teacher-toolbar button:hover:not(:disabled),
+.teacher-dashboard-modern .jitsi-teacher-toolbar button:focus-visible:not(:disabled) {
+  transform: translateY(-3px) scale(1.04) !important;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.52) !important;
+  outline: 2px solid rgba(147, 197, 253, 0.9) !important;
+  outline-offset: 1px !important;
+  filter: brightness(1.15) saturate(1.08) !important;
+}
+
+/* Portaled class tools modal: Fluent light surfaces (DOM is outside main dashboard root) */
+.teacher-class-tools-modal.teacher-dashboard-modern {
+  --office-bg: #f3f2f1;
+  --office-card: #ffffff;
+  --office-muted: #edebe9;
+  --office-text: #201f1e;
+  --office-subtext: #605e5c;
+  --office-border: #d2d0ce;
+  --office-primary: #0078d4;
+}
+
+.teacher-class-tools-modal .teacher-right-panel {
+  scrollbar-color: rgba(96, 94, 92, 0.45) transparent;
+}
+
+.teacher-class-tools-modal .teacher-right-panel::-webkit-scrollbar-thumb {
+  background: rgba(96, 94, 92, 0.35);
+}
+
+/* Right panel: modern card system + independent scrolling */
+.teacher-right-panel {
+  font-size: 14px;
+  font-family: var(--font-inter), "Inter", "Segoe UI", sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+}
+
+.teacher-right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.teacher-right-panel::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.teacher-right-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.teacher-right-panel .rounded-\[28px\] {
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 20px !important;
+  background: var(--office-card) !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+.teacher-right-panel .rounded-2xl {
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  border-radius: 14px !important;
+}
+
+.teacher-right-panel .bg-white\/5,
+.teacher-right-panel .bg-black\/20 {
+  background: var(--office-muted) !important;
+}
+
+.teacher-right-panel .text-white {
+  color: var(--office-text) !important;
+}
+
+.teacher-right-panel .text-slate-300,
+.teacher-right-panel .text-slate-200,
+.teacher-right-panel .text-slate-400 {
+  color: var(--office-subtext) !important;
+}
+
+.teacher-right-panel h2 {
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
+  font-weight: 700 !important;
+}
+
+.teacher-right-panel .text-sm {
+  font-size: 0.86rem !important;
+}
+
+.teacher-right-panel .text-xs {
+  font-size: 0.76rem !important;
+}
+
+.teacher-right-panel .grid.grid-cols-3 > button {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 1rem;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  min-height: 74px;
+}
+
+.teacher-right-panel .grid.grid-cols-3 > button:hover {
+  background: #e2e8f0 !important;
+}
+
+.teacher-right-panel .grid.grid-cols-3 > button.bg-\[\#4285f4\] {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  border-color: rgba(37, 99, 235, 0.65) !important;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.28) !important;
+}
+
+.teacher-right-panel input,
+.teacher-right-panel select,
+.teacher-right-panel textarea {
+  font-size: 0.86rem !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.teacher-right-panel input:focus,
+.teacher-right-panel select:focus,
+.teacher-right-panel textarea:focus {
+  border-color: rgba(59, 130, 246, 0.9) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14) !important;
+}
+
+.teacher-right-panel button {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+
+.teacher-right-panel .bg-\[\#4285f4\] {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+}
+
+.teacher-right-panel .border-rose-400\/30 {
+  border-color: rgba(244, 63, 94, 0.36) !important;
+}
+
+/* Delivery mode guide readability (avoid overly bright low-contrast chips) */
+.teacher-right-panel .border-emerald-400\/40 {
+  border-color: #9fd6a1 !important;
+}
+
+.teacher-right-panel .bg-emerald-500\/10 {
+  background: #e9f6ea !important;
+}
+
+.teacher-right-panel .text-emerald-200 {
+  color: #146c2e !important;
+}
+
+.teacher-right-panel .border-\[\#4285f4\]\/40 {
+  border-color: #9bb7f2 !important;
+}
+
+.teacher-right-panel .bg-\[\#4285f4\]\/10 {
+  background: #e9f1ff !important;
+}
+
+.teacher-right-panel .text-\[\#d2e3fc\] {
+  color: #1f4fa8 !important;
+}
+
+/* Student dashboard aligned to teacher modern style */
+.student-dashboard-modern {
+  --student-card: #ffffff;
+  --student-muted: #f3f2f1;
+  --student-border: #d2d0ce;
+  --student-text: #201f1e;
+  --student-subtext: #605e5c;
+  --student-primary: #0078d4;
+}
+
+.student-dashboard-modern .surface-card {
+  border-color: var(--student-border) !important;
+  background: var(--student-card) !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08) !important;
+}
+
+.student-dashboard-modern .surface-muted {
+  border-color: var(--student-border) !important;
+  background: var(--student-muted) !important;
+}
+
+.student-dashboard-modern .text-\[var\(--text\)\] {
+  color: var(--student-text) !important;
+}
+
+.student-dashboard-modern .text-\[var\(--subtext\)\] {
+  color: var(--student-subtext) !important;
+}
+
+.student-dashboard-modern .bg-\[var\(--primary\)\] {
+  background: linear-gradient(135deg, #0078d4, #106ebe) !important;
+}
+
+.student-dashboard-modern button,
+.student-dashboard-modern input,
+.student-dashboard-modern select,
+.student-dashboard-modern textarea {
+  font-size: 0.86rem;
+}
+
+/* Keep student stage dark and video-first */
+.student-dashboard-modern .student-stage-shell {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.student-dashboard-modern .student-stage-shell .text-white {
+  color: #ffffff !important;
+}
+
+.student-dashboard-modern .student-stage-shell .text-slate-200,
+.student-dashboard-modern .student-stage-shell .text-slate-300,
+.student-dashboard-modern .student-stage-shell .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+/* Student right panel: modern typography + independent scroll styling */
+.student-right-panel {
+  font-family: var(--font-inter), "Inter", "Segoe UI", sans-serif;
+  font-size: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+}
+
+.student-right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.student-right-panel::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.student-right-panel .surface-card {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+}
+
+.student-right-panel .surface-muted {
+  border-radius: 14px !important;
+  background: #f3f2f1 !important;
+}
+
+.student-right-panel .grid.grid-cols-3 > button {
+  min-height: 72px;
+  border-radius: 14px;
+}
+
+.student-right-panel .text-lg {
+  font-size: 1.04rem !important;
+  font-weight: 700 !important;
+}
+
+.student-right-panel .text-sm {
+  font-size: 0.84rem !important;
+}
+
+.student-right-panel .text-xs {
+  font-size: 0.74rem !important;
+}
+
+.teacher-dashboard-light .text-slate-300,
+.teacher-dashboard-light .text-slate-200 {
+  color: var(--subtext) !important;
+}
+
+/* Teacher meeting dock: keyboard focus + press feedback without editing each button */
+.teacher-meeting-dock button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary) 75%, white);
+  outline-offset: 3px;
+}
+
+.teacher-meeting-dock button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Jitsi-style teacher toolbar: compact, full-width strip */
+.jitsi-teacher-toolbar {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.94));
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: 0 -8px 28px rgba(2, 6, 23, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.jitsi-teacher-toolbar--float {
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teacher-meeting-dock button:active:not(:disabled) {
+    transform: none;
+  }
+}

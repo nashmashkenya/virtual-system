@@ -1,0 +1,147 @@
+name: Perf Soak
+
+on:
+  workflow_dispatch:
+    inputs:
+      workers:
+        description: "Concurrent workers"
+        required: false
+        default: "30"
+      seconds:
+        description: "Duration in seconds"
+        required: false
+        default: "45"
+      min_chat_success_rate:
+        description: "Minimum chat success rate (%)"
+        required: false
+        default: "85"
+      min_dashboard_success_rate:
+        description: "Minimum dashboard success rate (%)"
+        required: false
+        default: "99"
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  soak:
+    name: Load soak smoke
+    runs-on: ubuntu-latest
+    env:
+      DEBUG: "true"
+      SECRET_KEY: perf-secret-key
+      ALLOWED_HOSTS: 127.0.0.1,localhost
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      OPS_METRICS_KEY: perf-ops-key
+      SOAK_WORKERS: ${{ github.event.inputs.workers || '30' }}
+      SOAK_SECONDS: ${{ github.event.inputs.seconds || '45' }}
+      MIN_CHAT_SUCCESS_RATE: ${{ github.event.inputs.min_chat_success_rate || '85' }}
+      MIN_DASHBOARD_SUCCESS_RATE: ${{ github.event.inputs.min_dashboard_success_rate || '99' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Prepare database and demo users
+        working-directory: backend
+        run: |
+          python manage.py migrate --noinput
+          python manage.py seed_demo_data
+
+      - name: Start backend
+        working-directory: backend
+        run: |
+          python manage.py runserver 127.0.0.1:8000 >/tmp/django-perf.log 2>&1 &
+          echo $! >/tmp/django-perf.pid
+          sleep 5
+
+      - name: Run load soak
+        run: |
+          python scripts/load_soak.py \
+            --base-url http://127.0.0.1:8000 \
+            --workers "$SOAK_WORKERS" \
+            --seconds "$SOAK_SECONDS" > /tmp/soak-result.json
+
+      - name: Build soak summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          result = json.loads(Path("/tmp/soak-result.json").read_text(encoding="utf-8"))
+          total_dash = result["dashboard_ok"] + result["dashboard_err"]
+          total_chat = result["chat_ok"] + result["chat_err"]
+          chat_success_rate = (result["chat_ok"] / total_chat * 100.0) if total_chat else 0.0
+          dash_success_rate = (result["dashboard_ok"] / total_dash * 100.0) if total_dash else 0.0
+          min_chat_success_rate = float(os.environ.get("MIN_CHAT_SUCCESS_RATE", "95"))
+          min_dashboard_success_rate = float(os.environ.get("MIN_DASHBOARD_SUCCESS_RATE", "99"))
+
+          summary = (
+              "## Soak Results\n\n"
+              f"- Workers: {result['workers']}\n"
+              f"- Duration: {result['seconds']}s\n"
+              f"- Dashboard success: {result['dashboard_ok']} / {total_dash} ({dash_success_rate:.1f}%)\n"
+              f"- Chat success: {result['chat_ok']} / {total_chat} ({chat_success_rate:.1f}%)\n"
+              f"- Chat 429 responses: {result['chat_429']}\n"
+              f"- Thresholds: dashboard >= {min_dashboard_success_rate:.1f}%, chat >= {min_chat_success_rate:.1f}%\n"
+          )
+          Path("/tmp/soak-summary.md").write_text(summary, encoding="utf-8")
+          print(summary)
+
+          failures = []
+          if dash_success_rate < min_dashboard_success_rate:
+              failures.append(
+                  f"Dashboard success rate {dash_success_rate:.1f}% below threshold {min_dashboard_success_rate:.1f}%"
+              )
+          if chat_success_rate < min_chat_success_rate:
+              failures.append(
+                  f"Chat success rate {chat_success_rate:.1f}% below threshold {min_chat_success_rate:.1f}%"
+              )
+
+          if failures:
+              print("\nPERF GATE FAILED:")
+              for failure in failures:
+                  print(f"- {failure}")
+              raise SystemExit(1)
+          PY
+
+      - name: Upload soak artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: soak-results
+          path: |
+            /tmp/soak-result.json
+            /tmp/soak-summary.md
+            /tmp/django-perf.log
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f /tmp/django-perf.pid ]; then
+            kill "$(cat /tmp/django-perf.pid)" || true
+          fi
+
+      - name: Alert on soak failure
+        if: failure()
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.CI_ALERT_WEBHOOK_URL }}
+        run: |
+          if [ -z "$ALERT_WEBHOOK_URL" ]; then
+            echo "CI alert webhook is not configured."
+            exit 0
+          fi
+          payload=$(cat <<EOF
+          {"text":"[PERF] Soak workflow failed for ${GITHUB_REPOSITORY} on ${GITHUB_REF_NAME}. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"}
+          EOF
+          )
+          curl -sS -X POST -H "Content-Type: application/json" -d "$payload" "$ALERT_WEBHOOK_URL"
