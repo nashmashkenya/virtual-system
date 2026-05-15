@@ -73,7 +73,7 @@ export function ForgotPasswordPanel() {
           {loading ? "Preparing reset..." : "Send reset link"}
         </button>
 
-        <Link href="/login" className="block text-center text-sm font-semibold text-[var(--primary)]">
+        <Link href="/" className="block text-center text-sm font-semibold text-[var(--primary)]">
           Back to login
         </Link>
       </div>

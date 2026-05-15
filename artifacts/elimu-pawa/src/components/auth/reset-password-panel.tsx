@@ -28,7 +28,7 @@ export function ResetPasswordPanel({ uid, token }: { uid?: string; token?: strin
     try {
       const result = await confirmPasswordReset({ uid, token, new_password: password });
       setMessage(result.message);
-      window.setTimeout(() => navigate("/login"), 1200);
+      window.setTimeout(() => navigate("/"), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to reset password.");
     } finally {
@@ -71,7 +71,7 @@ export function ResetPasswordPanel({ uid, token }: { uid?: string; token?: strin
           {loading ? "Updating password..." : "Update password"}
         </button>
 
-        <Link href="/login" className="block text-center text-sm font-semibold text-[var(--primary)]">
+        <Link href="/" className="block text-center text-sm font-semibold text-[var(--primary)]">
           Back to login
         </Link>
       </div>

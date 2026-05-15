@@ -15,7 +15,7 @@ export function SettingsPage() {
     async function load() {
       const user = await getCurrentDemoUser();
       if (!user) {
-        navigate("/login");
+        navigate("/");
         return;
       }
       setCurrentUser(user);

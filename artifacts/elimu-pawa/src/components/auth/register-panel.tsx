@@ -237,7 +237,7 @@ export function RegisterPanel() {
       {/* Footer link */}
       <p className="text-center text-sm text-slate-500 dark:text-slate-400">
         Already registered?{" "}
-        <Link href="/login" className="font-semibold text-indigo-600 transition hover:underline dark:text-indigo-400">
+        <Link href="/" className="font-semibold text-indigo-600 transition hover:underline dark:text-indigo-400">
           Sign in here
         </Link>
       </p>

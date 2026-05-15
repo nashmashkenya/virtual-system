@@ -2,7 +2,6 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastStack } from "@/components/ui/toast-stack";
 import { LandingPage } from "@/pages/landing";
-import { LoginPage } from "@/pages/login";
 import { RegisterPage } from "@/pages/register";
 import { ForgotPasswordPage } from "@/pages/forgot-password";
 import { ResetPasswordPage } from "@/pages/reset-password";
@@ -17,7 +16,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
-      <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />

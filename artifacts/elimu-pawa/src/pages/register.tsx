@@ -97,7 +97,7 @@ export function RegisterPage() {
         >
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Sign in</Link>
+            <Link href="/" className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Sign in</Link>
           </p>
           <ThemeToggle />
         </div>

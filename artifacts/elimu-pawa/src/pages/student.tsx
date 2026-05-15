@@ -16,7 +16,7 @@ export function StudentPage() {
     async function load() {
       const user = await getCurrentDemoUser();
       if (!user) {
-        navigate("/login");
+        navigate("/");
         return;
       }
       if (user.role === "teacher" || user.role === "admin") {

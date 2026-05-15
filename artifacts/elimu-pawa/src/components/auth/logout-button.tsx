@@ -13,7 +13,7 @@ export function LogoutButton() {
       await logoutDemoUser();
     } finally {
       setLoading(false);
-      navigate("/login");
+      navigate("/");
     }
   };
 
