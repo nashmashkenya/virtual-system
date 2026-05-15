@@ -273,7 +273,7 @@ export function LandingPage() {
               <Zap className="h-3 w-3 text-cyan-400" /> Virtual classroom platform
             </span>
 
-            <h1 className="text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.03] tracking-tight text-white">
+            <h1 className="text-[clamp(1.85rem,7vw,4rem)] font-black leading-[1.08] tracking-tight text-white">
               The classroom
               <br />
               <span style={{ background: "linear-gradient(90deg, #06b6d4 0%, #10b981 35%, #8b5cf6 70%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -281,7 +281,7 @@ export function LandingPage() {
               </span>
             </h1>
 
-            <p className="max-w-[500px] text-[16px] leading-relaxed text-slate-400">
+            <p className="max-w-[500px] text-[14px] leading-relaxed text-slate-400 sm:text-[16px]">
               Everything teachers and students need — live video, real-time chat, quizzes,
               polls, and a collaborative whiteboard — all in one focused screen built for Kenyan schools.
             </p>
@@ -308,7 +308,7 @@ export function LandingPage() {
                   style={{ background: `linear-gradient(135deg, ${shadow.replace("0.3", "0.5")}, transparent)` }}
                 >
                   <div className="rounded-[14px] px-4 py-3.5" style={{ background: "rgba(10,15,35,0.9)" }}>
-                    <p className={`bg-gradient-to-r ${gradient} bg-clip-text text-[1.6rem] font-black leading-none text-transparent`}>
+                    <p className={`bg-gradient-to-r ${gradient} bg-clip-text text-[1.35rem] font-black leading-none text-transparent sm:text-[1.6rem]`}>
                       {value}
                     </p>
                     <p className="mt-1 text-[11px] font-medium text-slate-500">{label}</p>
@@ -334,10 +334,10 @@ export function LandingPage() {
             >
               Everything in one place
             </p>
-            <h2 className="text-[clamp(1.6rem,3vw,2.4rem)] font-black tracking-tight text-white">
+            <h2 className="text-[clamp(1.4rem,4vw,2.4rem)] font-black tracking-tight text-white">
               One screen. Every tool your class needs.
             </h2>
-            <p className="mx-auto mt-3 max-w-[460px] text-[15px] text-slate-400">
+            <p className="mx-auto mt-3 max-w-[460px] text-[13px] text-slate-400 sm:text-[15px]">
               No juggling between apps. No complicated setup. Just open ElimuPawa and start learning.
             </p>
           </div>
@@ -357,8 +357,8 @@ export function LandingPage() {
                 >
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
-                <h3 className="relative mb-1.5 text-[15px] font-bold text-white">{label}</h3>
-                <p className="relative text-[13px] leading-relaxed text-slate-500">{desc}</p>
+                <h3 className="relative mb-1.5 text-[13px] font-bold text-white sm:text-[15px]">{label}</h3>
+                <p className="relative text-[12px] leading-relaxed text-slate-500 sm:text-[13px]">{desc}</p>
               </div>
             ))}
           </div>
