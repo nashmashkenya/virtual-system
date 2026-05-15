@@ -1,0 +1,14 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "KsM0xC4-D1HCsedzyh4Qq"
+uri = "file://artifacts/elimu-pawa-mobile/assets/images/icon.png"
+type = "image"
+title = "elimupawa app icon"
+
+[[generated]]
+id = "wqpCLK_WSgrOs7TDK9-pr"
+uri = "file://artifacts/elimu-pawa-mobile/assets/images/splash-icon.png"
+type = "image"
+title = "elimupawa splash"
