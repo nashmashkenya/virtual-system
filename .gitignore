@@ -18,7 +18,7 @@ frontend/out/
 frontend/build/
 *.tsbuildinfo
 
-# Secrets and local env (keep .env.example)
+# Secrets and local env (keep *.env.example templates)
 .env
 .env.local
 .env.*.local
