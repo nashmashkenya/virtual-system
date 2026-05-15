@@ -67,7 +67,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <ul className="relative grid gap-4 sm:grid-cols-3">
+            <ul className="relative grid grid-cols-2 gap-4 sm:grid-cols-3">
               {highlights.map((item) => {
                 const Icon = item.icon;
                 return (
