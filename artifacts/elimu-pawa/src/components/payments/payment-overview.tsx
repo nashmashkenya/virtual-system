@@ -1,4 +1,3 @@
-"use client";
 
 import { CircleCheckBig, CreditCard, ShieldCheck, Smartphone } from "lucide-react";
 import { useAppStore } from "@/lib/store";
