@@ -1,11 +1,14 @@
 import { Link, useLocation } from "wouter";
 import { useMemo, useState } from "react";
-import { ArrowRight, GraduationCap, UserPlus } from "lucide-react";
+import { ArrowRight, GraduationCap, Presentation } from "lucide-react";
 import { registerUser } from "@/lib/api";
 
 function phoneDigits(phone: string): string {
   return phone.replace(/\D/g, "");
 }
+
+const inputCls =
+  "w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3.5 text-[15px] text-slate-900 placeholder-slate-400 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800/80 dark:text-white dark:placeholder-slate-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/30";
 
 export function RegisterPanel() {
   const [, navigate] = useLocation();
@@ -20,30 +23,29 @@ export function RegisterPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const studentPasswordHint = useMemo(() => {
-    const d = phoneDigits(phoneNumber);
-    if (d.length >= 7) {
-      return `Your login password will be: ${d.slice(0, 7)} (first 7 digits of your phone number).`;
-    }
-    return "Your password will be the first 7 digits of your phone number (at least 7 digits required).";
+  const digits = phoneDigits(phoneNumber);
+  const autoPassword = digits.slice(0, 7);
+  const passwordReady = digits.length >= 7;
+
+  const passwordHint = useMemo(() => {
+    if (passwordReady) return `Your password will be: ${autoPassword}`;
+    return `Enter your phone number — your password is set automatically.`;
   }, [phoneNumber]);
 
   const handleSubmit = async () => {
+    setError("");
     if (role === "teacher") {
-      const trimmedName = firstName.trim();
-      const trimmedEmail = email.trim();
-      if (!trimmedName || !trimmedEmail || !password) {
-        setError("Enter your name, email, and password.");
+      if (!firstName.trim() || !email.trim() || !password) {
+        setError("Please fill in all fields.");
         return;
       }
       setLoading(true);
-      setError("");
       try {
         const result = await registerUser({
-          first_name: trimmedName,
+          first_name: firstName.trim(),
           last_name: "",
-          username: trimmedEmail.toLowerCase(),
-          email: trimmedEmail.toLowerCase(),
+          username: email.trim().toLowerCase(),
+          email: email.trim().toLowerCase(),
           password,
           role: "teacher",
         });
@@ -57,17 +59,14 @@ export function RegisterPanel() {
     }
 
     if (!firstName.trim() || !lastName.trim() || !username.trim() || !schoolClass.trim()) {
-      setError("Enter first name, last name, admission number, and class (e.g. 4A).");
+      setError("Please fill in all fields.");
       return;
     }
-    if (phoneDigits(phoneNumber).length < 7) {
-      setError("Phone number must include at least 7 digits. Your password uses the first 7 digits.");
+    if (!passwordReady) {
+      setError("Enter at least 7 digits of your phone number.");
       return;
     }
-
     setLoading(true);
-    setError("");
-
     try {
       const result = await registerUser({
         first_name: firstName.trim(),
@@ -88,160 +87,149 @@ export function RegisterPanel() {
   const isTeacher = role === "teacher";
 
   return (
-    <div className="surface-card mx-auto w-full max-w-4xl p-6 sm:p-8">
-      <div className={`grid gap-8 ${isTeacher ? "max-w-lg mx-auto lg:max-w-xl" : "lg:grid-cols-[0.9fr_1.1fr]"}`}>
-        <div className={`space-y-5 ${isTeacher ? "text-center lg:text-left" : ""}`}>
-          <div>
-            <div className="mb-3 flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]">
-                <UserPlus className="h-5 w-5" />
-              </span>
-              <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Create account</h1>
-            </div>
-            <p className="text-sm leading-relaxed text-[var(--subtext)]">
-              Join ElimuPawa Classroom as a student or teacher. Live sessions, quizzes, and realtime chat — all in one
-              space.
-            </p>
-          </div>
+    <div className="w-full max-w-md space-y-6">
 
-          <div className="flex gap-2">
-            {(["student", "teacher"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold capitalize transition ${
-                  role === r
-                    ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-lg"
-                    : "border-[var(--border)] text-[var(--subtext)] hover:border-[var(--primary)]/40 hover:bg-[var(--background-soft)] hover:text-[var(--text)]"
+      {/* Heading */}
+      <div className="space-y-1">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">Create account</p>
+        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          {isTeacher ? "Join as a teacher" : "Join your class 🎒"}
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          {isTeacher
+            ? "Set up your teacher account to start hosting classes."
+            : "Use your school admission number and phone number to sign up."}
+        </p>
+      </div>
+
+      {/* Role toggle */}
+      <div
+        className="flex gap-1 rounded-2xl p-1"
+        style={{ background: "rgba(255,255,255,0.75)", border: "1px solid rgba(99,102,241,0.15)", backdropFilter: "blur(8px)" }}
+      >
+        {([
+          { key: "student", label: "I'm a Student", icon: GraduationCap },
+          { key: "teacher", label: "I'm a Teacher", icon: Presentation },
+        ] as const).map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => { setRole(key); setError(""); }}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition ${
+              role === key
+                ? "bg-indigo-600 text-white shadow-md"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <Icon className="h-4 w-4" aria-hidden />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Form fields */}
+      <div
+        className="space-y-4 rounded-3xl p-6"
+        style={{
+          background: "rgba(255,255,255,0.82)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(255,255,255,0.9)",
+          boxShadow: "0 8px 40px rgba(79,70,229,0.10), 0 2px 8px rgba(0,0,0,0.06)",
+        }}
+      >
+        {isTeacher ? (
+          <>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Your name</label>
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Grace Njeri" autoComplete="given-name" className={inputCls} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Email address</label>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@school.com" type="email" autoComplete="email" className={inputCls} />
+              <p className="mt-1.5 text-xs text-slate-400">This will be your login username.</p>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+              <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" type="password" autoComplete="new-password" className={inputCls} />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Name row */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">First name</label>
+                <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Aisha" autoComplete="given-name" className={inputCls} />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Last name</label>
+                <input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="e.g. Noor" autoComplete="family-name" className={inputCls} />
+              </div>
+            </div>
+
+            {/* Admission number */}
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Admission number</label>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. 4521/2024" autoComplete="username" className={inputCls} />
+              <p className="mt-1.5 text-xs text-slate-400">This is your login username.</p>
+            </div>
+
+            {/* Class */}
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Your class</label>
+              <input value={schoolClass} onChange={(e) => setSchoolClass(e.target.value)} placeholder="e.g. Form 4A" className={inputCls} />
+            </div>
+
+            {/* Phone — generates password */}
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Phone number</label>
+              <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="e.g. 0712 345 678" inputMode="numeric" autoComplete="tel" className={inputCls} />
+
+              {/* Password preview */}
+              <div
+                className={`mt-3 flex items-start gap-2.5 rounded-xl p-3 text-xs transition-all ${
+                  passwordReady
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
+                    : "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300"
                 }`}
               >
-                {r === "teacher" ? <GraduationCap className="h-4 w-4" /> : null}
-                {r}
-              </button>
-            ))}
+                <span className="mt-0.5 text-base leading-none">{passwordReady ? "🔐" : "💡"}</span>
+                <span className="leading-relaxed">
+                  {passwordReady
+                    ? <>Your login password will be <strong className="font-bold tracking-widest">{autoPassword}</strong> — remember it!</>
+                    : "Your password is automatically set from the first 7 digits of your phone number."}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="flex items-start gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
+            <span>⚠️</span> {error}
           </div>
-        </div>
+        )}
 
-        <div className="space-y-4">
-          {isTeacher ? (
-            <>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">First name / Display name</span>
-                <input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Your name"
-                  autoComplete="given-name"
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">Email (this is your login username)</span>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@school.com"
-                  type="email"
-                  autoComplete="email"
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">Password (at least 8 characters)</span>
-                <input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Choose a password"
-                  type="password"
-                  autoComplete="new-password"
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                />
-              </label>
-            </>
-          ) : (
-            <>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">First name</span>
-                  <input
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="First name"
-                    autoComplete="given-name"
-                    className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">Last name</span>
-                  <input
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Last name"
-                    autoComplete="family-name"
-                    className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                  />
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">School admission number (this is your login username)</span>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. 4521/2024"
-                  autoComplete="username"
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                />
-              </label>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">School class</span>
-                  <input
-                    value={schoolClass}
-                    onChange={(e) => setSchoolClass(e.target.value)}
-                    placeholder="e.g. 4A, 4B"
-                    className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                  />
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-[var(--subtext)]">Phone number</span>
-                <input
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="e.g. 0712 345 678"
-                  autoComplete="tel"
-                  inputMode="numeric"
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                />
-                <p className="mt-2 text-xs text-[var(--subtext)]">{studentPasswordHint}</p>
-              </label>
-            </>
-          )}
-
-          {error ? <p className="text-sm text-rose-500">{error}</p> : null}
-
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-5 py-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? "Creating account..." : isTeacher ? "Start teaching" : "Create account"}
-            <ArrowRight className="h-4 w-4" />
-          </button>
-
-          <p className="text-sm text-[var(--subtext)]">
-            Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-[var(--primary)] hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
+        {/* Submit */}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #6366f1)" }}
+        >
+          {loading ? "Creating your account…" : isTeacher ? "Start teaching →" : "Join the class →"}
+        </button>
       </div>
+
+      {/* Footer link */}
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+        Already registered?{" "}
+        <Link href="/login" className="font-semibold text-indigo-600 transition hover:underline dark:text-indigo-400">
+          Sign in here
+        </Link>
+      </p>
     </div>
   );
 }
