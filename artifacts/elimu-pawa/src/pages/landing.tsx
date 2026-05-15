@@ -109,10 +109,32 @@ export function LandingPage() {
       </div>
 
       {/* ── Right form panel ── */}
-      <div className="relative flex flex-1 flex-col bg-[var(--background)]">
+      <div className="relative flex flex-1 flex-col overflow-hidden bg-[var(--background)]">
+
+        {/* Background: mesh gradient */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          {/* Top-right warm glow */}
+          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-blue-500/10 blur-[80px] dark:bg-blue-500/15" />
+          {/* Bottom-left cool glow */}
+          <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-violet-500/10 blur-[70px] dark:bg-violet-500/15" />
+          {/* Centre ambient */}
+          <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-400/5 blur-[90px] dark:bg-indigo-400/10" />
+          {/* Dot pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.045] dark:opacity-[0.06]"
+            style={{
+              backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+              color: "rgb(99 102 241)",
+            }}
+          />
+          {/* Top gradient fade so dots don't compete with nav */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--background)] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--background)] to-transparent" />
+        </div>
 
         {/* Nav strip */}
-        <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4 sm:px-10">
+        <div className="relative flex items-center justify-between border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_85%,transparent)] px-6 py-4 backdrop-blur-sm sm:px-10">
           <p className="text-sm text-[var(--subtext)]">
             New here?{" "}
             <Link href="/register" className="font-semibold text-[var(--primary)] transition hover:underline">
@@ -123,7 +145,7 @@ export function LandingPage() {
         </div>
 
         {/* Centred login card */}
-        <div className="flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-10">
+        <div className="relative flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-10">
           <div className="w-full max-w-sm space-y-5">
             <div className="space-y-1">
               <h2 className="text-2xl font-bold tracking-tight text-[var(--text)]">Welcome back</h2>
