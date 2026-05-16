@@ -158,24 +158,24 @@ export function TeacherClassesPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Navbar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="ElimuPawa" className="h-8 w-8" />
+      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-900/95 px-4 py-3 backdrop-blur-md sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="ElimuPawa" className="h-7 w-7 sm:h-8 sm:w-8" />
             <span className="font-bold text-white">ElimuPawa</span>
-            <span className="hidden rounded-lg bg-violet-600/20 px-2 py-0.5 text-xs font-medium text-violet-400 sm:block">Teacher</span>
+            <span className="rounded-lg bg-violet-600/20 px-2 py-0.5 text-xs font-medium text-violet-400">Teacher</span>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/teacher" className="rounded-xl border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">
-              Live Classroom
+            <a href="/teacher" className="rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white sm:text-sm">
+              Live Room
             </a>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-sm">
+        <nav className="mb-5 flex items-center gap-2 text-sm sm:mb-6">
           <button onClick={() => { setView("classes"); setSelectedClass(null); }} className="text-violet-400 hover:text-violet-300">
             My Classes
           </button>
@@ -200,15 +200,15 @@ export function TeacherClassesPage() {
 
         {/* ── CLASSES VIEW ── */}
         {view === "classes" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-5 sm:space-y-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h1 className="text-2xl font-bold text-white">My Classes</h1>
-                <p className="mt-1 text-sm text-slate-400">Create subjects and schedule lessons for your students</p>
+                <h1 className="text-xl font-bold text-white sm:text-2xl">My Classes</h1>
+                <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">Create subjects and schedule lessons for your students</p>
               </div>
               <button
                 onClick={() => setClassFormOpen(true)}
-                className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 active:scale-95"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -300,15 +300,15 @@ export function TeacherClassesPage() {
 
         {/* ── LESSONS VIEW ── */}
         {view === "lessons" && selectedClass && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-5 sm:space-y-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h1 className="text-2xl font-bold text-white">{selectedClass.subject}</h1>
-                <p className="mt-1 text-sm text-slate-400">{selectedClass.class_level}{selectedClass.description ? ` · ${selectedClass.description}` : ""}</p>
+                <h1 className="text-xl font-bold text-white sm:text-2xl">{selectedClass.subject}</h1>
+                <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">{selectedClass.class_level}{selectedClass.description ? ` · ${selectedClass.description}` : ""}</p>
               </div>
               <button
                 onClick={() => setLessonFormOpen(true)}
-                className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 active:scale-95"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 Schedule Lesson
@@ -373,22 +373,24 @@ export function TeacherClassesPage() {
             ) : (
               <div className="space-y-3">
                 {lessons.sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()).map((lesson) => (
-                  <div key={lesson.id} className="group flex items-center justify-between rounded-2xl border border-slate-700/50 bg-slate-900 p-4">
-                    <div>
-                      <p className="font-medium text-white">{lesson.title}</p>
-                      <p className="mt-0.5 text-sm text-slate-400">{formatDT(lesson.scheduled_at)} · {lesson.duration_minutes} min</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openStudentManager(lesson)}
-                        className="flex items-center gap-1.5 rounded-xl bg-emerald-600/15 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-600/30"
-                      >
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        Manage Students
-                      </button>
-                      <button onClick={() => handleDeleteLesson(lesson.id)} className="rounded-lg p-1.5 text-slate-600 opacity-0 transition hover:bg-red-900/30 hover:text-red-400 group-hover:opacity-100">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
+                  <div key={lesson.id} className="group rounded-2xl border border-slate-700/50 bg-slate-900 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-white">{lesson.title}</p>
+                        <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">{formatDT(lesson.scheduled_at)} · {lesson.duration_minutes} min</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openStudentManager(lesson)}
+                          className="flex items-center gap-1.5 rounded-xl bg-emerald-600/15 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-600/30 active:scale-95"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                          Students
+                        </button>
+                        <button onClick={() => handleDeleteLesson(lesson.id)} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-red-900/30 hover:text-red-400 active:scale-95 sm:opacity-0 sm:group-hover:opacity-100">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -399,18 +401,18 @@ export function TeacherClassesPage() {
 
         {/* ── STUDENT ACCESS VIEW ── */}
         {view === "students" && managingLesson && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-5 sm:space-y-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h1 className="text-2xl font-bold text-white">Manage Students</h1>
-                <p className="mt-1 text-sm text-slate-400">
-                  Lesson: <span className="text-white">{managingLesson.title}</span> · {formatDT(managingLesson.scheduled_at)}
+                <h1 className="text-xl font-bold text-white sm:text-2xl">Manage Students</h1>
+                <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">
+                  <span className="text-white">{managingLesson.title}</span> · {formatDT(managingLesson.scheduled_at)}
                 </p>
               </div>
               <button
                 onClick={saveStudentAccess}
                 disabled={savingStudents}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 active:scale-95 disabled:opacity-60"
               >
                 {savingStudents ? "Saving…" : `Save (${approvedIds.length} approved)`}
               </button>

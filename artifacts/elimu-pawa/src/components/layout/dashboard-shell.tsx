@@ -66,43 +66,43 @@ export function DashboardShell({
 
   if (layoutVariant === "meeting") {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--text)] transition-colors duration-200">
-        <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_88%,transparent)] shadow-sm backdrop-blur-md dark:bg-[color-mix(in_srgb,#202124_92%,transparent)]">
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-4">
+      <div className="min-h-screen bg-[#0d0f14] text-white">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-[#15171a]/95 shadow-sm backdrop-blur-md">
+          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
               <Logo />
-              <div className="hidden min-w-0 md:block">
-                <p className="truncate text-sm font-semibold text-[var(--text)]">{title}</p>
-                <p className="truncate text-xs text-[var(--subtext)]">{subtitle}</p>
+              <div className="hidden min-w-0 sm:block">
+                <p className="truncate text-sm font-semibold text-white">{title}</p>
+                <p className="truncate text-xs text-slate-400">{subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="hidden sm:block">
                 <ThemeToggle />
               </div>
               {showTeacherGuide ? (
                 <Link
                   href="/docs/teacher-guide"
-                  className="surface-muted inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--text)] transition hover:bg-[var(--background-soft)]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
                 >
-                  <BookOpen className="h-4 w-4 text-[var(--primary)]" aria-hidden />
+                  <BookOpen className="h-3.5 w-3.5 text-violet-400" aria-hidden />
                   <span className="hidden sm:inline">Teacher guide</span>
                 </Link>
               ) : null}
-              <div className="flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2 shadow-sm">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white shadow-sm">
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 sm:gap-3 sm:px-3 sm:py-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white shadow-sm">
                   {initials}
                 </div>
                 <div className="hidden text-left sm:block">
-                  <p className="text-sm font-semibold text-[var(--text)]">{currentUser.full_name}</p>
-                  <p className="text-xs capitalize text-[var(--subtext)]">{role}</p>
+                  <p className="text-sm font-semibold text-white">{currentUser.full_name}</p>
+                  <p className="text-xs capitalize text-slate-400">{role}</p>
                 </div>
                 <LogoutButton />
               </div>
             </div>
           </div>
         </header>
-        <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto max-w-[1600px] px-3 py-3 sm:px-6 sm:py-4 lg:px-8">{children}</main>
       </div>
     );
   }
