@@ -258,6 +258,8 @@ export function TeacherDashboard({
   const [youtubeIntegration, setYoutubeIntegration] = useState<YouTubeIntegrationStatus | null>(null);
   const [youtubeIntegrationLoading, setYoutubeIntegrationLoading] = useState(false);
   const [youtubeIntegrationBusy, setYoutubeIntegrationBusy] = useState(false);
+  const [showYouTubeLiveGuide, setShowYouTubeLiveGuide] = useState(false);
+  const [youtubeLiveGuideTab, setYoutubeLiveGuideTab] = useState<"phone" | "computer">("phone");
   const addNotification = useAppStore((state) => state.addNotification);
   const youtubeLinkInputRef = useRef<HTMLInputElement | null>(null);
   const expectedParticipantRange = useMemo(
@@ -5353,6 +5355,14 @@ export function TeacherDashboard({
                           >
                             Open YouTube Studio
                           </a>
+                          <button
+                            type="button"
+                            onClick={() => setShowYouTubeLiveGuide(true)}
+                            className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/20"
+                          >
+                            <BadgeHelp className="h-3.5 w-3.5" />
+                            How to go live?
+                          </button>
                           {hasBroadcastLink ? (
                             broadcastLinkLooksValid ? (
                               <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
@@ -7603,6 +7613,198 @@ export function TeacherDashboard({
         </div>
       ) : null}
       <audio ref={speakerAudioRef} autoPlay className="hidden" />
+
+      {showYouTubeLiveGuide
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+              onClick={() => setShowYouTubeLiveGuide(false)}
+            >
+              <div
+                className="relative w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div>
+                    <p className="text-base font-bold text-white">How to Go Live on YouTube</p>
+                    <p className="mt-0.5 text-xs text-slate-400">Easy steps — no tech experience needed</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowYouTubeLiveGuide(false)}
+                    className="rounded-full p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="flex gap-1 border-b border-white/10 px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setYoutubeLiveGuideTab("phone")}
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                      youtubeLiveGuideTab === "phone"
+                        ? "bg-[#4285f4] text-white"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    📱 On your phone
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setYoutubeLiveGuideTab("computer")}
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                      youtubeLiveGuideTab === "computer"
+                        ? "bg-[#4285f4] text-white"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    💻 On a computer
+                  </button>
+                </div>
+
+                <div className="max-h-[60vh] overflow-y-auto px-5 py-4">
+                  {youtubeLiveGuideTab === "phone" ? (
+                    <ol className="space-y-4">
+                      {[
+                        {
+                          step: 1,
+                          title: "Open the YouTube app",
+                          detail: "Make sure you are signed in with your Google account.",
+                        },
+                        {
+                          step: 2,
+                          title: 'Tap the "+" button at the bottom',
+                          detail: 'A menu will appear. Choose "Go live".',
+                        },
+                        {
+                          step: 3,
+                          title: "Give your stream a title",
+                          detail:
+                            'Example: "Data Analytics — Live Class". Set visibility to "Public" so students can watch.',
+                        },
+                        {
+                          step: 4,
+                          title: 'Tap "Go live" to start',
+                          detail: "Your camera will turn on and the stream begins immediately.",
+                        },
+                        {
+                          step: 5,
+                          title: "Copy the link to your stream",
+                          detail:
+                            'Tap the share icon (arrow) at the top. Tap "Copy link". The link looks like: youtube.com/live/abc123',
+                        },
+                        {
+                          step: 6,
+                          title: "Come back to ElimuPawa and paste it",
+                          detail: 'Paste the copied link in the "YouTube Live link" field above, then tap "Save".',
+                        },
+                      ].map(({ step, title, detail }) => (
+                        <li key={step} className="flex gap-3">
+                          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#4285f4] text-xs font-bold text-white">
+                            {step}
+                          </span>
+                          <div>
+                            <p className="text-sm font-semibold text-white">{title}</p>
+                            <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{detail}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <ol className="space-y-4">
+                      {[
+                        {
+                          step: 1,
+                          title: "Go to YouTube Studio",
+                          detail: "Open your browser and visit studio.youtube.com. Sign in with your Google account.",
+                        },
+                        {
+                          step: 2,
+                          title: 'Click "Create" → "Go live"',
+                          detail:
+                            'Find the "Create" button (top right, looks like a camera with a +). Click it and choose "Go live".',
+                        },
+                        {
+                          step: 3,
+                          title: "Choose a stream type",
+                          detail:
+                            'For most teachers, pick "Webcam" — it uses your laptop camera directly. No extra software needed.',
+                        },
+                        {
+                          step: 4,
+                          title: "Fill in the stream details",
+                          detail:
+                            'Give your class a title, e.g. "Mathematics — Grade 10 Live". Set visibility to "Public".',
+                        },
+                        {
+                          step: 5,
+                          title: 'Click "Go live"',
+                          detail: "Your stream starts. Students can now find it on YouTube.",
+                        },
+                        {
+                          step: 6,
+                          title: "Copy the watch link",
+                          detail:
+                            'Click the share icon on your stream. Copy the link — it looks like: youtube.com/watch?v=abc123',
+                        },
+                        {
+                          step: 7,
+                          title: "Paste it into ElimuPawa",
+                          detail:
+                            'Paste the link in the "YouTube Live link" field above. ElimuPawa will connect it automatically.',
+                        },
+                      ].map(({ step, title, detail }) => (
+                        <li key={step} className="flex gap-3">
+                          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#4285f4] text-xs font-bold text-white">
+                            {step}
+                          </span>
+                          <div>
+                            <p className="text-sm font-semibold text-white">{title}</p>
+                            <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{detail}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+
+                  <div className="mt-5 rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-3">
+                    <p className="text-xs font-semibold text-emerald-300">Tip</p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                      ElimuPawa accepts any YouTube link format — watch links, live links, and short youtu.be links
+                      all work. Just paste whatever YouTube gives you.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-white/10 px-5 py-3">
+                  <a
+                    href={
+                      youtubeLiveGuideTab === "phone"
+                        ? "https://support.google.com/youtube/answer/9228390"
+                        : "https://studio.youtube.com/"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-[#4285f4] hover:underline"
+                  >
+                    {youtubeLiveGuideTab === "phone" ? "YouTube help page →" : "Open YouTube Studio →"}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setShowYouTubeLiveGuide(false)}
+                    className="rounded-full bg-[#4285f4] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#5b95f5]"
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
