@@ -74,47 +74,62 @@ function CTACard() {
         <div className="pointer-events-none absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-cyan-500/15 blur-[35px]" aria-hidden />
 
         {/* Header */}
-        <div className="relative mb-8">
+        <div className="relative mb-7">
           <p className="mb-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-300"
             style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>
             <Zap className="h-3 w-3" /> Get started
           </p>
-          <h2 className="mt-3 text-xl font-black tracking-tight text-white">Your class is one step away</h2>
+          <h2 className="mt-3 text-xl font-black tracking-tight text-white">Who are you joining as?</h2>
           <p className="mt-1 text-[13px] text-slate-400">
-            Sign in to your account or create a new one. It only takes a minute.
+            Choose your role to get to the right sign-in page.
           </p>
         </div>
 
-        {/* Role highlights */}
-        <div className="relative mb-7 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/8 p-4">
-            <p className="text-lg">📚</p>
-            <p className="mt-2 text-sm font-bold text-white">Students</p>
-            <p className="mt-0.5 text-[12px] text-slate-400">Join live classes, take quizzes, track progress</p>
-          </div>
-          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/8 p-4">
-            <p className="text-lg">🎓</p>
-            <p className="mt-2 text-sm font-bold text-white">Teachers</p>
-            <p className="mt-0.5 text-[12px] text-slate-400">Host classes, set quizzes, manage students</p>
-          </div>
-        </div>
-
-        {/* CTAs */}
+        {/* Role CTAs */}
         <div className="relative space-y-3">
-          <Link
-            href="/sign-in"
-            className="relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl px-5 py-3.5 text-sm font-bold text-white transition hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #06b6d4 0%, #8b5cf6 55%, #ec4899 100%)", boxShadow: "0 8px 32px rgba(139,92,246,0.35)" }}
+          {/* Student */}
+          <div
+            className="rounded-2xl p-[1px]"
+            style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.5), rgba(6,182,212,0.3))" }}
           >
-            Sign in to ElimuPawa
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-          <Link
-            href="/sign-up"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+            <Link
+              href="/student/sign-in"
+              className="flex w-full items-center gap-4 rounded-[14px] p-4 transition hover:brightness-110"
+              style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(6,182,212,0.06) 100%)" }}
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl"
+                style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.25)" }}>
+                📚
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-bold text-white">I am a Student</p>
+                <p className="mt-0.5 text-[12px] text-slate-400">Sign in with email and password</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-emerald-400 shrink-0" />
+            </Link>
+          </div>
+
+          {/* Teacher */}
+          <div
+            className="rounded-2xl p-[1px]"
+            style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(236,72,153,0.3))" }}
           >
-            Create a free account
-          </Link>
+            <Link
+              href="/teacher/sign-in"
+              className="flex w-full items-center gap-4 rounded-[14px] p-4 transition hover:brightness-110"
+              style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(236,72,153,0.06) 100%)" }}
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl"
+                style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+                🎓
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-bold text-white">I am a Teacher</p>
+                <p className="mt-0.5 text-[12px] text-slate-400">Sign in with email or Google</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-violet-400 shrink-0" />
+            </Link>
+          </div>
         </div>
 
         {/* Footer */}

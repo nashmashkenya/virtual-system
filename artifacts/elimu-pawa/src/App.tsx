@@ -35,7 +35,7 @@ if (!clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY");
 }
 
-const clerkAppearance = {
+const baseAppearance = {
   baseTheme: dark,
   cssLayerName: "clerk",
   options: {
@@ -84,28 +84,77 @@ const clerkAppearance = {
   },
 };
 
-function SignInPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-      <SignIn
-        routing="path"
-        path={`${basePath}/sign-in`}
-        signUpUrl={`${basePath}/sign-up`}
-        fallbackRedirectUrl={basePath || "/"}
-      />
-    </div>
-  );
-}
+// Students: no Google / social buttons
+const studentAppearance = {
+  ...baseAppearance,
+  elements: {
+    ...baseAppearance.elements,
+    socialButtonsBlockButton: "!hidden",
+    socialButtonsBlockButtonArrow: "!hidden",
+    dividerRow: "!hidden",
+    socialButtonsBlock: "!hidden",
+  },
+};
 
-function SignUpPage() {
+// Teachers: full experience including Google
+const teacherAppearance = baseAppearance;
+
+function AuthPage({
+  type,
+  role,
+}: {
+  type: "sign-in" | "sign-up";
+  role: "student" | "teacher";
+}) {
+  const appearance = role === "student" ? studentAppearance : teacherAppearance;
+  const studentSignIn = `${basePath}/student/sign-in`;
+  const studentSignUp = `${basePath}/student/sign-up`;
+  const teacherSignIn = `${basePath}/teacher/sign-in`;
+  const teacherSignUp = `${basePath}/teacher/sign-up`;
+
+  const signInUrl = role === "student" ? studentSignIn : teacherSignIn;
+  const signUpUrl = role === "student" ? studentSignUp : teacherSignUp;
+  const redirectUrl = `${basePath}/onboarding?role=${role}`;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-      <SignUp
-        routing="path"
-        path={`${basePath}/sign-up`}
-        signInUrl={`${basePath}/sign-in`}
-        fallbackRedirectUrl={basePath || "/"}
-      />
+      {/* Role badge */}
+      <div className="w-full max-w-[440px]">
+        <div className="mb-4 flex justify-center">
+          <span
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
+            style={{
+              background: role === "student"
+                ? "rgba(16,185,129,0.12)"
+                : "rgba(139,92,246,0.12)",
+              border: role === "student"
+                ? "1px solid rgba(16,185,129,0.3)"
+                : "1px solid rgba(139,92,246,0.3)",
+              color: role === "student" ? "#34d399" : "#c4b5fd",
+            }}
+          >
+            {role === "student" ? "📚 Student account" : "🎓 Teacher account"}
+          </span>
+        </div>
+
+        {type === "sign-in" ? (
+          <SignIn
+            appearance={appearance}
+            routing="path"
+            path={signInUrl}
+            signUpUrl={signUpUrl}
+            fallbackRedirectUrl={redirectUrl}
+          />
+        ) : (
+          <SignUp
+            appearance={appearance}
+            routing="path"
+            path={signUpUrl}
+            signInUrl={signInUrl}
+            fallbackRedirectUrl={redirectUrl}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -159,7 +208,7 @@ function ClerkProviderWithRoutes() {
     <ClerkProvider
       publishableKey={clerkPubKey}
       proxyUrl={clerkProxyUrl}
-      appearance={clerkAppearance}
+      appearance={baseAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
@@ -182,8 +231,19 @@ function ClerkProviderWithRoutes() {
       <ThemeProvider>
         <Switch>
           <Route path="/" component={HomeRedirect} />
-          <Route path="/sign-in/*?" component={SignInPage} />
-          <Route path="/sign-up/*?" component={SignUpPage} />
+
+          {/* Student auth — email/password only, no Google */}
+          <Route path="/student/sign-in/*?" component={() => <AuthPage type="sign-in" role="student" />} />
+          <Route path="/student/sign-up/*?" component={() => <AuthPage type="sign-up" role="student" />} />
+
+          {/* Teacher auth — email/password + Google */}
+          <Route path="/teacher/sign-in/*?" component={() => <AuthPage type="sign-in" role="teacher" />} />
+          <Route path="/teacher/sign-up/*?" component={() => <AuthPage type="sign-up" role="teacher" />} />
+
+          {/* Generic fallback auth routes (redirect to role-specific) */}
+          <Route path="/sign-in/*?" component={() => <AuthPage type="sign-in" role="student" />} />
+          <Route path="/sign-up/*?" component={() => <AuthPage type="sign-up" role="student" />} />
+
           <Route path="/onboarding" component={OnboardingPage} />
           <Route path="/student/home" component={StudentHomePage} />
           <Route path="/student" component={StudentPage} />

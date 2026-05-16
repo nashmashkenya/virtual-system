@@ -1,17 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth, useUser } from "@clerk/react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 
 export function OnboardingPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
   const [, navigate] = useLocation();
+  const search = useSearch();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoSaved = useRef(false);
+
+  // Parse ?role=student or ?role=teacher from the URL
+  const params = new URLSearchParams(search);
+  const presetRole = params.get("role") as "student" | "teacher" | null;
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) navigate("/sign-in", { replace: true });
   }, [isLoaded, isSignedIn, navigate]);
+
+  // Auto-assign role when coming from a role-specific sign-in/sign-up flow
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return;
+    if (!presetRole || autoSaved.current) return;
+    autoSaved.current = true;
+    void chooseRole(presetRole);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn, user, presetRole]);
 
   async function chooseRole(role: "teacher" | "student") {
     setSaving(true);
@@ -32,13 +47,19 @@ export function OnboardingPage() {
     } catch {
       setError("Something went wrong. Please try again.");
       setSaving(false);
+      autoSaved.current = false;
     }
   }
 
-  if (!isLoaded) {
+  if (!isLoaded || (presetRole && !error)) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        {presetRole && (
+          <p className="text-sm text-slate-400">
+            Setting up your {presetRole} account…
+          </p>
+        )}
       </div>
     );
   }
