@@ -16,8 +16,12 @@ export function OnboardingPage() {
   const presetRole = params.get("role") as "student" | "teacher" | null;
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) navigate("/sign-in", { replace: true });
-  }, [isLoaded, isSignedIn, navigate]);
+    // Only redirect away if there's no preset role — a fresh sign-up may still
+    // be initialising its Clerk session, so we wait until user is confirmed absent.
+    if (isLoaded && !isSignedIn && !presetRole) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoaded, isSignedIn, navigate, presetRole]);
 
   // Auto-assign role when coming from a role-specific sign-in/sign-up flow
   useEffect(() => {

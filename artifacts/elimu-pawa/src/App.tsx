@@ -143,7 +143,7 @@ function AuthPage({
             routing="path"
             path={signInUrl}
             signUpUrl={signUpUrl}
-            fallbackRedirectUrl={redirectUrl}
+            forceRedirectUrl={redirectUrl}
           />
         ) : (
           <SignUp
@@ -151,7 +151,7 @@ function AuthPage({
             routing="path"
             path={signUpUrl}
             signInUrl={signInUrl}
-            fallbackRedirectUrl={redirectUrl}
+            forceRedirectUrl={redirectUrl}
           />
         )}
       </div>
