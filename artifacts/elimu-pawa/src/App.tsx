@@ -246,9 +246,9 @@ function ClerkProviderWithRoutes() {
           <Route path="/teacher/sign-in/*?" component={() => <AuthPage type="sign-in" role="teacher" />} />
           <Route path="/teacher/sign-up/*?" component={() => <AuthPage type="sign-up" role="teacher" />} />
 
-          {/* Generic fallback auth routes (redirect to role-specific) */}
-          <Route path="/sign-in/*?" component={() => <AuthPage type="sign-in" role="student" />} />
-          <Route path="/sign-up/*?" component={() => <AuthPage type="sign-up" role="student" />} />
+          {/* Generic fallback auth routes — send to landing so user picks role first */}
+          <Route path="/sign-in/*?" component={() => <RedirectTo to="/" />} />
+          <Route path="/sign-up/*?" component={() => <RedirectTo to="/" />} />
 
           {/* Legacy routes — redirect to landing so user can pick their role */}
           <Route path="/login" component={() => <RedirectTo to="/" />} />

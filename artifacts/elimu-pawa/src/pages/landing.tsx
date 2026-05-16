@@ -182,11 +182,11 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href="/sign-up"
+              href="/student/sign-in"
               className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 sm:block"
               style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.2), rgba(139,92,246,0.2))", border: "1px solid rgba(139,92,246,0.3)" }}
             >
-              Create account
+              Sign in
             </Link>
             <ThemeToggle />
           </div>
