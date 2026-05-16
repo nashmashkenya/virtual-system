@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Guide — ElimuPawa</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.7;
+    }
+    a { color: #059669; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+      color: white;
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+    header .brand { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 1.5rem; }
+    header .logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    header .brand-name { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; }
+    header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; letter-spacing: -.03em; }
+    header p { margin-top: .5rem; opacity: .8; font-size: .95rem; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      margin-top: 1.5rem;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: white; border-radius: 10px;
+      padding: .5rem 1.1rem; font-size: .85rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: background .2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.25); text-decoration: none; }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    /* ── TOC ── */
+    .toc {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 16px; padding: 1.5rem; margin-bottom: 2.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .toc h2 { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.2rem; }
+    .toc li { margin-bottom: .35rem; }
+    .toc a { color: #059669; font-size: .9rem; font-weight: 500; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 2.5rem; }
+    section h2 {
+      font-size: 1.25rem; font-weight: 800; color: #0f172a;
+      padding-bottom: .6rem; margin-bottom: 1rem;
+      border-bottom: 2px solid #d1fae5;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    section h2 .num {
+      background: #059669; color: white;
+      border-radius: 8px; width: 28px; height: 28px;
+      font-size: .8rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    section h3 { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 1.2rem 0 .5rem; }
+    section p { color: #475569; font-size: .93rem; margin-bottom: .75rem; }
+    section ul, section ol { padding-left: 1.4rem; color: #475569; font-size: .93rem; margin-bottom: .75rem; }
+    section li { margin-bottom: .4rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 14px; padding: 1.25rem 1.4rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    .card-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); margin-bottom: 1rem; }
+    .card-sm {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 1rem 1.1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .card-sm .icon { font-size: 1.5rem; margin-bottom: .4rem; }
+    .card-sm h4 { font-size: .88rem; font-weight: 700; color: #0f172a; margin-bottom: .25rem; }
+    .card-sm p { font-size: .82rem; color: #64748b; margin: 0; }
+
+    /* ── Steps ── */
+    .steps { counter-reset: step; padding: 0; list-style: none; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 1rem; margin-bottom: .9rem; align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(step);
+      background: #ecfdf5; color: #059669;
+      border: 2px solid #6ee7b7;
+      border-radius: 50%; width: 28px; height: 28px; flex-shrink: 0;
+      font-weight: 800; font-size: .8rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: .1rem;
+    }
+    .steps li span { color: #475569; font-size: .93rem; }
+    .steps li strong { color: #1e293b; }
+
+    /* ── Tip / Warning ── */
+    .tip, .warning {
+      border-radius: 12px; padding: 1rem 1.2rem;
+      font-size: .88rem; margin-bottom: 1rem;
+      display: flex; gap: .75rem; align-items: flex-start;
+    }
+    .tip { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+    .warning { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+    .tip .ti, .warning .ti { font-size: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block; border-radius: 6px;
+      padding: .15rem .55rem; font-size: .75rem; font-weight: 700;
+    }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-blue  { background: #dbeafe; color: #1e40af; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
+
+    /* ── Footer ── */
+    footer { text-align: center; color: #94a3b8; font-size: .8rem; padding: 1.5rem; border-top: 1px solid #e2e8f0; }
+
+    @media(max-width: 600px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">📚</div>
+    <span class="brand-name">ElimuPawa</span>
+  </div>
+  <h1>Teacher's Guide</h1>
+  <p>Everything you need to run your virtual classroom</p>
+  <a href="/" class="back-btn">← Back to home</a>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#account">Creating your teacher account</a></li>
+      <li><a href="#classes">Setting up classes &amp; subjects</a></li>
+      <li><a href="#lessons">Scheduling lessons</a></li>
+      <li><a href="#students">Managing students</a></li>
+      <li><a href="#classroom">Running a live classroom</a></li>
+      <li><a href="#tools">Classroom tools — polls, quizzes &amp; whiteboard</a></li>
+      <li><a href="#video">Live video &amp; YouTube streaming</a></li>
+      <li><a href="#tips">Tips &amp; best practices</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. Account -->
+  <section id="account">
+    <h2><span class="num">1</span> Creating your teacher account</h2>
+    <p>ElimuPawa uses a secure sign-in system for teachers. You can sign in with your email address or a Google account.</p>
+    <ol class="steps">
+      <li><span>Go to <strong>virtual-system.replit.app/teacher/sign-in</strong></span></li>
+      <li><span>Click <strong>"Sign up"</strong> if you don't have an account yet</span></li>
+      <li><span>Enter your email and create a password — or click <strong>"Continue with Google"</strong> for one-tap sign-in</span></li>
+      <li><span>Once signed in you land on the <strong>Teacher Dashboard</strong> — your control centre</span></li>
+    </ol>
+    <div class="tip"><span class="ti">💡</span><span>Use the same email every time you sign in. Students will be assigned to your classes by subject, not by teacher name.</span></div>
+  </section>
+
+  <!-- 2. Classes -->
+  <section id="classes">
+    <h2><span class="num">2</span> Setting up classes &amp; subjects</h2>
+    <p>Before scheduling lessons you need at least one class. A class ties together a subject, a class level, and a group of students.</p>
+    <ol class="steps">
+      <li><span>From the dashboard click <strong>"Classes"</strong> in the left sidebar (or top nav on mobile)</span></li>
+      <li><span>Click <strong>"New Class"</strong></span></li>
+      <li><span>Fill in: <strong>Subject</strong> (e.g. Mathematics), <strong>Class Level</strong> (e.g. Form 3), and an optional class name</span></li>
+      <li><span>Click <strong>"Create Class"</strong> — it appears in your classes list immediately</span></li>
+    </ol>
+    <div class="tip"><span class="ti">💡</span><span>You can create multiple classes for the same subject at different levels — e.g. "Maths Form 2" and "Maths Form 4" as separate classes.</span></div>
+    <div class="tip"><span class="ti">📌</span><span>If the subject or class level you need is not in the list, ask your school administrator to add it in the Admin panel.</span></div>
+  </section>
+
+  <!-- 3. Lessons -->
+  <section id="lessons">
+    <h2><span class="num">3</span> Scheduling lessons</h2>
+    <p>Lessons are the individual sessions students join. Each lesson belongs to one of your classes.</p>
+    <ol class="steps">
+      <li><span>Open a class and click <strong>"Schedule Lesson"</strong></span></li>
+      <li><span>Enter the lesson <strong>title</strong>, <strong>date</strong>, and <strong>start time</strong></span></li>
+      <li><span>Set the <strong>duration</strong> (default 60 minutes)</span></li>
+      <li><span>Click <strong>"Save"</strong> — the lesson is now visible to enrolled students</span></li>
+    </ol>
+    <div class="card-grid">
+      <div class="card-sm">
+        <div class="icon">📅</div>
+        <h4>Upcoming lessons</h4>
+        <p>Students see scheduled lessons on their dashboard and can prepare in advance.</p>
+      </div>
+      <div class="card-sm">
+        <div class="icon">✏️</div>
+        <h4>Editing a lesson</h4>
+        <p>Click the lesson title and select "Edit" to change time, title, or duration.</p>
+      </div>
+      <div class="card-sm">
+        <div class="icon">🗑️</div>
+        <h4>Cancelling a lesson</h4>
+        <p>Open the lesson and click "Delete". Students will no longer see it on their dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Students -->
+  <section id="students">
+    <h2><span class="num">4</span> Managing students</h2>
+    <p>Students register themselves using their ADM number and parent phone. Once they register, you can approve them for specific lessons.</p>
+
+    <h3>Viewing students</h3>
+    <p>Go to <strong>Classes → your class → Students tab</strong> to see all students who have requested to join your lessons.</p>
+
+    <h3>Approving students for a lesson</h3>
+    <ol class="steps">
+      <li><span>Open a lesson and go to the <strong>Students</strong> section</span></li>
+      <li><span>Students who sent a join request appear with a <span class="badge badge-amber">Pending</span> badge</span></li>
+      <li><span>Click <strong>"Approve"</strong> next to each student — they can now enter the live classroom</span></li>
+    </ol>
+    <div class="tip"><span class="ti">💡</span><span>You can approve all students at once using the <strong>"Approve all"</strong> button at the top of the list.</span></div>
+    <div class="warning"><span class="ti">⚠️</span><span>Students who are not approved will see a "Waiting for approval" message when they try to join. They cannot enter the classroom until you approve them.</span></div>
+  </section>
+
+  <!-- 5. Classroom -->
+  <section id="classroom">
+    <h2><span class="num">5</span> Running a live classroom</h2>
+    <p>When it's time for your lesson, open the live classroom from your dashboard.</p>
+
+    <ol class="steps">
+      <li><span>Click <strong>"Start Lesson"</strong> on the scheduled lesson card</span></li>
+      <li><span>The <strong>Teacher Room</strong> opens — you see your student roster, chat, and all controls</span></li>
+      <li><span>Students who are approved will be able to join from their dashboard</span></li>
+      <li><span>When you're done, click <strong>"End Lesson"</strong> to close the session for everyone</span></li>
+    </ol>
+
+    <h3>Teacher Room layout</h3>
+    <div class="card-grid">
+      <div class="card-sm">
+        <div class="icon">👥</div>
+        <h4>Roster panel</h4>
+        <p>See who is online, mute students, and manage raised hands.</p>
+      </div>
+      <div class="card-sm">
+        <div class="icon">💬</div>
+        <h4>Class chat</h4>
+        <p>Send messages to all students. Students can reply and ask questions.</p>
+      </div>
+      <div class="card-sm">
+        <div class="icon">🖐️</div>
+        <h4>Raise hand</h4>
+        <p>Students tap "Raise hand" — you see a notification and can call on them.</p>
+      </div>
+      <div class="card-sm">
+        <div class="icon">🏠</div>
+        <h4>Breakout rooms</h4>
+        <p>Split students into small groups for group work, then bring them back.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Tools -->
+  <section id="tools">
+    <h2><span class="num">6</span> Classroom tools</h2>
+
+    <h3>📊 Polls</h3>
+    <p>Use polls to quickly check understanding or gather opinions.</p>
+    <ol class="steps">
+      <li><span>In the classroom, open the <strong>Polls</strong> panel from the toolbar</span></li>
+      <li><span>Type your question and add 2–4 answer options</span></li>
+      <li><span>Click <strong>"Launch Poll"</strong> — all students see it immediately on their screen</span></li>
+      <li><span>Watch results update live as students vote</span></li>
+      <li><span>Click <strong>"Close Poll"</strong> when done — results stay visible to you</span></li>
+    </ol>
+
+    <h3>📝 Quizzes</h3>
+    <p>Run a graded quiz at any point during the lesson.</p>
+    <ol class="steps">
+      <li><span>Open the <strong>Quiz</strong> panel and click <strong>"New Quiz"</strong></span></li>
+      <li><span>Add one or more questions with multiple-choice answers — mark the correct answer for each</span></li>
+      <li><span>Click <strong>"Launch Quiz"</strong> — students answer within the time limit you set</span></li>
+      <li><span>Results show each student's score when the quiz closes</span></li>
+    </ol>
+
+    <h3>🖊️ Whiteboard</h3>
+    <p>Draw diagrams, work through problems, and annotate content in real time.</p>
+    <ol class="steps">
+      <li><span>Click the <strong>Whiteboard</strong> tab in the classroom</span></li>
+      <li><span>Use the pen, shapes, and text tools to write or draw</span></li>
+      <li><span>Students see your whiteboard live — you can also allow them to draw on it</span></li>
+      <li><span>Click <strong>"Clear"</strong> to reset the board, or <strong>"Save"</strong> to keep a snapshot</span></li>
+    </ol>
+    <div class="tip"><span class="ti">💡</span><span>The whiteboard works great for maths equations, diagrams, and brainstorming. On a touchscreen device you can draw with your finger.</span></div>
+  </section>
+
+  <!-- 7. Video -->
+  <section id="video">
+    <h2><span class="num">7</span> Live video &amp; YouTube streaming</h2>
+
+    <h3>Browser webcam (simplest)</h3>
+    <p>If your device has a camera, ElimuPawa can use it directly in the browser — no app needed.</p>
+    <ol class="steps">
+      <li><span>Click <strong>"Start Video"</strong> in the classroom toolbar</span></li>
+      <li><span>Allow the browser to access your camera and microphone when prompted</span></li>
+      <li><span>Your video stream becomes visible to all students in the classroom</span></li>
+    </ol>
+
+    <h3>YouTube Live (recommended for large classes)</h3>
+    <p>For better quality or when teaching more than 30 students, stream via YouTube Live and paste the link into the classroom.</p>
+    <ol class="steps">
+      <li><span>Open <strong>YouTube Studio</strong> on your phone or computer and start a Live stream</span></li>
+      <li><span>Copy your stream URL or video ID</span></li>
+      <li><span>In the ElimuPawa classroom, click <strong>"YouTube Live"</strong> in the video panel</span></li>
+      <li><span>Paste the link and click <strong>"Go Live"</strong> — students see your YouTube stream inside the classroom</span></li>
+    </ol>
+    <div class="tip"><span class="ti">📱</span><span>On Android, use the YouTube app → tap your profile photo → "Go Live" to start streaming from your phone camera in seconds.</span></div>
+    <div class="warning"><span class="ti">⚠️</span><span>YouTube Live requires your channel to be verified. If you haven't streamed before, there may be a 24-hour activation wait the first time.</span></div>
+  </section>
+
+  <!-- 8. Tips -->
+  <section id="tips">
+    <h2><span class="num">8</span> Tips &amp; best practices</h2>
+    <div class="card">
+      <h3>Before the lesson</h3>
+      <ul>
+        <li>Schedule the lesson at least a day before so students can see it on their dashboards</li>
+        <li>Approve all expected students before the lesson starts to avoid delays</li>
+        <li>Test your camera/microphone beforehand — use a different browser tab to check</li>
+        <li>Prepare any polls or quiz questions in advance so you can launch them quickly</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>During the lesson</h3>
+      <ul>
+        <li>Start with a quick poll to check attendance and warm up students</li>
+        <li>Use the whiteboard for worked examples — students follow along much better visually</li>
+        <li>Check the chat panel regularly — students often ask questions there</li>
+        <li>Use breakout rooms for group tasks of 5–10 minutes, then bring everyone back</li>
+        <li>Run a short quiz at the end to check understanding before closing</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>After the lesson</h3>
+      <ul>
+        <li>Review quiz scores from the lesson summary — students who scored below 50% may need follow-up</li>
+        <li>Post any notes or resources in the class materials section for students to review</li>
+        <li>Schedule the next lesson promptly so students can plan ahead</li>
+      </ul>
+    </div>
+    <div class="tip"><span class="ti">🚀</span><span><strong>Need help?</strong> Contact your school administrator or reach out to the ElimuPawa support team from the Settings page.</span></div>
+  </section>
+
+  <hr />
+  <p style="text-align:center; color:#64748b; font-size:.85rem;">Last updated May 2026 · ElimuPawa Digital Classroom Platform</p>
+</div>
+
+<footer>© 2026 ElimuPawa · Built for learners everywhere</footer>
+
+</body>
+</html>
