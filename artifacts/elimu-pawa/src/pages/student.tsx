@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { LiveClassroom } from "@/components/classroom/live-classroom";
 import { getStudentDashboard, getCurrentDemoUser } from "@/lib/api";
 import { studentDashboardFallback } from "@/lib/mock-data";
@@ -33,24 +32,17 @@ export function StudentPage() {
 
   if (loading || !currentUser) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <DashboardShell
-      title="Student classroom"
-      subtitle="A focused mobile-first learning space with live video, chat, polls, and quizzes."
-      role="Student dashboard"
-      currentUser={currentUser}
-      layoutVariant="meeting"
-    >
-      <LiveClassroom
-        dashboard={dashboard}
-        currentUsername={currentUser.username}
-      />
-    </DashboardShell>
+    <LiveClassroom
+      dashboard={dashboard}
+      currentUsername={currentUser.username}
+      currentUserFullName={currentUser.full_name}
+    />
   );
 }
