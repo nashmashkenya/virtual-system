@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ClerkProvider, SignIn, SignUp, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { dark } from "@clerk/themes";
-import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
+import { Switch, Route, Link, useLocation, Router as WouterRouter } from "wouter";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastStack } from "@/components/ui/toast-stack";
 import { LandingPage } from "@/pages/landing";
@@ -118,6 +118,17 @@ function AuthPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+      {/* Back to home */}
+      <Link
+        href="/"
+        className="absolute left-5 top-5 flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-700/60 hover:text-white"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" />
+        </svg>
+        Home
+      </Link>
+
       {/* Role badge */}
       <div className="w-full max-w-[440px]">
         <div className="mb-4 flex justify-center">
