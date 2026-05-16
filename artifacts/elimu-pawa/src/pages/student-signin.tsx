@@ -40,10 +40,10 @@ export function StudentSignInPage() {
       <div className="relative flex items-center justify-between px-5 pt-12 pb-4 sm:pt-6">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition active:scale-95"
+          className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition active:scale-95"
           style={{
-            background: "rgba(255,255,255,0.55)",
-            border: "1px solid rgba(255,255,255,0.75)",
+            background: "rgba(30,30,60,0.55)",
+            border: "1px solid rgba(255,255,255,0.18)",
             backdropFilter: "blur(16px)",
           }}
         >
