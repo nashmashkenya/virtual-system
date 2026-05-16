@@ -81,15 +81,13 @@ export function DashboardShell({
                 <ThemeToggle />
               </div>
               {showTeacherGuide ? (
-                <a
-                  href="/docs/teacher-guide.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/docs/teacher-guide"
                   className="surface-muted inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--text)] transition hover:bg-[var(--background-soft)]"
                 >
                   <BookOpen className="h-4 w-4 text-[var(--primary)]" aria-hidden />
                   <span className="hidden sm:inline">Teacher guide</span>
-                </a>
+                </Link>
               ) : null}
               <div className="flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2 shadow-sm">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white shadow-sm">
@@ -164,15 +162,13 @@ export function DashboardShell({
                 <ThemeToggle />
               </div>
               {showTeacherGuide ? (
-                <a
-                  href="/docs/teacher-guide.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/docs/teacher-guide"
                   className="surface-muted inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--text)] transition hover:bg-[var(--background-soft)]"
                 >
                   <BookOpen className="h-4 w-4 text-[var(--primary)]" aria-hidden />
                   <span className="hidden sm:inline">Teacher guide</span>
-                </a>
+                </Link>
               ) : null}
               <button
                 type="button"
