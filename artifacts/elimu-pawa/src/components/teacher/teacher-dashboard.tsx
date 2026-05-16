@@ -4258,93 +4258,78 @@ export function TeacherDashboard({
       }`}
     >
       <section className="space-y-4">
-        <div
-          className={`flex flex-wrap items-center justify-between rounded-2xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_85%,transparent)] shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] ${
-            simpleViewEnabled ? "gap-2 px-2 py-1.5" : "gap-3 px-3 py-2.5"
-          }`}
-        >
-          <div className={`flex flex-wrap items-center ${simpleViewEnabled ? "gap-1.5" : "gap-2"}`}>
-            <span
-              className={`rounded-full bg-rose-500 font-semibold text-white shadow-sm ${
-                simpleViewEnabled ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-xs"
-              }`}
-            >
-              {selectedSession?.status ?? currentDashboard.stream_preview.badge}
-            </span>
-            <span
-              className={`rounded-full font-semibold ${
-                simpleViewEnabled ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-xs"
-              } ${
-                broadcastOnlyClassroom ? "bg-[#4285f4]/85 text-white" : "bg-emerald-500/20 text-emerald-100"
-              }`}
-            >
-              {broadcastOnlyClassroom ? "Broadcast (YouTube Live)" : "Interactive (Live room)"}
-            </span>
-            <span
-              className={`rounded-full border border-white/10 bg-white/5 font-medium text-slate-300 ${
-                simpleViewEnabled ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-xs"
-              }`}
-            >
-              {syncBadgeLabel}
-            </span>
-            {selectedSession ? (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] shadow-sm backdrop-blur-sm">
+          <div className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2.5`}>
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shadow-rose-950/30">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                {selectedSession?.status ?? currentDashboard.stream_preview.badge}
+              </span>
               <span
-                className={`rounded-full border border-white/10 bg-white/5 font-medium text-slate-300 ${
-                  simpleViewEnabled ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-xs"
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  broadcastOnlyClassroom
+                    ? "bg-[#4285f4]/80 text-white"
+                    : "border border-emerald-400/30 bg-emerald-500/15 text-emerald-200"
                 }`}
               >
-                {selectedSession.room_code}
+                {broadcastOnlyClassroom ? "YouTube Broadcast" : "Interactive room"}
               </span>
-            ) : null}
-          </div>
-          <div className={`flex flex-wrap items-center ${simpleViewEnabled ? "gap-1.5" : "gap-3"}`}>
-            <button
-              type="button"
-              onClick={() => setSimpleViewEnabled((current) => !current)}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 font-semibold text-white transition hover:bg-white/10 ${
-                simpleViewEnabled ? "px-2.5 py-1.5 text-[11px]" : "gap-2 px-4 py-3 text-sm"
-              }`}
-            >
-              {simpleViewEnabled ? "Simple view" : "Advanced view"}
-            </button>
-            <select
-              value={selectedSessionId ?? ""}
-              onChange={(event) => {
-                setSelectedSessionId(Number(event.target.value) || null);
-                setDraftingNewSession(false);
-              }}
-              className={`rounded-full border border-white/10 bg-white/5 text-white outline-none transition focus:border-blue-400 ${
-                simpleViewEnabled ? "max-w-[10rem] px-2 py-1.5 text-[11px]" : "px-4 py-3 text-sm"
-              }`}
-            >
-              {sessions.length ? null : <option value="">Create a session first</option>}
-              {sessions.map((session) => (
-                <option key={session.id} value={session.id}>
-                  {session.organization_name
-                    ? `${session.title} · ${session.organization_name}`
-                    : session.title}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={handleCopy}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 font-semibold text-white transition hover:bg-white/10 ${
-                simpleViewEnabled ? "px-2.5 py-1.5 text-[11px]" : "gap-2 px-4 py-3 text-sm"
-              }`}
-            >
-              <Copy className={simpleViewEnabled ? "h-3.5 w-3.5" : "h-4 w-4"} />
-              Copy invite
-            </button>
-            <button
-              type="button"
-              onClick={() => void toggleClassToolsModal()}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 font-semibold text-white transition hover:bg-white/10 ${
-                simpleViewEnabled ? "px-2.5 py-1.5 text-[11px]" : "gap-2 px-4 py-3 text-sm"
-              }`}
-            >
-              {showRightPanel ? "Close tools" : "Class tools"}
-            </button>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-400">
+                {syncBadgeLabel}
+              </span>
+              {selectedSession ? (
+                <span className="rounded-full border border-indigo-400/25 bg-indigo-500/10 px-2.5 py-1 text-[11px] font-mono font-semibold tracking-widest text-indigo-200">
+                  {selectedSession.room_code}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <select
+                value={selectedSessionId ?? ""}
+                onChange={(event) => {
+                  setSelectedSessionId(Number(event.target.value) || null);
+                  setDraftingNewSession(false);
+                }}
+                className="max-w-[11rem] rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white outline-none transition focus:border-blue-400 focus:bg-white/10"
+              >
+                {sessions.length ? null : <option value="">Create a session first</option>}
+                {sessions.map((session) => (
+                  <option key={session.id} value={session.id}>
+                    {session.organization_name
+                      ? `${session.title} · ${session.organization_name}`
+                      : session.title}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/10 active:scale-95"
+              >
+                <Copy className="h-3 w-3" />
+                Invite
+              </button>
+              <button
+                type="button"
+                onClick={() => void toggleClassToolsModal()}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white transition active:scale-95 ${
+                  showRightPanel
+                    ? "bg-blue-600 hover:bg-blue-500"
+                    : "border border-white/10 bg-white/5 hover:bg-white/10"
+                }`}
+              >
+                <Sidebar className="h-3 w-3" />
+                {showRightPanel ? "Close tools" : "Class tools"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSimpleViewEnabled((current) => !current)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
+              >
+                {simpleViewEnabled ? "Simple" : "Advanced"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -4464,14 +4449,24 @@ export function TeacherDashboard({
                   allowFullScreen
                 />
               ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center text-white">
-                  <CalendarDays className="h-10 w-10 text-slate-400" />
+                <div className="flex h-full flex-col items-center justify-center gap-5 bg-gradient-to-b from-[#0d0f14] to-[#15171a] px-6 text-center text-white">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-xl">
+                    <CalendarDays className="h-8 w-8 text-indigo-300" />
+                  </div>
                   <div>
-                    <p className="text-xl font-semibold">Create your first live room</p>
-                    <p className="mt-2 text-sm text-slate-300">
-                      Add one session in Setup to turn this page into your classroom.
+                    <p className="text-xl font-bold tracking-tight">No room selected</p>
+                    <p className="mt-2 max-w-xs text-sm text-slate-400">
+                      Open Class tools, fill in a class name, and tap <strong className="text-white">Create class now</strong> to launch your room.
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => void toggleClassToolsModal()}
+                    className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/40 transition hover:bg-indigo-500 active:scale-95"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Open Class tools
+                  </button>
                 </div>
               )}
 
@@ -5064,32 +5059,32 @@ export function TeacherDashboard({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="teacher-class-tools-title"
-                className="relative z-10 flex max-h-[min(92dvh,920px)] w-full max-w-[min(100%,56rem)] flex-col overflow-hidden rounded-xl border border-[#d2d0ce] bg-[#faf9f8] shadow-[0_12px_48px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] lg:max-w-[min(100%,72rem)]"
+                className="relative z-10 flex max-h-[min(92dvh,920px)] w-full max-w-[min(100%,56rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#12141a] shadow-[0_24px_64px_rgba(0,0,0,0.55)] lg:max-w-[min(100%,72rem)]"
                 onMouseDown={(event) => event.stopPropagation()}
               >
-                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#edebe9] bg-white px-4 py-3.5 sm:px-5">
+                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#1a1d25] px-4 py-3.5 sm:px-5">
                   <div className="min-w-0 pr-2">
                     <h2
                       id="teacher-class-tools-title"
-                      className="text-base font-semibold text-[#201f1e] sm:text-lg"
+                      className="text-base font-bold tracking-tight text-white sm:text-lg"
                     >
                       Class tools
                     </h2>
-                    <p className="text-xs text-[#605e5c] sm:text-sm">
-                      Guided class setup (especially for broadcast), roster, and activities
+                    <p className="text-xs text-slate-400 sm:text-sm">
+                      Class setup, roster, polls, and engagement activities
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowRightPanel(false)}
-                    className="shrink-0 rounded-md border border-[#8a8886] bg-white px-3.5 py-2 text-sm font-semibold text-[#201f1e] shadow-sm transition hover:bg-[#f3f2f1] active:bg-[#edebe9]"
+                    className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
                   >
                     Close
                   </button>
                 </div>
-                <div className="teacher-right-panel min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#f3f2f1] px-3 pb-6 pt-3 sm:px-5">
-        <div className="rounded-[28px] border border-white/10 bg-[#15171a] p-3 text-white">
-          <div className="grid grid-cols-3 gap-2">
+                <div className="teacher-right-panel min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#12141a] px-3 pb-6 pt-3 sm:px-5">
+        <div className="rounded-xl border border-white/10 bg-[#1a1d25] p-1.5">
+          <div className="grid grid-cols-3 gap-1">
             {[
               { id: "session", label: "Class setup", icon: CalendarDays },
               { id: "students", label: "Students", icon: UsersRound },
@@ -5103,14 +5098,14 @@ export function TeacherDashboard({
                   key={item.id}
                   type="button"
                   onClick={() => setActivePanel(item.id as "session" | "students" | "engagement")}
-                  className={`flex flex-col items-center gap-2 rounded-2xl px-3 py-3 text-xs font-semibold transition ${
+                  className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all duration-150 ${
                     active
-                      ? "bg-[#4285f4] text-white"
-                      : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+                      ? "bg-blue-600 text-white shadow-sm shadow-blue-950/40"
+                      : "text-slate-400 hover:bg-white/5 hover:text-white"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               );
             })}
@@ -5118,24 +5113,41 @@ export function TeacherDashboard({
         </div>
 
         {activePanel === "session" ? (
-          <div className="rounded-[28px] border border-white/10 bg-[#15171a] p-5 text-white">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="rounded-2xl border border-white/10 bg-[#16191f] p-5 text-white">
+              <div className="mb-5 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="text-lg font-semibold">Your class</h2>
-                  <p className="text-sm text-slate-300">
+                  <h2 className="text-base font-bold tracking-tight text-white">Your class</h2>
+                  <p className="mt-0.5 text-xs text-slate-400">
                     {deliveryMode === "broadcast"
-                      ? "Keep it simple: add class basics and create. Add YouTube and more details later."
-                      : "Keep it simple: add class basics and create. Update other details later."}
+                      ? "Add basics and create. YouTube link and details can be added later."
+                      : "Add basics and create. Update other settings after class is created."}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-white/5 p-3 text-[#8ab4f8]">
-                  <ListOrdered className="h-5 w-5" aria-hidden />
+                <div className="flex shrink-0 items-center gap-2">
+                  {selectedSession ? (
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(selectedSession)}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                    >
+                      Edit room
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={handleResetForm}
+                    className="rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1.5 text-[11px] font-semibold text-blue-200 transition hover:bg-blue-500/20"
+                  >
+                    + New room
+                  </button>
                 </div>
               </div>
 
-              <div className="mb-4 rounded-2xl border border-white/10 bg-black/25 p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Your progress</p>
-                <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mb-4 overflow-hidden rounded-xl border border-white/10 bg-black/20">
+                <div className="border-b border-white/10 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Setup progress</p>
+                </div>
+                <div className="flex flex-wrap gap-2 p-3">
                   {classSetupWizardSteps.map(({ step, label, hint }) => {
                     const active = classSetupWizardStep === step;
                     const done = classSetupWizardStep > step;
@@ -5150,42 +5162,23 @@ export function TeacherDashboard({
                         }}
                         disabled={!done && !active}
                         title={hint}
-                        className={`flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-xl border px-2.5 py-2 text-left transition sm:min-w-[6.75rem] sm:flex-none ${
+                        className={`flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-lg border px-2.5 py-2 text-left transition sm:min-w-[6.75rem] sm:flex-none ${
                           active
-                            ? "border-[#4285f4]/50 bg-[#4285f4]/15 text-white"
+                            ? "border-blue-500/40 bg-blue-600/15 text-white"
                             : done
-                              ? "border-emerald-400/35 bg-emerald-500/10 text-emerald-100"
-                              : "cursor-not-allowed border-white/10 bg-white/[0.04] text-slate-500"
+                              ? "border-emerald-400/35 bg-emerald-500/10 text-emerald-200"
+                              : "cursor-not-allowed border-white/8 bg-white/[0.03] text-slate-600"
                         }`}
                       >
-                        <span className="text-[11px] font-bold text-slate-400">
-                          {step}/{classSetupWizardStepCount}
+                        <span className={`text-[10px] font-bold ${active ? "text-blue-400" : done ? "text-emerald-400" : "text-slate-600"}`}>
+                          Step {step}/{classSetupWizardStepCount}
                         </span>
                         <span className="text-xs font-semibold leading-tight">{label}</span>
-                        <span className="text-[10px] leading-snug text-slate-400">{hint}</span>
+                        <span className="text-[10px] leading-snug text-slate-500">{hint}</span>
                       </button>
                     );
                   })}
                 </div>
-              </div>
-
-              <div className="mb-4 flex flex-wrap gap-2">
-                {selectedSession ? (
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(selectedSession)}
-                    className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
-                  >
-                    Edit selected room
-                  </button>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={handleResetForm}
-                  className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
-                >
-                  New room
-                </button>
               </div>
 
               <div className="grid gap-4">
