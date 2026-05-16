@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "KsM0xC4-D1HCsedzyh4Qq"
@@ -12,3 +11,9 @@ id = "wqpCLK_WSgrOs7TDK9-pr"
 uri = "file://artifacts/elimu-pawa-mobile/assets/images/splash-icon.png"
 type = "image"
 title = "elimupawa splash"
+
+[[outputs]]
+id = "O6PsiUODdYdnifYi3kn8f"
+uri = "file://teacher-user-manual.md"
+type = "text"
+title = "ElimuPawa Teacher User Manual"
