@@ -7,9 +7,9 @@
 1. [Getting Started](#1-getting-started)
 2. [Signing In](#2-signing-in)
 3. [Your Teacher Dashboard](#3-your-teacher-dashboard)
-4. [Creating a Class Room](#4-creating-a-class-room)
+4. [My Classes — Subjects, Lessons & Student Access](#4-my-classes--subjects-lessons--student-access)
 5. [Running a Live Class](#5-running-a-live-class)
-6. [Managing Your Students](#6-managing-your-students)
+6. [Managing Your Students During a Live Class](#6-managing-your-students-during-a-live-class)
 7. [Engagement Tools — Polls & Quizzes](#7-engagement-tools--polls--quizzes)
 8. [Breakout Rooms](#8-breakout-rooms)
 9. [Whiteboard](#9-whiteboard)
@@ -27,11 +27,12 @@
 
 ElimuPawa Classroom is a browser-based virtual classroom platform built for Kenyan schools. As a teacher you can:
 
+- Create and manage class subjects and scheduled lessons
+- Control exactly which students have access to each lesson
 - Host live interactive classes with up to 200 students
 - Broadcast lectures via YouTube Live to thousands of learners
 - Run polls, quizzes, and breakout group work
 - Share your screen or whiteboard
-- Manage your class roster and track attendance
 - Chat and moderate student questions in real time
 
 **Requirements**
@@ -45,19 +46,21 @@ ElimuPawa Classroom is a browser-based virtual classroom platform built for Keny
 ## 2. Signing In
 
 1. Open your school's ElimuPawa link in a browser.
-2. On the landing page you will see the **Sign In** card on the right side of the screen.
-3. Enter your **username** and **password** and tap **Sign in**.
-4. If your school has set up demo accounts, tap your name from the list to sign in instantly.
+2. On the landing page, tap **"I am a Teacher"** on the right-hand card.
+3. You are taken to the Teacher sign-in page.
+4. Sign in with your **email and password**, or tap **Continue with Google** to use your Google account.
 
-> **Tip:** If you forgot your password, tap **Forgot password?** below the sign-in form and follow the email instructions.
+> **Tip:** If you forgot your password, tap **Forgot password?** below the sign-in form and follow the email instructions sent to your registered address.
 
-Once signed in as a teacher you will be taken directly to your **Teacher Dashboard** at `/teacher`.
+Once signed in, you will be taken to your **Teacher Dashboard** at `/teacher`. To manage your classes and lessons, go to **My Classes** at `/teacher/classes`.
+
+> **Note for new teachers:** Your sign-in uses a secure email-based system (powered by Clerk). Students use a separate sign-in with their ADM number — do not use the student sign-in link.
 
 ---
 
 ## 3. Your Teacher Dashboard
 
-The Teacher Dashboard is your main classroom screen. It has three main areas:
+The Teacher Dashboard (`/teacher`) is your live classroom screen. It has three main areas:
 
 ### Top Control Bar
 The bar across the top shows:
@@ -81,38 +84,81 @@ A floating toolbar at the bottom of the screen gives you quick access to mic, ca
 
 ---
 
-## 4. Creating a Class Room
+## 4. My Classes — Subjects, Lessons & Student Access
 
-Before you can run a class, you need to create a session (room).
+**My Classes** (`/teacher/classes`) is where you manage everything before going live — create your class subjects, schedule individual lessons, and choose which students can access each lesson. Visit it from the top navigation or directly at `/teacher/classes`.
 
-1. Tap **Class tools** in the top bar — a panel slides open.
-2. The panel opens to the **Class setup** tab by default.
+---
+
+### 4.1 Creating a Class (Subject)
+
+A **class** represents a subject you teach to a specific class level (e.g. "Mathematics — Form 2").
+
+1. Go to **My Classes** and tap **+ New Class** (top right).
+2. A form appears. Fill in:
+   - **Subject** — select from the dropdown list of subjects set by your school administrator (e.g. Mathematics, English, Kiswahili)
+   - **Class Level** — select the class this subject is for (e.g. Form 2, Grade 6)
+   - **Description** *(optional)* — a short note about the class
+3. Tap **Create Class**.
+
+Your new class card appears in the list. Each card shows the subject, class level, and creation date.
+
+> **Note:** Subjects and class levels are set by your school administrator to ensure uniformity across all teachers. If a subject or class level you need is not in the dropdown, contact your admin.
+
+---
+
+### 4.2 Scheduling a Lesson
+
+A **lesson** is a single scheduled session within a class — each class can have many lessons.
+
+1. From **My Classes**, tap **Schedule Lessons** on the class card you want to add a lesson to.
+2. You are taken to the lessons view for that class. Tap **+ Schedule Lesson**.
 3. Fill in:
-   - **Class name** — e.g. "Tuesday Form 2 English"
-   - **Start time** — the scheduled date and time of your class
-   - **Delivery mode** — choose between:
-     - **Interactive room** (10–200 students, direct live participation)
-     - **Broadcast lecture** (200–5,000 students via YouTube Live)
-   - **Expected participants** — approximate number of students
-4. Tap **Create class now** (green button) to publish the room immediately.
+   - **Lesson Title** — e.g. "Introduction to Fractions" or "Week 3 — Comprehension"
+   - **Date & Time** — pick the scheduled date and start time
+   - **Duration** — how long the lesson will run (default is 60 minutes)
+4. Tap **Schedule Lesson**.
 
-Your new room appears in the **Session selector** dropdown at the top. Students can join using the **Room code** shown in the top bar.
+The lesson appears in the list with its date, time, and duration. A **Live** badge appears next to any lesson that is currently in progress.
 
-### Editing an Existing Room
-1. Select the room from the session selector dropdown.
-2. Open **Class tools → Class setup**.
-3. Tap **Edit room** next to the panel title.
-4. Update the fields and tap **Save changes**.
+---
 
-### Creating Another Room
-Tap **+ New room** in the Class setup panel header to start a fresh class form without losing your existing rooms.
+### 4.3 Managing Student Access Per Lesson
+
+You control exactly which students can see and access each lesson. Students who are not approved will not see the lesson on their dashboard at all.
+
+1. From the lessons list, find the lesson you want to manage and tap **Manage Students**.
+2. A checklist appears showing all students registered in the system.
+3. Tick the checkbox next to each student who should have access to this lesson.
+4. Tap **Save** to apply your selection.
+
+Students you have ticked will see the lesson on their student dashboard under "Upcoming Lessons". Students left unticked cannot see or access it.
+
+> **Tip:** You can update student access at any time — even after the lesson date. Simply re-open Manage Students and adjust the list.
+
+---
+
+### 4.4 Navigating Between Classes and Lessons
+
+- The **breadcrumb** at the top of the page shows your current location: `My Classes / Subject (Level) / Manage Students — Lesson Title`
+- Tap **My Classes** in the breadcrumb to go back to the full class list.
+- Tap the class name in the breadcrumb to go back to the lessons list for that class.
+
+---
+
+### 4.5 Deleting a Class or Lesson
+
+- To delete a **lesson**: tap the **Delete** button (trash icon) on the lesson card. This also removes all student access records for that lesson.
+- To delete a **class**: tap the **Delete** button on the class card. This removes the class and all its lessons permanently.
+
+> **Warning:** Deleting a class cannot be undone. Students will immediately lose access to all lessons in that class.
 
 ---
 
 ## 5. Running a Live Class
 
 ### Starting the Meeting Controls
-When you open the Teacher Dashboard with a session selected, the meeting dock appears at the bottom of the screen.
+When you open the Teacher Dashboard (`/teacher`) with a session selected, the meeting dock appears at the bottom of the screen.
 
 ### Turning on Your Camera
 - Tap the **Camera** button in the dock.
@@ -146,7 +192,7 @@ Tap the red **Leave class** button in the dock. This does not delete the room �
 
 ---
 
-## 6. Managing Your Students
+## 6. Managing Your Students During a Live Class
 
 ### Viewing Students
 1. Open **Class tools** → tap the **Students** tab.
@@ -351,10 +397,8 @@ To update a student's access to a class:
 ### Downloading the Roster
 Tap the **Download roster (PDF)** button in the Students tab to export a printable list of enrolled students with their attendance records.
 
-### Adding a Student to the Class
-1. Open **Class tools → Class setup → Students & handouts**.
-2. Select a student from the dropdown (your school's registered students).
-3. Tap **Add to class** — they are now enrolled and can join using the room code.
+### Per-Lesson Student Access
+In addition to live class enrollment above, you can also control which students see each **scheduled lesson** on their dashboard. See [Section 4.3](#43-managing-student-access-per-lesson) for full details.
 
 ---
 
@@ -366,7 +410,7 @@ Access your personal settings at `/settings` (tap the **Settings** icon in the b
 Toggle between light and dark mode using the switch on the Settings page. Your preference is saved automatically.
 
 ### Profile Summary
-The settings page shows your account name, username, and role. Contact your school administrator to update personal details.
+The settings page shows your account name, email address, and role. To update personal details, tap the profile icon in the top navigation and use your account settings.
 
 ---
 
@@ -382,10 +426,21 @@ The settings page shows your account name, username, and role. Contact your scho
 - Only one browser tab can use your camera at a time — close other video apps.
 - On mobile, ensure the browser has camera access in your device's settings.
 
-### Students Cannot Join
-- Share the **Room code** (shown in the top bar) — students enter it on the Student page.
+### Students Cannot Join or Cannot See a Lesson
+- Make sure you have **approved the student** in My Classes → the lesson → Manage Students.
+- Only students with a tick next to their name will see the lesson on their dashboard.
+- Share the **Room code** (shown in the top bar of the Teacher Dashboard) for the live class itself.
 - Or tap **Invite** to copy a direct join link and send it via WhatsApp or SMS.
-- Make sure the session exists (it must be created in Class setup first).
+
+### A Subject or Class Level Is Missing from the Dropdown
+- Subjects and class levels are managed by your school administrator.
+- Contact your admin and ask them to add the missing item at `/admin`.
+- Once added, it will appear in your dropdown immediately on next page load.
+
+### Students Cannot Sign In
+- Students sign in using their **ADM number** and the **first 7 digits** of the parent/guardian phone number registered during sign-up.
+- If a student registered with phone number 0712345678, their password is **0712345**.
+- If a student cannot sign in, they may need to re-register or contact the admin.
 
 ### Whiteboard Is Not Saving
 - A red dot with "Save failed" appears in the top-right of the whiteboard.
@@ -398,7 +453,7 @@ The settings page shows your account name, username, and role. Contact your scho
 - On a slow connection, use **Broadcast mode** instead of Interactive so students watch YouTube (lower load on your side).
 
 ### How to Switch Between Your Classes
-Use the **Session selector** dropdown in the top bar to switch between rooms without leaving the dashboard.
+Use the **Session selector** dropdown in the top bar of the Teacher Dashboard to switch between live rooms without leaving the dashboard. To switch between class subjects and lessons, go to **My Classes** (`/teacher/classes`).
 
 ---
 
