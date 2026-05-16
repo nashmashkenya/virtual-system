@@ -31,22 +31,130 @@ async function del(path: string) {
   await api(path, { method: "DELETE" });
 }
 
+/* ── Design tokens ── */
+const ms = {
+  bg: "#f3f2f1",
+  surface: "#ffffff",
+  border: "#edebe9",
+  borderMid: "#d2d0ce",
+  textPrimary: "#201f1e",
+  textSecondary: "#605e5c",
+  textDisabled: "#a19f9d",
+  blue: "#0078d4",
+  blueHover: "#106ebe",
+  blueLight: "#deecf9",
+  green: "#107c10",
+  greenLight: "#dff6dd",
+  red: "#a4262c",
+  redLight: "#fde7e9",
+  amber: "#d83b01",
+  amberLight: "#fff4ce",
+};
+
 /* ── Reusable small components ── */
-function Badge({ label, active }: { label: string; active: boolean }) {
+function Badge({ active }: { active: boolean }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${active ? "bg-emerald-600/15 text-emerald-400" : "bg-slate-700/50 text-slate-500"}`}>
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "2px 10px", borderRadius: 12, fontSize: 12, fontWeight: 600,
+      background: active ? ms.greenLight : ms.bg,
+      color: active ? ms.green : ms.textDisabled,
+      border: `1px solid ${active ? "#bad7ba" : ms.borderMid}`,
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: active ? ms.green : ms.textDisabled, display: "inline-block" }} />
       {active ? "Active" : "Inactive"}
     </span>
   );
 }
 
-function StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
+function StatCard({ label, value, icon, accent }: { label: string; value: number; icon: string; accent: string }) {
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900 p-5">
-      <div className="mb-2 text-2xl">{icon}</div>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      <p className="mt-0.5 text-sm text-slate-400">{label}</p>
+    <div style={{
+      background: ms.surface, border: `1px solid ${ms.border}`,
+      borderRadius: 4, padding: "20px 20px 18px",
+      borderLeft: `3px solid ${accent}`,
+      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+    }}>
+      <div style={{ fontSize: 20, marginBottom: 8 }}>{icon}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: ms.textPrimary, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, color: ms.textSecondary, marginTop: 4 }}>{label}</div>
     </div>
+  );
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h1 style={{ fontSize: 18, fontWeight: 600, color: ms.textPrimary, margin: 0 }}>{title}</h1>
+      <p style={{ fontSize: 13, color: ms.textSecondary, margin: "4px 0 0" }}>{subtitle}</p>
+    </div>
+  );
+}
+
+function MsInput({ value, onChange, placeholder, type = "text" }: {
+  value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: "100%", boxSizing: "border-box",
+        border: `1px solid ${ms.borderMid}`,
+        borderRadius: 2, padding: "7px 12px",
+        fontSize: 14, color: ms.textPrimary,
+        outline: "none", background: ms.surface,
+        fontFamily: "inherit",
+      }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; e.currentTarget.style.boxShadow = `0 0 0 1px ${ms.blue}`; }}
+      onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; e.currentTarget.style.boxShadow = "none"; }}
+    />
+  );
+}
+
+function PrimaryBtn({ children, onClick, disabled, type = "button" }: {
+  children: React.ReactNode; onClick?: () => void; disabled?: boolean; type?: "button" | "submit";
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        background: disabled ? ms.borderMid : ms.blue,
+        color: "#fff", border: "none",
+        borderRadius: 2, padding: "7px 20px",
+        fontSize: 14, fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer",
+        fontFamily: "inherit", whiteSpace: "nowrap",
+        transition: "background 0.1s",
+      }}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = ms.blueHover; }}
+      onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = ms.blue; }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function GhostBtn({ children, onClick, color = ms.textSecondary }: {
+  children: React.ReactNode; onClick?: () => void; color?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        background: "none", border: "none", padding: "3px 8px",
+        fontSize: 13, color, cursor: "pointer", fontFamily: "inherit",
+        borderRadius: 2, transition: "background 0.1s",
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = ms.bg; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -138,7 +246,7 @@ export function AdminPage() {
       const d = await r.json() as { school_name: string; school_logo: string };
       setSchoolName(d.school_name);
       setSchoolLogo(d.school_logo);
-      setSchoolMsg("Saved successfully!");
+      setSchoolMsg("Changes saved.");
       setTimeout(() => setSchoolMsg(""), 3000);
     } else {
       setSchoolMsg("Failed to save. Try again.");
@@ -231,8 +339,9 @@ export function AdminPage() {
   /* ── Loading state ── */
   if (authed === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", background: ms.bg }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", border: `3px solid ${ms.border}`, borderTopColor: ms.blue, animation: "spin 0.7s linear infinite" }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -240,32 +349,50 @@ export function AdminPage() {
   /* ── Login screen ── */
   if (!authed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-        <button onClick={() => navigate("/")} className="absolute left-5 top-5 flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-700/60 hover:text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4"><path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" /></svg>
-          Home
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", background: ms.bg, fontFamily: "'Segoe UI', system-ui, sans-serif", padding: 16 }}>
+        <button
+          onClick={() => navigate("/")}
+          style={{ position: "absolute", top: 16, left: 16, display: "flex", alignItems: "center", gap: 6, background: ms.surface, border: `1px solid ${ms.border}`, borderRadius: 2, padding: "6px 14px", fontSize: 13, color: ms.textSecondary, cursor: "pointer" }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" /></svg>
+          Back to home
         </button>
-        <div className="w-full max-w-[400px] rounded-2xl border border-slate-700/50 bg-slate-900 p-8 shadow-2xl">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600/20 text-2xl">🔐</div>
-            <h1 className="text-xl font-bold text-white">Admin Login</h1>
-            <p className="mt-1 text-sm text-slate-400">ElimuPawa administration panel</p>
+
+        <div style={{ width: "100%", maxWidth: 380, background: ms.surface, border: `1px solid ${ms.border}`, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", padding: "40px 36px" }}>
+          {/* Microsoft-style header */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+              <div style={{ width: 28, height: 28, background: ms.blue, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="1" width="6" height="6" fill="#fff" />
+                  <rect x="9" y="1" width="6" height="6" fill="#fff" opacity=".7" />
+                  <rect x="1" y="9" width="6" height="6" fill="#fff" opacity=".7" />
+                  <rect x="9" y="9" width="6" height="6" fill="#fff" opacity=".4" />
+                </svg>
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 600, color: ms.textPrimary }}>ElimuPawa</span>
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 600, color: ms.textPrimary, margin: "0 0 6px" }}>Sign in</h1>
+            <p style={{ fontSize: 13, color: ms.textSecondary, margin: 0 }}>Administration console</p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
+
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Username</label>
-              <input type="text" value={username} onChange={(e) => { setUsername(e.target.value); setLoginErr(""); }}
-                className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40" />
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: ms.textPrimary, marginBottom: 4 }}>Username</label>
+              <MsInput value={username} onChange={(v) => { setUsername(v); setLoginErr(""); }} />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Password</label>
-              <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setLoginErr(""); }}
-                className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40" />
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: ms.textPrimary, marginBottom: 4 }}>Password</label>
+              <MsInput type="password" value={password} onChange={(v) => { setPassword(v); setLoginErr(""); }} />
             </div>
-            {loginErr && <p className="text-sm text-red-400">{loginErr}</p>}
-            <button type="submit" disabled={loggingIn} className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60">
-              {loggingIn ? "Signing in…" : "Sign In"}
-            </button>
+            {loginErr && (
+              <div style={{ background: ms.redLight, border: `1px solid #f4b8bb`, borderRadius: 2, padding: "8px 12px", fontSize: 13, color: ms.red }}>
+                {loginErr}
+              </div>
+            )}
+            <PrimaryBtn type="submit" disabled={loggingIn}>
+              {loggingIn ? "Signing in…" : "Sign in"}
+            </PrimaryBtn>
           </form>
         </div>
       </div>
@@ -273,143 +400,176 @@ export function AdminPage() {
   }
 
   const TABS = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "classes", label: "Class Levels", icon: "🎒" },
-    { id: "subjects", label: "Subjects", icon: "📚" },
-    { id: "terms", label: "Academic Terms", icon: "📅" },
-    { id: "school", label: "School", icon: "🏫" },
+    { id: "overview",  label: "Overview",        icon: "⊞" },
+    { id: "classes",   label: "Class Levels",     icon: "≡" },
+    { id: "subjects",  label: "Subjects",         icon: "⊕" },
+    { id: "terms",     label: "Academic Terms",   icon: "▦" },
+    { id: "school",    label: "School",           icon: "◈" },
   ] as const;
 
+  const inputStyle = {
+    border: `1px solid ${ms.borderMid}`, borderRadius: 2,
+    padding: "7px 12px", fontSize: 14, color: ms.textPrimary,
+    background: ms.surface, outline: "none", fontFamily: "inherit",
+  };
+
+  const selectStyle = {
+    ...inputStyle, cursor: "pointer",
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {/* Navbar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="ElimuPawa" className="h-8 w-8" />
-            <div>
-              <span className="font-bold text-white">ElimuPawa</span>
-              <span className="ml-2 rounded-lg bg-blue-600/20 px-2 py-0.5 text-xs font-medium text-blue-400">Admin</span>
-            </div>
+    <div style={{ minHeight: "100vh", background: ms.bg, fontFamily: "'Segoe UI', system-ui, sans-serif", color: ms.textPrimary }}>
+
+      {/* ── Top bar ── */}
+      <header style={{ background: ms.surface, borderBottom: `1px solid ${ms.border}`, padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 48, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 24, height: 24, background: ms.blue, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="6" height="6" fill="#fff" />
+              <rect x="9" y="1" width="6" height="6" fill="#fff" opacity=".7" />
+              <rect x="1" y="9" width="6" height="6" fill="#fff" opacity=".7" />
+              <rect x="9" y="9" width="6" height="6" fill="#fff" opacity=".4" />
+            </svg>
           </div>
-          <button onClick={handleLogout} className="rounded-xl border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">
-            Sign out
-          </button>
+          <span style={{ fontSize: 15, fontWeight: 600, color: ms.textPrimary }}>ElimuPawa</span>
+          <span style={{ fontSize: 13, color: ms.textSecondary, borderLeft: `1px solid ${ms.border}`, paddingLeft: 10, marginLeft: 2 }}>Admin Center</span>
         </div>
+        <button
+          onClick={handleLogout}
+          style={{ background: "none", border: `1px solid ${ms.border}`, borderRadius: 2, padding: "5px 14px", fontSize: 13, color: ms.textSecondary, cursor: "pointer" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = ms.bg; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+        >
+          Sign out
+        </button>
       </header>
 
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        {/* Tab bar */}
-        <div className="mb-8 flex gap-1 rounded-2xl border border-slate-800 bg-slate-900 p-1">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); setAddErr(""); }}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition ${tab === t.id ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-300"}`}
-            >
-              <span>{t.icon}</span>
-              <span className="hidden sm:block">{t.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* ── Pivot tabs (Office-style underline) ── */}
+      <div style={{ background: ms.surface, borderBottom: `1px solid ${ms.border}`, padding: "0 24px", display: "flex", gap: 0 }}>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => { setTab(t.id); setAddErr(""); }}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: "12px 18px", fontSize: 14,
+              color: tab === t.id ? ms.blue : ms.textSecondary,
+              fontWeight: tab === t.id ? 600 : 400,
+              borderBottom: tab === t.id ? `2px solid ${ms.blue}` : "2px solid transparent",
+              marginBottom: -1, fontFamily: "inherit",
+              transition: "color 0.1s",
+            }}
+            onMouseEnter={(e) => { if (tab !== t.id) e.currentTarget.style.color = ms.textPrimary; }}
+            onMouseLeave={(e) => { if (tab !== t.id) e.currentTarget.style.color = ms.textSecondary; }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Page content ── */}
+      <main style={{ maxWidth: 960, margin: "0 auto", padding: "28px 24px" }}>
 
         {/* ── OVERVIEW ── */}
         {tab === "overview" && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white">School Overview</h1>
-              <p className="mt-1 text-sm text-slate-400">Live statistics across the platform</p>
+          <div>
+            <SectionHeader title="Overview" subtitle="Live statistics across the platform" />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
+              <StatCard label="Students"         value={stats?.students ?? 0}        icon="🎒" accent={ms.blue}  />
+              <StatCard label="Teacher Classes"  value={stats?.teacher_classes ?? 0} icon="🎓" accent="#5c2d91" />
+              <StatCard label="Lessons Scheduled"value={stats?.lessons ?? 0}         icon="📋" accent={ms.green} />
+              <StatCard label="Active Subjects"  value={stats?.subjects ?? 0}        icon="📚" accent={ms.amber} />
+              <StatCard label="Class Levels"     value={stats?.class_levels ?? 0}    icon="🏫" accent="#008272" />
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              <StatCard label="Students" value={stats?.students ?? 0} icon="🎒" />
-              <StatCard label="Teacher Classes" value={stats?.teacher_classes ?? 0} icon="🎓" />
-              <StatCard label="Lessons Scheduled" value={stats?.lessons ?? 0} icon="📋" />
-              <StatCard label="Active Subjects" value={stats?.subjects ?? 0} icon="📚" />
-              <StatCard label="Class Levels" value={stats?.class_levels ?? 0} icon="🏫" />
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="mb-4 font-semibold text-white">Current Academic Term</h2>
+
+            <div style={{ background: ms.surface, border: `1px solid ${ms.border}`, borderRadius: 4, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 12 }}>Current Academic Term</div>
               {terms.find((t) => t.is_current) ? (() => {
                 const t = terms.find((x) => x.is_current)!;
                 return (
-                  <div className="flex flex-col gap-1">
-                    <p className="text-lg font-bold text-emerald-400">{t.name}</p>
-                    <p className="text-sm text-slate-400">
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 16, fontWeight: 600, color: ms.textPrimary }}>{t.name}</span>
+                      <span style={{ background: ms.greenLight, color: ms.green, border: `1px solid #bad7ba`, borderRadius: 12, padding: "2px 10px", fontSize: 12, fontWeight: 600 }}>Current</span>
+                    </div>
+                    <p style={{ fontSize: 13, color: ms.textSecondary, margin: "4px 0 0" }}>
                       {new Date(t.start_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
                       {" — "}
                       {new Date(t.end_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
                 );
-              })() : <p className="text-slate-400">No current term set. Go to Academic Terms to set one.</p>}
+              })() : (
+                <p style={{ fontSize: 14, color: ms.textSecondary, margin: 0 }}>No current term set. Go to <strong>Academic Terms</strong> to set one.</p>
+              )}
             </div>
           </div>
         )}
 
         {/* ── CLASS LEVELS ── */}
         {tab === "classes" && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Class Levels</h1>
-              <p className="mt-1 text-sm text-slate-400">These appear in the student sign-up form and teacher class creation. Order matters — drag to reorder or edit the sort position.</p>
+          <div>
+            <SectionHeader title="Class Levels" subtitle="These appear in the student sign-up form and teacher class creation." />
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <form onSubmit={addLevel} style={{ display: "flex", gap: 8, flex: 1 }}>
+                <input
+                  type="text"
+                  value={newLevel}
+                  onChange={(e) => { setNewLevel(e.target.value); setAddErr(""); }}
+                  placeholder="e.g. Grade 10 or Form 5"
+                  style={{ ...inputStyle, flex: 1 }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; e.currentTarget.style.boxShadow = `0 0 0 1px ${ms.blue}`; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; e.currentTarget.style.boxShadow = "none"; }}
+                />
+                <PrimaryBtn type="submit" disabled={saving}>{saving ? "Adding…" : "Add"}</PrimaryBtn>
+              </form>
             </div>
+            {addErr && <p style={{ fontSize: 13, color: ms.red, margin: "4px 0 8px" }}>{addErr}</p>}
 
-            {/* Add form */}
-            <form onSubmit={addLevel} className="flex gap-3">
-              <input
-                type="text"
-                value={newLevel}
-                onChange={(e) => { setNewLevel(e.target.value); setAddErr(""); }}
-                placeholder="e.g. Grade 10 or Form 5"
-                className="flex-1 rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-              />
-              <button type="submit" disabled={saving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
-                {saving ? "Adding…" : "Add"}
-              </button>
-            </form>
-            {addErr && <p className="text-sm text-red-400">{addErr}</p>}
-
-            <div className="overflow-hidden rounded-2xl border border-slate-800">
-              <table className="w-full text-sm">
+            <div style={{ background: ms.surface, border: `1px solid ${ms.border}`, borderRadius: 4, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
                 <thead>
-                  <tr className="border-b border-slate-800 bg-slate-900/60">
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Order</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Status</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-slate-500">Actions</th>
+                  <tr style={{ background: "#faf9f8", borderBottom: `1px solid ${ms.border}` }}>
+                    {["Order", "Name", "Status", "Actions"].map((h, i) => (
+                      <th key={h} style={{ padding: "10px 14px", textAlign: i === 3 ? "right" : "left", fontSize: 12, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800 bg-slate-900">
-                  {classLevels.map((cl) => (
-                    <tr key={cl.id} className={cl.is_active ? "" : "opacity-50"}>
-                      <td className="px-4 py-3 text-slate-500">{cl.sort_order}</td>
-                      <td className="px-4 py-3 font-medium text-white">
+                <tbody>
+                  {classLevels.map((cl, idx) => (
+                    <tr key={cl.id} style={{ borderBottom: `1px solid ${ms.border}`, background: idx % 2 === 0 ? ms.surface : "#faf9f8", opacity: cl.is_active ? 1 : 0.55 }}>
+                      <td style={{ padding: "10px 14px", color: ms.textDisabled }}>{cl.sort_order}</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 500 }}>
                         {editingLevel === cl.id ? (
                           <input
                             autoFocus
                             value={editLevelVal}
                             onChange={(e) => setEditLevelVal(e.target.value)}
                             onKeyDown={(e) => { if (e.key === "Enter") saveEditLevel(cl.id); if (e.key === "Escape") setEditingLevel(null); }}
-                            className="rounded-lg border border-blue-500 bg-slate-800 px-2 py-1 text-sm text-white outline-none"
+                            style={{ ...inputStyle, padding: "4px 8px", fontSize: 13 }}
                           />
                         ) : cl.name}
                       </td>
-                      <td className="px-4 py-3"><Badge label="" active={cl.is_active} /></td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-2">
+                      <td style={{ padding: "10px 14px" }}><Badge active={cl.is_active} /></td>
+                      <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 4 }}>
                           {editingLevel === cl.id ? (
-                            <button onClick={() => saveEditLevel(cl.id)} className="text-xs text-blue-400 hover:text-blue-300">Save</button>
+                            <GhostBtn onClick={() => saveEditLevel(cl.id)} color={ms.blue}>Save</GhostBtn>
                           ) : (
-                            <button onClick={() => { setEditingLevel(cl.id); setEditLevelVal(cl.name); }} className="text-xs text-slate-400 hover:text-white">Edit</button>
+                            <GhostBtn onClick={() => { setEditingLevel(cl.id); setEditLevelVal(cl.name); }}>Edit</GhostBtn>
                           )}
-                          <button onClick={() => toggleLevel(cl.id, !cl.is_active)} className={`text-xs ${cl.is_active ? "text-amber-400 hover:text-amber-300" : "text-emerald-400 hover:text-emerald-300"}`}>
+                          <GhostBtn onClick={() => toggleLevel(cl.id, !cl.is_active)} color={cl.is_active ? ms.amber : ms.green}>
                             {cl.is_active ? "Disable" : "Enable"}
-                          </button>
-                          <button onClick={() => deleteLevel(cl.id)} className="text-xs text-red-400 hover:text-red-300">Delete</button>
+                          </GhostBtn>
+                          <GhostBtn onClick={() => deleteLevel(cl.id)} color={ms.red}>Delete</GhostBtn>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {classLevels.length === 0 && (
+                    <tr><td colSpan={4} style={{ padding: "24px 14px", textAlign: "center", color: ms.textSecondary, fontSize: 14 }}>No class levels yet. Add one above.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -418,241 +578,216 @@ export function AdminPage() {
 
         {/* ── SUBJECTS ── */}
         {tab === "subjects" && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Subjects</h1>
-              <p className="mt-1 text-sm text-slate-400">Teachers pick from this list when creating a class. Disable a subject to hide it without deleting.</p>
+          <div>
+            <SectionHeader title="Subjects" subtitle="Teachers pick from this list when creating a class. Disable to hide without deleting." />
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <form onSubmit={addSubject} style={{ display: "flex", gap: 8, flex: 1 }}>
+                <input
+                  type="text"
+                  value={newSubject}
+                  onChange={(e) => { setNewSubject(e.target.value); setAddErr(""); }}
+                  placeholder="e.g. French or Technical Drawing"
+                  style={{ ...inputStyle, flex: 1 }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; e.currentTarget.style.boxShadow = `0 0 0 1px ${ms.blue}`; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; e.currentTarget.style.boxShadow = "none"; }}
+                />
+                <PrimaryBtn type="submit" disabled={saving}>{saving ? "Adding…" : "Add"}</PrimaryBtn>
+              </form>
             </div>
+            {addErr && <p style={{ fontSize: 13, color: ms.red, margin: "4px 0 8px" }}>{addErr}</p>}
 
-            <form onSubmit={addSubject} className="flex gap-3">
-              <input
-                type="text"
-                value={newSubject}
-                onChange={(e) => { setNewSubject(e.target.value); setAddErr(""); }}
-                placeholder="e.g. French or Technical Drawing"
-                className="flex-1 rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-              />
-              <button type="submit" disabled={saving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
-                {saving ? "Adding…" : "Add"}
-              </button>
-            </form>
-            {addErr && <p className="text-sm text-red-400">{addErr}</p>}
-
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
               {subjects.map((s) => (
-                <div key={s.id} className={`group flex items-center justify-between rounded-xl border px-4 py-3 ${s.is_active ? "border-slate-700/50 bg-slate-900" : "border-slate-800 bg-slate-900/40 opacity-50"}`}>
-                  <span className="font-medium text-white">{s.name}</span>
-                  <div className="flex gap-2 opacity-0 transition group-hover:opacity-100">
-                    <button onClick={() => toggleSubject(s.id, !s.is_active)} className={`text-xs ${s.is_active ? "text-amber-400" : "text-emerald-400"}`} title={s.is_active ? "Disable" : "Enable"}>
-                      {s.is_active ? "○" : "●"}
-                    </button>
-                    <button onClick={() => deleteSubject(s.id)} className="text-xs text-red-400" title="Delete">✕</button>
+                <div
+                  key={s.id}
+                  style={{
+                    background: ms.surface, border: `1px solid ${ms.border}`,
+                    borderLeft: `3px solid ${s.is_active ? ms.blue : ms.borderMid}`,
+                    borderRadius: 2, padding: "10px 14px",
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    opacity: s.is_active ? 1 : 0.55,
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{s.name}</span>
+                  <div style={{ display: "flex", gap: 2 }}>
+                    <GhostBtn onClick={() => toggleSubject(s.id, !s.is_active)} color={s.is_active ? ms.amber : ms.green}>
+                      {s.is_active ? "Disable" : "Enable"}
+                    </GhostBtn>
+                    <GhostBtn onClick={() => deleteSubject(s.id)} color={ms.red}>✕</GhostBtn>
                   </div>
                 </div>
               ))}
+              {subjects.length === 0 && (
+                <div style={{ gridColumn: "1/-1", textAlign: "center", color: ms.textSecondary, fontSize: 14, padding: 24 }}>No subjects yet. Add one above.</div>
+              )}
             </div>
           </div>
         )}
 
         {/* ── TERMS ── */}
         {tab === "terms" && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Academic Terms</h1>
-              <p className="mt-1 text-sm text-slate-400">Set term dates for the school year. Mark one as the current term so it shows on the overview.</p>
-            </div>
+          <div>
+            <SectionHeader title="Academic Terms" subtitle="Set term dates for the school year. Mark one as the current term." />
 
-            {/* Add term form */}
-            <div className="rounded-2xl border border-blue-500/20 bg-blue-900/5 p-5">
-              <h3 className="mb-4 font-medium text-white">Add Academic Term</h3>
-              <form onSubmit={addTerm} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="col-span-2">
-                    <label className="mb-1 block text-xs font-medium text-slate-400">Term Name</label>
-                    <input
-                      type="text"
-                      value={newTerm.name}
-                      onChange={(e) => setNewTerm((t) => ({ ...t, name: e.target.value }))}
-                      placeholder="e.g. Term 1 2027"
-                      className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                    />
+            <div style={{ background: ms.surface, border: `1px solid ${ms.border}`, borderRadius: 4, padding: 20, marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 14 }}>Add New Term</div>
+              <form onSubmit={addTerm}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, marginBottom: 4 }}>TERM NAME</label>
+                    <input type="text" value={newTerm.name} onChange={(e) => setNewTerm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Term 1 2026" style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }} onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; }} onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; }} />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-400">Year</label>
-                    <input
-                      type="number"
-                      value={newTerm.year}
-                      onChange={(e) => setNewTerm((t) => ({ ...t, year: Number(e.target.value) }))}
-                      className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                    />
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, marginBottom: 4 }}>YEAR</label>
+                    <input type="number" value={newTerm.year} onChange={(e) => setNewTerm((p) => ({ ...p, year: Number(e.target.value) }))} style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }} onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; }} onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; }} />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-400">Term No.</label>
-                    <select
-                      value={newTerm.term_number}
-                      onChange={(e) => setNewTerm((t) => ({ ...t, term_number: Number(e.target.value) }))}
-                      className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                    >
-                      <option value={1}>Term 1</option>
-                      <option value={2}>Term 2</option>
-                      <option value={3}>Term 3</option>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, marginBottom: 4 }}>TERM NUMBER</label>
+                    <select value={newTerm.term_number} onChange={(e) => setNewTerm((p) => ({ ...p, term_number: Number(e.target.value) }))} style={{ ...selectStyle, width: "100%", boxSizing: "border-box" }}>
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-400">Start Date</label>
-                    <input
-                      type="date"
-                      value={newTerm.start_date}
-                      onChange={(e) => setNewTerm((t) => ({ ...t, start_date: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 [color-scheme:dark]"
-                    />
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, marginBottom: 4 }}>START DATE</label>
+                    <input type="date" value={newTerm.start_date} onChange={(e) => setNewTerm((p) => ({ ...p, start_date: e.target.value }))} style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }} onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; }} onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; }} />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-400">End Date</label>
-                    <input
-                      type="date"
-                      value={newTerm.end_date}
-                      onChange={(e) => setNewTerm((t) => ({ ...t, end_date: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 [color-scheme:dark]"
-                    />
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, marginBottom: 4 }}>END DATE</label>
+                    <input type="date" value={newTerm.end_date} onChange={(e) => setNewTerm((p) => ({ ...p, end_date: e.target.value }))} style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }} onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; }} onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; }} />
                   </div>
-                  <div className="col-span-2 flex items-end">
-                    <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
-                      <input
-                        type="checkbox"
-                        checked={newTerm.is_current}
-                        onChange={(e) => setNewTerm((t) => ({ ...t, is_current: e.target.checked }))}
-                        className="h-4 w-4 rounded accent-blue-500"
-                      />
+                  <div style={{ display: "flex", alignItems: "flex-end" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: ms.textPrimary, cursor: "pointer" }}>
+                      <input type="checkbox" checked={newTerm.is_current} onChange={(e) => setNewTerm((p) => ({ ...p, is_current: e.target.checked }))} style={{ width: 16, height: 16, accentColor: ms.blue }} />
                       Set as current term
                     </label>
                   </div>
                 </div>
-                {addErr && <p className="text-sm text-red-400">{addErr}</p>}
-                <button type="submit" disabled={saving} className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
-                  {saving ? "Adding…" : "Add Term"}
-                </button>
+                {addErr && <p style={{ fontSize: 13, color: ms.red, margin: "0 0 10px" }}>{addErr}</p>}
+                <PrimaryBtn type="submit" disabled={saving}>{saving ? "Adding…" : "Add Term"}</PrimaryBtn>
               </form>
             </div>
 
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {terms.map((t) => (
-                <div key={t.id} className={`flex flex-col gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center sm:justify-between ${t.is_current ? "border-emerald-500/30 bg-emerald-900/10" : "border-slate-700/50 bg-slate-900"}`}>
+                <div key={t.id} style={{
+                  background: ms.surface, border: `1px solid ${ms.border}`,
+                  borderLeft: `3px solid ${t.is_current ? ms.green : ms.borderMid}`,
+                  borderRadius: 4, padding: "14px 18px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                }}>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-white">{t.name}</p>
-                      {t.is_current && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white">Current</span>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontWeight: 600, fontSize: 15, color: ms.textPrimary }}>{t.name}</span>
+                      {t.is_current && (
+                        <span style={{ background: ms.greenLight, color: ms.green, border: "1px solid #bad7ba", borderRadius: 12, padding: "1px 10px", fontSize: 12, fontWeight: 600 }}>Current</span>
+                      )}
                     </div>
-                    <p className="mt-0.5 text-sm text-slate-400">
+                    <p style={{ fontSize: 13, color: ms.textSecondary, margin: "3px 0 0" }}>
                       {new Date(t.start_date).toLocaleDateString("en-KE", { day: "numeric", month: "long" })}
                       {" — "}
                       {new Date(t.end_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                     {!t.is_current && (
-                      <button onClick={() => setCurrentTerm(t.id)} className="rounded-xl border border-emerald-600/30 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-900/20">
+                      <button onClick={() => setCurrentTerm(t.id)} style={{ border: `1px solid ${ms.borderMid}`, background: ms.surface, borderRadius: 2, padding: "5px 12px", fontSize: 13, color: ms.textSecondary, cursor: "pointer", fontFamily: "inherit" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = ms.blue; e.currentTarget.style.color = ms.blue; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = ms.borderMid; e.currentTarget.style.color = ms.textSecondary; }}>
                         Set as current
                       </button>
                     )}
-                    <button onClick={() => deleteTerm(t.id)} className="rounded-xl border border-red-600/20 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-900/10">
+                    <button onClick={() => deleteTerm(t.id)} style={{ border: `1px solid ${ms.borderMid}`, background: ms.surface, borderRadius: 2, padding: "5px 12px", fontSize: 13, color: ms.red, cursor: "pointer", fontFamily: "inherit" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = ms.redLight; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = ms.surface; }}>
                       Delete
                     </button>
                   </div>
                 </div>
               ))}
+              {terms.length === 0 && (
+                <div style={{ textAlign: "center", color: ms.textSecondary, fontSize: 14, padding: 24 }}>No terms yet. Add one above.</div>
+              )}
             </div>
           </div>
         )}
+
         {/* ── SCHOOL SETTINGS ── */}
         {tab === "school" && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white">School Settings</h1>
-              <p className="mt-1 text-sm text-slate-400">Set your school name and logo — they will appear on the home page</p>
-            </div>
+          <div>
+            <SectionHeader title="School Settings" subtitle="Set your school name and logo — they appear on the home page." />
 
-            <form onSubmit={saveSchoolSettings} className="space-y-6 rounded-2xl border border-slate-700/50 bg-slate-900 p-6">
-              {/* School name */}
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">School Name</label>
-                <input
-                  type="text"
-                  value={schoolNameInput}
-                  onChange={(e) => setSchoolNameInput(e.target.value)}
-                  placeholder="e.g. Nairobi Primary School"
-                  className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40"
-                />
-              </div>
+            <form onSubmit={saveSchoolSettings}>
+              <div style={{ background: ms.surface, border: `1px solid ${ms.border}`, borderRadius: 4, padding: 24, marginBottom: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
 
-              {/* Logo upload */}
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">School Logo</label>
-                <p className="mb-3 text-xs text-slate-500">PNG, JPG, or SVG · max 200 KB</p>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                  {/* Preview */}
-                  <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border border-slate-700 bg-slate-800">
-                    {schoolLogoPreview ? (
-                      <img src={schoolLogoPreview} alt="Logo preview" className="h-20 w-20 rounded-xl object-contain" />
-                    ) : (
-                      <span className="text-3xl">🏫</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                      </svg>
-                      Upload Logo
-                      <input type="file" accept="image/*" onChange={handleLogoFile} className="hidden" />
-                    </label>
-                    {schoolLogoPreview && (
-                      <button
-                        type="button"
-                        onClick={() => setSchoolLogoPreview("")}
-                        className="rounded-xl border border-red-600/20 px-4 py-2 text-xs font-medium text-red-400 transition hover:bg-red-900/10"
-                      >
-                        Remove logo
-                      </button>
-                    )}
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>School Name</label>
+                  <input
+                    type="text"
+                    value={schoolNameInput}
+                    onChange={(e) => setSchoolNameInput(e.target.value)}
+                    placeholder="e.g. Nairobi Primary School"
+                    style={{ ...inputStyle, width: "100%", maxWidth: 480, boxSizing: "border-box" }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = ms.blue; e.currentTarget.style.boxShadow = `0 0 0 1px ${ms.blue}`; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = ms.borderMid; e.currentTarget.style.boxShadow = "none"; }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>School Logo</label>
+                  <p style={{ fontSize: 12, color: ms.textDisabled, margin: "0 0 12px" }}>PNG, JPG, or SVG · max 200 KB</p>
+                  <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+                    <div style={{ width: 72, height: 72, border: `1px solid ${ms.border}`, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", background: ms.bg, flexShrink: 0 }}>
+                      {schoolLogoPreview
+                        ? <img src={schoolLogoPreview} alt="Logo preview" style={{ width: 64, height: 64, objectFit: "contain", borderRadius: 4 }} />
+                        : <span style={{ fontSize: 28 }}>🏫</span>
+                      }
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, border: `1px solid ${ms.borderMid}`, background: ms.surface, borderRadius: 2, padding: "6px 14px", fontSize: 13, color: ms.textPrimary, cursor: "pointer" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = ms.bg; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ms.surface; }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        Upload logo
+                        <input type="file" accept="image/*" onChange={handleLogoFile} style={{ display: "none" }} />
+                      </label>
+                      {schoolLogoPreview && (
+                        <button type="button" onClick={() => setSchoolLogoPreview("")} style={{ border: `1px solid ${ms.border}`, background: "none", borderRadius: 2, padding: "5px 14px", fontSize: 13, color: ms.red, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+                          Remove
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-4 border-t border-slate-800 pt-5">
-                <button
-                  type="submit"
-                  disabled={schoolSaving}
-                  className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
-                >
-                  {schoolSaving ? "Saving…" : "Save Settings"}
-                </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <PrimaryBtn type="submit" disabled={schoolSaving}>{schoolSaving ? "Saving…" : "Save changes"}</PrimaryBtn>
                 {schoolMsg && (
-                  <span className={`text-sm font-medium ${schoolMsg.startsWith("Saved") ? "text-emerald-400" : "text-red-400"}`}>
-                    {schoolMsg}
-                  </span>
+                  <span style={{ fontSize: 13, color: schoolMsg.startsWith("Changes") ? ms.green : ms.red }}>{schoolMsg}</span>
                 )}
               </div>
             </form>
 
-            {/* Live preview */}
             {(schoolName || schoolLogo) && (
-              <div>
-                <p className="mb-3 text-sm font-medium text-slate-400">Preview — how it appears on the home page</p>
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-700/50 bg-slate-900 px-5 py-4">
-                  {schoolLogo ? (
-                    <img src={schoolLogo} alt="School logo" className="h-10 w-10 rounded-xl object-contain" />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600/20 text-xl">🏫</div>
-                  )}
-                  {schoolName && <span className="text-lg font-bold text-white">{schoolName}</span>}
+              <div style={{ marginTop: 24, border: `1px solid ${ms.border}`, borderRadius: 4, padding: 16, background: ms.surface }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: ms.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 10 }}>Preview — Home page banner</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, background: ms.bg, padding: "10px 16px", borderRadius: 2 }}>
+                  {schoolLogo && <img src={schoolLogo} alt="Logo" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 4 }} />}
+                  {schoolName && <span style={{ fontSize: 15, fontWeight: 600, color: ms.textPrimary }}>{schoolName}</span>}
                 </div>
               </div>
             )}
           </div>
         )}
-      </div>
+
+      </main>
     </div>
   );
 }
