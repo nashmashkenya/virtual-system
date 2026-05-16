@@ -136,7 +136,7 @@ export function StudentSignUpPage() {
                 placeholder="e.g. 0712345678"
                 className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
               />
-              <p className="mt-1.5 text-xs text-slate-500">Your password will be the <strong className="text-slate-400">first digit</strong> of this number</p>
+              <p className="mt-1.5 text-xs text-slate-500">Your password will be the <strong className="text-slate-400">first 7 digits</strong> of this number</p>
             </div>
 
             {error && (

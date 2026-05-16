@@ -78,7 +78,7 @@ router.post("/students/login", async (req: Request, res: Response) => {
   const [student] = await db.select().from(students).where(eq(students.admNo, adm_no.trim().toUpperCase())).limit(1);
   if (!student) return res.status(401).json({ message: "Invalid ADM No or password." });
 
-  const expectedPassword = student.parentPhone.trim()[0];
+  const expectedPassword = student.parentPhone.trim().slice(0, 7);
   if (password !== expectedPassword) return res.status(401).json({ message: "Invalid ADM No or password." });
 
   const token = genToken();

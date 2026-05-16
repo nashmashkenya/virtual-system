@@ -60,7 +60,7 @@ export function StudentSignInPage() {
                 type="text"
                 value={adm_no}
                 onChange={(e) => { setAdmNo(e.target.value); setError(""); }}
-                placeholder="e.g. NBI/001/2024"
+                placeholder="e.g. 12345"
                 className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
               />
             </div>
@@ -71,11 +71,11 @@ export function StudentSignInPage() {
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                placeholder="First digit of parent's phone"
-                maxLength={1}
+                placeholder="e.g. 0712345"
+                maxLength={7}
                 className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
               />
-              <p className="mt-1.5 text-xs text-slate-500">Your password is the <strong className="text-slate-400">first digit</strong> of your parent's phone number</p>
+              <p className="mt-1.5 text-xs text-slate-500">Your password is the <strong className="text-slate-400">first 7 digits</strong> of your parent's phone number</p>
             </div>
 
             {error && (
