@@ -248,6 +248,22 @@ router.get("/public/school", async (_req, res) => {
   return res.json({ school_name: row?.schoolName ?? "", school_logo: row?.schoolLogo ?? "" });
 });
 
+/* ── GET /api/public/stats — live platform stats (no auth) ── */
+router.get("/public/stats", async (_req, res) => {
+  const [[studentCount], [lessonCount], [subjectCount], [levelCount]] = await Promise.all([
+    db.select({ c: count() }).from(students),
+    db.select({ c: count() }).from(lessons),
+    db.select({ c: count() }).from(adminSubjects).where(eq(adminSubjects.isActive, true)),
+    db.select({ c: count() }).from(adminClassLevels).where(eq(adminClassLevels.isActive, true)),
+  ]);
+  return res.json({
+    students: Number(studentCount?.c ?? 0),
+    lessons: Number(lessonCount?.c ?? 0),
+    subjects: Number(subjectCount?.c ?? 0),
+    class_levels: Number(levelCount?.c ?? 0),
+  });
+});
+
 /* ── GET /api/admin/settings ── */
 router.get("/admin/settings", async (req: Request, res: Response) => {
   const ok = await requireAdmin(req, res);

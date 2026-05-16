@@ -371,46 +371,119 @@ export function AdminPage() {
           {/* ── OVERVIEW ── */}
           {tab === "overview" && (
             <div className="space-y-6">
-              {/* Stat cards */}
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+
+              {/* 4 core stat cards */}
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {[
-                  { label: "Students",         value: stats?.students ?? 0,        color: "bg-blue-500",    light: "bg-blue-50",    text: "text-blue-600",    icon: "🎒" },
-                  { label: "Teacher Classes",  value: stats?.teacher_classes ?? 0, color: "bg-violet-500",  light: "bg-violet-50",  text: "text-violet-600",  icon: "🎓" },
-                  { label: "Lessons",          value: stats?.lessons ?? 0,         color: "bg-emerald-500", light: "bg-emerald-50", text: "text-emerald-600", icon: "📋" },
-                  { label: "Subjects",         value: stats?.subjects ?? 0,        color: "bg-amber-500",   light: "bg-amber-50",   text: "text-amber-600",   icon: "📚" },
-                  { label: "Class Levels",     value: stats?.class_levels ?? 0,    color: "bg-rose-500",    light: "bg-rose-50",    text: "text-rose-600",    icon: "🏫" },
+                  { label: "Registered Students", value: stats?.students ?? 0,        sub: "signed up so far",             light: "bg-blue-50",    text: "text-blue-600",    border: "border-blue-100",    icon: "🎒", action: null },
+                  { label: "Lessons Scheduled",   value: stats?.lessons ?? 0,         sub: "across all teacher classes",   light: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-100", icon: "📋", action: null },
+                  { label: "Active Subjects",      value: stats?.subjects ?? 0,        sub: "available for teachers",       light: "bg-amber-50",   text: "text-amber-600",   border: "border-amber-100",   icon: "📚", action: () => setTab("subjects") },
+                  { label: "Active Class Levels",  value: stats?.class_levels ?? 0,    sub: "shown on student sign-up",     light: "bg-violet-50",  text: "text-violet-600",  border: "border-violet-100",  icon: "🏫", action: () => setTab("classes") },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div
+                    key={s.label}
+                    onClick={s.action ?? undefined}
+                    className={`rounded-xl border bg-white p-5 shadow-sm transition ${s.border} ${s.action ? "cursor-pointer hover:shadow-md" : ""}`}
+                  >
                     <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg text-lg ${s.light}`}>{s.icon}</div>
-                    <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-                    <p className="mt-0.5 text-xs font-medium text-gray-500">{s.label}</p>
+                    <p className={`text-3xl font-black ${s.text}`}>{s.value}</p>
+                    <p className="mt-1 text-sm font-semibold text-gray-700">{s.label}</p>
+                    <p className="mt-0.5 text-xs text-gray-400">{s.sub}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Current term card */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-gray-700">Current Academic Term</h2>
-                  <button onClick={() => setTab("terms")} className="text-xs font-medium text-emerald-600 hover:text-emerald-700">Manage terms →</button>
-                </div>
-                {currentTerm ? (
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-xl">📅</div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{currentTerm.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(currentTerm.start_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
-                        {" — "}
-                        {new Date(currentTerm.end_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
+              {/* Current term + setup status row */}
+              <div className="grid gap-4 lg:grid-cols-2">
+
+                {/* Current Term */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-gray-700">Current Academic Term</h2>
+                    <button onClick={() => setTab("terms")} className="text-xs font-medium text-emerald-600 hover:text-emerald-700">Manage →</button>
+                  </div>
+                  {currentTerm ? (
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-xl">📅</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900">{currentTerm.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(currentTerm.start_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
+                          {" — "}
+                          {new Date(currentTerm.end_date).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Active</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-lg bg-amber-50 px-4 py-3">
+                      <span className="text-lg">⚠️</span>
+                      <p className="text-sm text-amber-700">
+                        No active term set.{" "}
+                        <button onClick={() => setTab("terms")} className="font-semibold underline-offset-2 hover:underline">Set one now</button>.
                       </p>
                     </div>
-                    <span className="ml-auto rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Active</span>
+                  )}
+                  {terms.length > 0 && (
+                    <div className="mt-4 space-y-1.5 border-t border-gray-100 pt-4">
+                      {terms.map((t) => (
+                        <div key={t.id} className="flex items-center justify-between text-xs text-gray-500">
+                          <span className={t.is_current ? "font-semibold text-emerald-700" : ""}>{t.name}</span>
+                          <span>{t.year}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* School setup status */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-gray-700">School Setup Status</h2>
+                    <button onClick={() => setTab("school")} className="text-xs font-medium text-emerald-600 hover:text-emerald-700">Edit school →</button>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-500">No current term set. <button onClick={() => setTab("terms")} className="font-medium text-emerald-600 underline-offset-2 hover:underline">Set one now</button>.</p>
-                )}
+                  <div className="space-y-3">
+                    {[
+                      { label: "School name",     done: !!schoolName,                    action: () => setTab("school"),    hint: "Add your school name" },
+                      { label: "School logo",     done: !!schoolLogo,                    action: () => setTab("school"),    hint: "Upload a logo" },
+                      { label: "Academic term",   done: !!currentTerm,                   action: () => setTab("terms"),     hint: "Set a current term" },
+                      { label: "Class levels",    done: (stats?.class_levels ?? 0) > 0,  action: () => setTab("classes"),   hint: "Add class levels" },
+                      { label: "Subjects",        done: (stats?.subjects ?? 0) > 0,      action: () => setTab("subjects"),  hint: "Add subjects" },
+                    ].map(({ label, done, action, hint }) => (
+                      <div key={label} className="flex items-center gap-3">
+                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${done ? "bg-emerald-100 text-emerald-600" : "bg-gray-100 text-gray-400"}`}>
+                          {done ? "✓" : "!"}
+                        </span>
+                        <span className={`flex-1 text-sm ${done ? "text-gray-700" : "text-gray-400"}`}>{label}</span>
+                        {!done && (
+                          <button onClick={action} className="text-xs font-medium text-emerald-600 hover:text-emerald-700">{hint} →</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+
+              {/* Subjects quick view */}
+              {subjects.length > 0 && (
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-gray-700">
+                      Subjects <span className="ml-1.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-500">{subjects.filter(s => s.is_active).length} active</span>
+                    </h2>
+                    <button onClick={() => setTab("subjects")} className="text-xs font-medium text-emerald-600 hover:text-emerald-700">Manage →</button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {subjects.filter(s => s.is_active).slice(0, 20).map((s) => (
+                      <span key={s.id} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">{s.name}</span>
+                    ))}
+                    {subjects.filter(s => s.is_active).length > 20 && (
+                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-400">+{subjects.filter(s => s.is_active).length - 20} more</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 

@@ -18,6 +18,17 @@ async function fetchSchool(): Promise<{ school_name: string; school_logo: string
   }
 }
 
+interface PlatformStats { students: number; lessons: number; subjects: number; class_levels: number }
+async function fetchStats(): Promise<PlatformStats> {
+  try {
+    const r = await fetch(`${API}/api/public/stats`);
+    if (!r.ok) return { students: 0, lessons: 0, subjects: 0, class_levels: 0 };
+    return r.json() as Promise<PlatformStats>;
+  } catch {
+    return { students: 0, lessons: 0, subjects: 0, class_levels: 0 };
+  }
+}
+
 const features = [
   { icon: Video,         label: "Live HD Video",      desc: "Crystal-clear streaming for up to 60 students with zero lag.",             color: "#0ea5e9", bg: "rgba(14,165,233,0.12)",  border: "rgba(14,165,233,0.25)" },
   { icon: MessageSquare, label: "Real-time Chat",      desc: "Class-wide and private messages to keep every student engaged.",           color: "#10b981", bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)" },
@@ -27,12 +38,6 @@ const features = [
   { icon: BookOpen,      label: "Course Materials",    desc: "Upload notes, PDFs, and assignments in one organised library.",            color: "#f97316", bg: "rgba(249,115,22,0.12)",  border: "rgba(249,115,22,0.25)" },
 ];
 
-const stats = [
-  { value: "500+",   label: "Students",  color: "#0ea5e9" },
-  { value: "50+",    label: "Teachers",  color: "#10b981" },
-  { value: "2 000+", label: "Classes",   color: "#8b5cf6" },
-  { value: "100%",   label: "Mobile",    color: "#f59e0b" },
-];
 
 const trustItems = [
   { icon: Smartphone,  label: "Any phone",      color: "#0ea5e9" },
@@ -67,9 +72,11 @@ const glass = {
 export function LandingPage() {
   const [schoolName, setSchoolName] = useState("");
   const [schoolLogo, setSchoolLogo] = useState("");
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
 
   useEffect(() => {
     fetchSchool().then((d) => { setSchoolName(d.school_name); setSchoolLogo(d.school_logo); });
+    fetchStats().then(setPlatformStats);
   }, []);
 
   return (
@@ -237,9 +244,14 @@ export function LandingPage() {
               ))}
             </div>
 
-            {/* Stats — 4 across on mobile */}
+            {/* Stats — 4 across, real live data */}
             <div className="grid grid-cols-4 gap-2 pt-1 sm:gap-3">
-              {stats.map(({ value, label, color }) => (
+              {[
+                { value: platformStats?.students   ?? "…", label: "Students",     color: "#0ea5e9" },
+                { value: platformStats?.class_levels ?? "…", label: "Class Levels", color: "#8b5cf6" },
+                { value: platformStats?.subjects   ?? "…", label: "Subjects",     color: "#10b981" },
+                { value: platformStats?.lessons    ?? "…", label: "Lessons",      color: "#f59e0b" },
+              ].map(({ value, label, color }) => (
                 <div key={label} className="rounded-2xl px-2 py-3 text-center" style={glass.card}>
                   <p className="text-[1.3rem] font-black leading-none sm:text-[1.5rem]" style={{ color }}>{value}</p>
                   <p className="mt-1 text-[10px] font-semibold text-slate-500 sm:text-[11px]">{label}</p>
