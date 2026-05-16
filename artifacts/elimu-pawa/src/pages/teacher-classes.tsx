@@ -8,6 +8,8 @@ import {
   type TeacherClass, type ScheduledLesson, type StudentProfile,
 } from "@/lib/student-auth";
 
+const API = import.meta.env.VITE_API_BASE_URL ?? "";
+
 function formatDT(iso: string) {
   return new Date(iso).toLocaleString("en-KE", {
     weekday: "short", day: "numeric", month: "short",
@@ -43,6 +45,19 @@ export function TeacherClassesPage() {
 
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [adminSubjects, setAdminSubjects] = useState<string[]>([]);
+  const [adminClassLevels, setAdminClassLevels] = useState<string[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/api/public/subjects`).then((r) => r.ok ? r.json() as Promise<{ subjects: { id: number; name: string }[] }> : null).catch(() => null),
+      fetch(`${API}/api/public/class-levels`).then((r) => r.ok ? r.json() as Promise<{ class_levels: { id: number; name: string }[] }> : null).catch(() => null),
+    ]).then(([subj, levels]) => {
+      if (subj) setAdminSubjects(subj.subjects.map((s) => s.name));
+      if (levels) setAdminClassLevels(levels.class_levels.map((c) => c.name));
+    });
+  }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -139,7 +154,6 @@ export function TeacherClassesPage() {
     );
   }
 
-  const CLASS_LEVELS = ["PP1","PP2","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Form 1","Form 2","Form 3","Form 4"];
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -211,13 +225,14 @@ export function TeacherClassesPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="mb-1 block text-xs font-medium text-slate-400">Subject</label>
-                      <input
-                        type="text"
+                      <select
                         value={classForm.subject}
                         onChange={(e) => { setClassForm((f) => ({ ...f, subject: e.target.value })); setClassErr(""); }}
-                        placeholder="e.g. Mathematics"
-                        className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/40"
-                      />
+                        className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/40"
+                      >
+                        <option value="">Select subject…</option>
+                        {adminSubjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
                     </div>
                     <div>
                       <label className="mb-1 block text-xs font-medium text-slate-400">Class Level</label>
@@ -227,7 +242,7 @@ export function TeacherClassesPage() {
                         className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/40"
                       >
                         <option value="">Select level…</option>
-                        {CLASS_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {adminClassLevels.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                   </div>

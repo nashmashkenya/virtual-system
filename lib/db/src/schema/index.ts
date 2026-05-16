@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, primaryKey, boolean, date } from "drizzle-orm/pg-core";
 
 export const students = pgTable("students", {
   id: serial("id").primaryKey(),
@@ -46,6 +46,42 @@ export const lessonStudents = pgTable("lesson_students", {
   primaryKey({ columns: [table.lessonId, table.studentId] }),
 ]);
 
+export const adminClassLevels = pgTable("admin_class_levels", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const adminSubjects = pgTable("admin_subjects", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const adminTerms = pgTable("admin_terms", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  year: integer("year").notNull(),
+  termNumber: integer("term_number").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  isCurrent: boolean("is_current").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const adminSessions = pgTable("admin_sessions", {
+  id: serial("id").primaryKey(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Student = typeof students.$inferSelect;
 export type TeacherClass = typeof teacherClasses.$inferSelect;
 export type Lesson = typeof lessons.$inferSelect;
+export type AdminClassLevel = typeof adminClassLevels.$inferSelect;
+export type AdminSubject = typeof adminSubjects.$inferSelect;
+export type AdminTerm = typeof adminTerms.$inferSelect;

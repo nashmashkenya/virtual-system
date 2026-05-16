@@ -7,11 +7,13 @@ import opsRouter from "./ops";
 import organizationsRouter from "./organizations";
 import studentsAuthRouter from "./students-auth";
 import teacherClassesRouter from "./teacher-classes";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
+router.use(adminRouter);
 router.use(studentsAuthRouter);
 router.use(teacherClassesRouter);
 router.use(teacherRouter);

@@ -17,6 +17,7 @@ import { SettingsPage } from "@/pages/settings";
 import { PaymentsPage } from "@/pages/payments";
 import { NotFoundPage } from "@/pages/not-found";
 import { OnboardingPage } from "@/pages/onboarding";
+import { AdminPage } from "@/pages/admin";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname.
 const clerkPubKey = publishableKeyFromHost(
@@ -264,6 +265,9 @@ function ClerkProviderWithRoutes() {
 
           {/* Teacher class management */}
           <Route path="/teacher/classes" component={TeacherClassesPage} />
+
+          {/* Admin panel */}
+          <Route path="/admin" component={AdminPage} />
 
           {/* Generic fallback auth routes — send to landing so user picks role first */}
           <Route path="/sign-in/*?" component={() => <RedirectTo to="/" />} />

@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { studentRegister } from "@/lib/student-auth";
 
-const CLASS_LEVELS = [
-  "PP1", "PP2",
-  "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6",
-  "Grade 7", "Grade 8", "Grade 9",
-  "Form 1", "Form 2", "Form 3", "Form 4",
-];
+const API = import.meta.env.VITE_API_BASE_URL ?? "";
 
 export function StudentSignUpPage() {
   const [, navigate] = useLocation();
+  const [classLevels, setClassLevels] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch(`${API}/api/public/class-levels`)
+      .then((r) => r.ok ? r.json() as Promise<{ class_levels: { id: number; name: string }[] }> : null)
+      .then((d) => { if (d) setClassLevels(d.class_levels.map((c) => c.name)); })
+      .catch(() => {});
+  }, []);
+
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -106,7 +110,7 @@ export function StudentSignUpPage() {
                 className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
               >
                 <option value="">Select your class…</option>
-                {CLASS_LEVELS.map((c) => (
+                {classLevels.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
