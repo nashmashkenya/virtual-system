@@ -17,3 +17,9 @@ id = "O6PsiUODdYdnifYi3kn8f"
 uri = "file://teacher-user-manual.md"
 type = "text"
 title = "ElimuPawa Teacher User Manual"
+
+[[outputs]]
+id = "-nw_y0pbMs6KKqj4CaNWd"
+uri = "file://RAILWAY_DEPLOY.md"
+type = "text"
+title = "ElimuPawa — Railway Deployment Guide"
