@@ -1,19 +1,17 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useClerk } from "@clerk/react";
 import { LogOut } from "lucide-react";
-import { logoutDemoUser } from "@/lib/api";
 
 export function LogoutButton() {
-  const [, navigate] = useLocation();
+  const { signOut } = useClerk();
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await logoutDemoUser();
+      await signOut({ redirectUrl: "/" });
     } finally {
       setLoading(false);
-      navigate("/");
     }
   };
 
