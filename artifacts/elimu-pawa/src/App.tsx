@@ -159,6 +159,12 @@ function AuthPage({
   );
 }
 
+function RedirectTo({ to }: { to: string }) {
+  const [, navigate] = useLocation();
+  useEffect(() => { navigate(to, { replace: true }); }, [navigate, to]);
+  return null;
+}
+
 type RoleState = "loading" | "none" | "student" | "teacher" | "onboard";
 
 function HomeRedirect() {
@@ -243,6 +249,10 @@ function ClerkProviderWithRoutes() {
           {/* Generic fallback auth routes (redirect to role-specific) */}
           <Route path="/sign-in/*?" component={() => <AuthPage type="sign-in" role="student" />} />
           <Route path="/sign-up/*?" component={() => <AuthPage type="sign-up" role="student" />} />
+
+          {/* Legacy routes — redirect to landing so user can pick their role */}
+          <Route path="/login" component={() => <RedirectTo to="/" />} />
+          <Route path="/register" component={() => <RedirectTo to="/" />} />
 
           <Route path="/onboarding" component={OnboardingPage} />
           <Route path="/student/home" component={StudentHomePage} />
