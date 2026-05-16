@@ -176,14 +176,14 @@ export function LandingPage() {
               Elimu<span style={{ background: "linear-gradient(90deg,#0ea5e9,#8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Pawa</span>
             </span>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Link href="/student/sign-in"
-              className="rounded-xl px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-white/60"
+              className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white/60 sm:block"
               style={{ border: "1px solid rgba(100,80,200,0.2)" }}>
               Sign in
             </Link>
             <Link href="/student/sign-up"
-              className="rounded-xl px-4 py-1.5 text-sm font-semibold text-white transition hover:scale-105"
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition hover:scale-105"
               style={{ background: "linear-gradient(135deg, #0ea5e9, #8b5cf6)", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}>
               Get started
             </Link>
