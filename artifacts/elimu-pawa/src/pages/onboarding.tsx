@@ -47,7 +47,7 @@ export function OnboardingPage() {
         }),
       });
       if (!res.ok) throw new Error("Failed to save.");
-      navigate(role === "teacher" ? "/teacher" : "/student", { replace: true });
+      navigate(role === "teacher" ? "/teacher/classes" : "/student/dashboard", { replace: true });
     } catch {
       setError("Something went wrong. Please try again.");
       setSaving(false);

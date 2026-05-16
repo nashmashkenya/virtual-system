@@ -5,11 +5,15 @@ import teacherRouter from "./teacher";
 import studentRouter from "./student";
 import opsRouter from "./ops";
 import organizationsRouter from "./organizations";
+import studentsAuthRouter from "./students-auth";
+import teacherClassesRouter from "./teacher-classes";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
+router.use(studentsAuthRouter);
+router.use(teacherClassesRouter);
 router.use(teacherRouter);
 router.use(studentRouter);
 router.use(opsRouter);

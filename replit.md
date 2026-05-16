@@ -36,16 +36,30 @@ A virtual classroom SaaS for teachers and students — live video, chat, polls, 
 - Cookie-based auth; no JWT token passed as props — `credentials: "include"` on every fetch
 - `fetchWithFallback()` in api.ts returns mock data silently when backend is down so the UI always renders
 
+## Auth model
+
+- **Students**: custom auth (no Clerk/email). Sign-up: first_name, last_name, class_level, adm_no, parent_phone. Sign-in: ADM No + first digit of parent phone. Session managed as httpOnly cookie `student_token` via Express.
+- **Teachers**: Clerk auth (email/password + Google).
+
 ## Product
 
-- **Landing** `/` — hero with inline sign-in card and demo user cards
-- **Login** `/login` — demo user quick-select or username/password form
-- **Register** `/register` — account creation with email verification hint
-- **Student classroom** `/student` — live video, chat, polls, quizzes, raise-hand
+- **Landing** `/` — hero with role-picker (Student → `/student/sign-in`, Teacher → `/teacher/sign-in`)
+- **Student sign-up** `/student/sign-up` — custom form (name, class, ADM No, parent phone)
+- **Student sign-in** `/student/sign-in` — ADM No + first digit of parent phone
+- **Student dashboard** `/student/dashboard` — profile card + teacher-approved upcoming lessons
+- **Teacher sign-in/up** `/teacher/sign-in`, `/teacher/sign-up` — Clerk (email + Google)
+- **Teacher classes** `/teacher/classes` — create subjects/classes, schedule lessons, approve student access per lesson
+- **Live classroom** `/student` — live video, chat, polls, quizzes, raise-hand
 - **Student home** `/student/home` — upcoming sessions, progress tracker
-- **Teacher room** `/teacher` — full classroom controls: video, breakouts, whiteboard, roster, programs, YouTube integration
+- **Teacher room** `/teacher` — full classroom controls: video, breakouts, whiteboard, roster, YouTube
 - **Settings** `/settings` — dark mode toggle, profile summary
 - **Payments** `/payments` — M-Pesa payment overview
+
+## Database (PostgreSQL via Drizzle ORM)
+
+Tables: `students`, `student_sessions`, `teacher_classes`, `lessons`, `lesson_students`
+Schema: `lib/db/src/schema/index.ts`
+New API routes: `/api/students/*` (student auth + dashboard), `/api/teacher/classes`, `/api/teacher/lessons`, `/api/teacher/lessons/:id/students`, `/api/teacher/all-students`
 
 ## Gotchas
 

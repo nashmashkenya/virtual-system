@@ -8,7 +8,11 @@ import { ToastStack } from "@/components/ui/toast-stack";
 import { LandingPage } from "@/pages/landing";
 import { StudentPage } from "@/pages/student";
 import { StudentHomePage } from "@/pages/student-home";
+import { StudentSignInPage } from "@/pages/student-signin";
+import { StudentSignUpPage } from "@/pages/student-signup";
+import { StudentDashboardPage } from "@/pages/student-dashboard";
 import { TeacherPage } from "@/pages/teacher";
+import { TeacherClassesPage } from "@/pages/teacher-classes";
 import { SettingsPage } from "@/pages/settings";
 import { PaymentsPage } from "@/pages/payments";
 import { NotFoundPage } from "@/pages/not-found";
@@ -249,13 +253,17 @@ function ClerkProviderWithRoutes() {
         <Switch>
           <Route path="/" component={HomeRedirect} />
 
-          {/* Student auth — email/password only, no Google */}
-          <Route path="/student/sign-in/*?" component={() => <AuthPage type="sign-in" role="student" />} />
-          <Route path="/student/sign-up/*?" component={() => <AuthPage type="sign-up" role="student" />} />
+          {/* Student auth — custom forms (no Clerk) */}
+          <Route path="/student/sign-in" component={StudentSignInPage} />
+          <Route path="/student/sign-up" component={StudentSignUpPage} />
+          <Route path="/student/dashboard" component={StudentDashboardPage} />
 
-          {/* Teacher auth — email/password + Google */}
+          {/* Teacher auth — email/password + Google via Clerk */}
           <Route path="/teacher/sign-in/*?" component={() => <AuthPage type="sign-in" role="teacher" />} />
           <Route path="/teacher/sign-up/*?" component={() => <AuthPage type="sign-up" role="teacher" />} />
+
+          {/* Teacher class management */}
+          <Route path="/teacher/classes" component={TeacherClassesPage} />
 
           {/* Generic fallback auth routes — send to landing so user picks role first */}
           <Route path="/sign-in/*?" component={() => <RedirectTo to="/" />} />
