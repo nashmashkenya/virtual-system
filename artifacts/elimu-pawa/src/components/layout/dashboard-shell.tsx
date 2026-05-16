@@ -70,7 +70,7 @@ export function DashboardShell({
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[#15171a]/95 shadow-sm backdrop-blur-md">
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-              <Logo />
+              <Logo variant="light" />
               <div className="hidden min-w-0 sm:block">
                 <p className="truncate text-sm font-semibold text-white">{title}</p>
                 <p className="truncate text-xs text-slate-400">{subtitle}</p>
