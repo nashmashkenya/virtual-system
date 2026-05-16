@@ -4259,8 +4259,8 @@ export function TeacherDashboard({
           : ""
       }`}
     >
-      <section className="space-y-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] shadow-sm backdrop-blur-sm">
+      <section className="space-y-0 sm:space-y-4">
+        <div className="rounded-none border-b border-white/10 bg-white/[0.04] shadow-sm backdrop-blur-sm sm:rounded-2xl sm:border">
           <div className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2.5`}>
             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shadow-rose-950/30">
@@ -4335,8 +4335,8 @@ export function TeacherDashboard({
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-white/10 bg-[#15171a] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:p-5">
-          <div className="teacher-stage-screen overflow-hidden rounded-[28px] border border-white/10 bg-black">
+        <div className="rounded-none border-0 bg-[#15171a] p-0 sm:rounded-[32px] sm:border sm:border-white/15 sm:p-4 sm:shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
+          <div className="teacher-stage-screen overflow-hidden rounded-none border-y border-[rgba(99,102,241,0.35)] bg-black shadow-[0_0_0_1px_rgba(99,102,241,0.2),0_0_28px_rgba(99,102,241,0.12)] sm:rounded-[28px] sm:border sm:border-[rgba(99,102,241,0.4)] sm:shadow-[0_0_0_1px_rgba(99,102,241,0.25),0_0_40px_rgba(99,102,241,0.15)]">
             <div className="relative aspect-[16/10] w-full">
               {selectedSession && currentDashboard.room_state.stage_mode === "whiteboard" ? (
                 <>
