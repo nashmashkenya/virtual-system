@@ -79,6 +79,13 @@ export const adminSessions = pgTable("admin_sessions", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const schoolSettings = pgTable("school_settings", {
+  id: serial("id").primaryKey(),
+  schoolName: text("school_name").notNull().default(""),
+  schoolLogo: text("school_logo").notNull().default(""),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Student = typeof students.$inferSelect;
 export type TeacherClass = typeof teacherClasses.$inferSelect;
 export type Lesson = typeof lessons.$inferSelect;

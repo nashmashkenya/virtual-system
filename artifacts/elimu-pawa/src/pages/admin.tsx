@@ -60,13 +60,19 @@ export function AdminPage() {
   const [password, setPassword] = useState("");
   const [loginErr, setLoginErr] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
-  const [tab, setTab] = useState<"overview" | "classes" | "subjects" | "terms">("overview");
+  const [tab, setTab] = useState<"overview" | "classes" | "subjects" | "terms" | "school">("overview");
 
   /* data */
   const [stats, setStats] = useState<Stats | null>(null);
   const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [terms, setTerms] = useState<Term[]>([]);
+  const [schoolName, setSchoolName] = useState("");
+  const [schoolLogo, setSchoolLogo] = useState("");
+  const [schoolNameInput, setSchoolNameInput] = useState("");
+  const [schoolLogoPreview, setSchoolLogoPreview] = useState("");
+  const [schoolSaving, setSchoolSaving] = useState(false);
+  const [schoolMsg, setSchoolMsg] = useState("");
 
   /* add-item forms */
   const [newLevel, setNewLevel] = useState("");
@@ -90,11 +96,18 @@ export function AdminPage() {
       apiJson<{ class_levels: ClassLevel[] }>("/admin/class-levels"),
       apiJson<{ subjects: Subject[] }>("/admin/subjects"),
       apiJson<{ terms: Term[] }>("/admin/terms"),
-    ]).then(([s, cl, sub, t]) => {
+      apiJson<{ school_name: string; school_logo: string }>("/admin/settings"),
+    ]).then(([s, cl, sub, t, sc]) => {
       if (s) setStats(s);
       if (cl) setClassLevels(cl.class_levels);
       if (sub) setSubjects(sub.subjects);
       if (t) setTerms(t.terms);
+      if (sc) {
+        setSchoolName(sc.school_name);
+        setSchoolLogo(sc.school_logo);
+        setSchoolNameInput(sc.school_name);
+        setSchoolLogoPreview(sc.school_logo);
+      }
     });
   }, [authed]);
 
@@ -110,6 +123,34 @@ export function AdminPage() {
   async function handleLogout() {
     await api("/admin/logout", { method: "POST" });
     setAuthed(false);
+  }
+
+  /* School Settings */
+  async function saveSchoolSettings(e: React.FormEvent) {
+    e.preventDefault();
+    setSchoolSaving(true);
+    setSchoolMsg("");
+    const body: Record<string, string> = { school_name: schoolNameInput };
+    if (schoolLogoPreview !== schoolLogo) body["school_logo"] = schoolLogoPreview;
+    const r = await api("/admin/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    setSchoolSaving(false);
+    if (r.ok) {
+      const d = await r.json() as { school_name: string; school_logo: string };
+      setSchoolName(d.school_name);
+      setSchoolLogo(d.school_logo);
+      setSchoolMsg("Saved successfully!");
+      setTimeout(() => setSchoolMsg(""), 3000);
+    } else {
+      setSchoolMsg("Failed to save. Try again.");
+    }
+  }
+  function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 200 * 1024) { setSchoolMsg("Logo must be under 200 KB."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setSchoolLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
   }
 
   /* Class Levels */
@@ -236,6 +277,7 @@ export function AdminPage() {
     { id: "classes", label: "Class Levels", icon: "🎒" },
     { id: "subjects", label: "Subjects", icon: "📚" },
     { id: "terms", label: "Academic Terms", icon: "📅" },
+    { id: "school", label: "School", icon: "🏫" },
   ] as const;
 
   return (
@@ -520,6 +562,94 @@ export function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        {/* ── SCHOOL SETTINGS ── */}
+        {tab === "school" && (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-white">School Settings</h1>
+              <p className="mt-1 text-sm text-slate-400">Set your school name and logo — they will appear on the home page</p>
+            </div>
+
+            <form onSubmit={saveSchoolSettings} className="space-y-6 rounded-2xl border border-slate-700/50 bg-slate-900 p-6">
+              {/* School name */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">School Name</label>
+                <input
+                  type="text"
+                  value={schoolNameInput}
+                  onChange={(e) => setSchoolNameInput(e.target.value)}
+                  placeholder="e.g. Nairobi Primary School"
+                  className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40"
+                />
+              </div>
+
+              {/* Logo upload */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">School Logo</label>
+                <p className="mb-3 text-xs text-slate-500">PNG, JPG, or SVG · max 200 KB</p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                  {/* Preview */}
+                  <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border border-slate-700 bg-slate-800">
+                    {schoolLogoPreview ? (
+                      <img src={schoolLogoPreview} alt="Logo preview" className="h-20 w-20 rounded-xl object-contain" />
+                    ) : (
+                      <span className="text-3xl">🏫</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      Upload Logo
+                      <input type="file" accept="image/*" onChange={handleLogoFile} className="hidden" />
+                    </label>
+                    {schoolLogoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => setSchoolLogoPreview("")}
+                        className="rounded-xl border border-red-600/20 px-4 py-2 text-xs font-medium text-red-400 transition hover:bg-red-900/10"
+                      >
+                        Remove logo
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-4 border-t border-slate-800 pt-5">
+                <button
+                  type="submit"
+                  disabled={schoolSaving}
+                  className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
+                >
+                  {schoolSaving ? "Saving…" : "Save Settings"}
+                </button>
+                {schoolMsg && (
+                  <span className={`text-sm font-medium ${schoolMsg.startsWith("Saved") ? "text-emerald-400" : "text-red-400"}`}>
+                    {schoolMsg}
+                  </span>
+                )}
+              </div>
+            </form>
+
+            {/* Live preview */}
+            {(schoolName || schoolLogo) && (
+              <div>
+                <p className="mb-3 text-sm font-medium text-slate-400">Preview — how it appears on the home page</p>
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-700/50 bg-slate-900 px-5 py-4">
+                  {schoolLogo ? (
+                    <img src={schoolLogo} alt="School logo" className="h-10 w-10 rounded-xl object-contain" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600/20 text-xl">🏫</div>
+                  )}
+                  {schoolName && <span className="text-lg font-bold text-white">{schoolName}</span>}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

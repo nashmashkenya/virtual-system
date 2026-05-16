@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 import { db } from "@workspace/db";
 import {
   adminClassLevels, adminSubjects, adminTerms, adminSessions,
-  students, teacherClasses, lessons,
+  students, teacherClasses, lessons, schoolSettings,
 } from "@workspace/db/schema";
 import { eq, and, gt, sql, count } from "drizzle-orm";
 
@@ -239,6 +239,43 @@ router.get("/public/subjects", async (_req, res) => {
 router.get("/public/terms", async (_req, res) => {
   const rows = await db.select().from(adminTerms).orderBy(adminTerms.year, adminTerms.termNumber);
   return res.json({ terms: rows });
+});
+
+/* ── GET /api/public/school — public school branding ── */
+router.get("/public/school", async (_req, res) => {
+  const [row] = await db.select({ schoolName: schoolSettings.schoolName, schoolLogo: schoolSettings.schoolLogo })
+    .from(schoolSettings).limit(1);
+  return res.json({ school_name: row?.schoolName ?? "", school_logo: row?.schoolLogo ?? "" });
+});
+
+/* ── GET /api/admin/settings ── */
+router.get("/admin/settings", async (req: Request, res: Response) => {
+  const ok = await requireAdmin(req, res);
+  if (!ok) return;
+  const [row] = await db.select().from(schoolSettings).limit(1);
+  return res.json({ school_name: row?.schoolName ?? "", school_logo: row?.schoolLogo ?? "" });
+});
+
+/* ── PATCH /api/admin/settings ── */
+router.patch("/admin/settings", async (req: Request, res: Response) => {
+  const ok = await requireAdmin(req, res);
+  if (!ok) return;
+  const { school_name, school_logo } = req.body as { school_name?: string; school_logo?: string };
+  const [existing] = await db.select({ id: schoolSettings.id }).from(schoolSettings).limit(1);
+  if (existing) {
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (school_name !== undefined) updates["schoolName"] = school_name.trim();
+    if (school_logo !== undefined) updates["schoolLogo"] = school_logo;
+    await db.update(schoolSettings).set(updates).where(eq(schoolSettings.id, existing.id));
+  } else {
+    await db.insert(schoolSettings).values({
+      schoolName: school_name?.trim() ?? "",
+      schoolLogo: school_logo ?? "",
+      updatedAt: new Date(),
+    });
+  }
+  const [row] = await db.select().from(schoolSettings).limit(1);
+  return res.json({ school_name: row?.schoolName ?? "", school_logo: row?.schoolLogo ?? "" });
 });
 
 export default router;

@@ -1,10 +1,23 @@
 import { Link } from "wouter";
+import { useEffect, useState } from "react";
 import {
   ArrowRight, BookOpen,
   BarChart2, MessageSquare, PenTool,
   Smartphone, Users, Video, Zap, Globe, ShieldCheck,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+
+const API = import.meta.env.VITE_API_BASE_URL ?? "";
+
+async function fetchSchool(): Promise<{ school_name: string; school_logo: string }> {
+  try {
+    const r = await fetch(`${API}/api/public/school`);
+    if (!r.ok) return { school_name: "", school_logo: "" };
+    return r.json() as Promise<{ school_name: string; school_logo: string }>;
+  } catch {
+    return { school_name: "", school_logo: "" };
+  }
+}
 
 const features = [
   {
@@ -142,6 +155,16 @@ function CTACard() {
 }
 
 export function LandingPage() {
+  const [schoolName, setSchoolName] = useState("");
+  const [schoolLogo, setSchoolLogo] = useState("");
+
+  useEffect(() => {
+    fetchSchool().then((d) => {
+      setSchoolName(d.school_name);
+      setSchoolLogo(d.school_logo);
+    });
+  }, []);
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden" style={{ background: "linear-gradient(160deg, #060b18 0%, #09142a 45%, #0b1630 100%)" }}>
 
@@ -165,6 +188,18 @@ export function LandingPage() {
       />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+
+        {/* School banner — shown when admin has set a school name/logo */}
+        {(schoolName || schoolLogo) && (
+          <div className="flex items-center justify-center gap-3 border-b border-white/5 py-3">
+            {schoolLogo && (
+              <img src={schoolLogo} alt="School logo" className="h-9 w-9 rounded-xl object-contain" />
+            )}
+            {schoolName && (
+              <span className="text-base font-bold tracking-tight text-white">{schoolName}</span>
+            )}
+          </div>
+        )}
 
         {/* Navbar */}
         <nav className="flex items-center justify-between py-6">
