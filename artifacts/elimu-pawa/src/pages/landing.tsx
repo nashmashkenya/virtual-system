@@ -1,14 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import {
-  AtSign, ArrowRight, BookOpen, CheckCircle2, Eye, EyeOff,
-  GraduationCap, KeyRound, MessageSquare, PenTool, BarChart2,
-  Presentation, Shield, Smartphone, Users, Video, Zap, Globe, ShieldCheck,
+  ArrowRight, BookOpen,
+  BarChart2, MessageSquare, PenTool,
+  Smartphone, Users, Video, Zap, Globe, ShieldCheck,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { getDemoUsers, loginDemoUser } from "@/lib/api";
-import { demoUsersFallback } from "@/lib/mock-data";
-import type { DemoUser } from "@/lib/types";
 
 const features = [
   {
@@ -50,7 +46,7 @@ const features = [
 ];
 
 const stats = [
-  { value: "500+",   label: "Active students",   gradient: "from-cyan-400 to-cyan-600",   shadow: "rgba(6,182,212,0.3)"   },
+  { value: "500+",   label: "Active students",   gradient: "from-cyan-400 to-cyan-600",    shadow: "rgba(6,182,212,0.3)"   },
   { value: "50+",    label: "Verified teachers",  gradient: "from-emerald-400 to-teal-600", shadow: "rgba(16,185,129,0.3)"  },
   { value: "2,000+", label: "Classes delivered",  gradient: "from-violet-400 to-purple-600",shadow: "rgba(139,92,246,0.3)"  },
   { value: "100%",   label: "Mobile-friendly",    gradient: "from-amber-400 to-orange-500", shadow: "rgba(245,158,11,0.3)"  },
@@ -63,46 +59,8 @@ const trustItems = [
   { icon: Zap,         label: "No downloads",        color: "text-amber-400"   },
 ];
 
-function roleIcon(role: DemoUser["role"]) {
-  if (role === "teacher") return Presentation;
-  if (role === "student") return GraduationCap;
-  return Shield;
-}
-
-function SignInCard({ users }: { users: DemoUser[] }) {
-  const [, navigate] = useLocation();
-  const [activeUser, setActiveUser] = useState(users[0]?.username ?? "");
-  const [username, setUsername]     = useState(users[0]?.username ?? "");
-  const [password, setPassword]     = useState("password123");
-  const [showPw, setShowPw]         = useState(false);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState("");
-
-  const active = useMemo(() => users.find((u) => u.username === activeUser), [users, activeUser]);
-
-  useEffect(() => {
-    if (users.length && !activeUser) {
-      setActiveUser(users[0].username);
-      setUsername(users[0].username);
-    }
-  }, [users]);
-
-  const handleSignIn = async () => {
-    if (!username.trim() || !password.trim()) { setError("Enter your username and password."); return; }
-    setLoading(true); setError("");
-    try {
-      const result = await loginDemoUser({ username: username.trim(), password });
-      navigate(result.user.role === "teacher" ? "/teacher" : "/student");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to sign in right now.");
-    } finally { setLoading(false); }
-  };
-
-  const inputCls =
-    "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-white placeholder:text-slate-500 outline-none transition focus:border-violet-400/60 focus:bg-white/8";
-
+function CTACard() {
   return (
-    /* Gradient border wrapper */
     <div className="relative rounded-3xl p-[1.5px]" style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.6), rgba(139,92,246,0.5), rgba(236,72,153,0.4))" }}>
       <div
         className="relative overflow-hidden rounded-[22px] p-6 sm:p-8"
@@ -111,110 +69,68 @@ function SignInCard({ users }: { users: DemoUser[] }) {
           backdropFilter: "blur(24px)",
         }}
       >
-        {/* Inner colour glows */}
+        {/* Glows */}
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-500/20 blur-[40px]" aria-hidden />
         <div className="pointer-events-none absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-cyan-500/15 blur-[35px]" aria-hidden />
 
         {/* Header */}
-        <div className="relative mb-6">
+        <div className="relative mb-8">
           <p className="mb-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-300"
             style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>
-            <Zap className="h-3 w-3" /> Sign in
+            <Zap className="h-3 w-3" /> Get started
           </p>
           <h2 className="mt-3 text-xl font-black tracking-tight text-white">Your class is one step away</h2>
-          <p className="mt-1 text-[13px] text-slate-400">Tap a demo account or enter your credentials.</p>
+          <p className="mt-1 text-[13px] text-slate-400">
+            Sign in to your account or create a new one. It only takes a minute.
+          </p>
         </div>
 
-        {/* Demo users */}
-        <div className="relative mb-5 space-y-2">
-          {users.map((user, i) => {
-            const selected = activeUser === user.username;
-            const Icon = roleIcon(user.role);
-            const avatarGrad = [
-              "from-cyan-500 to-blue-600",
-              "from-emerald-500 to-teal-600",
-              "from-violet-500 to-purple-600",
-            ][i % 3];
-            return (
-              <button
-                key={user.username}
-                type="button"
-                onClick={() => { setActiveUser(user.username); setUsername(user.username); setPassword("password123"); }}
-                className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-2.5 text-left transition duration-200 ${
-                  selected
-                    ? "border-violet-500/40 bg-violet-500/10 shadow-[0_0_0_1px_rgba(139,92,246,0.2)]"
-                    : "border-white/8 bg-white/3 hover:border-white/15 hover:bg-white/6"
-                }`}
-              >
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white ${selected ? avatarGrad : "from-slate-700 to-slate-600"}`}>
-                  <Icon className="h-3.5 w-3.5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-white">{user.full_name}</span>
-                  <span className="block truncate text-[11px] text-slate-500">{user.email}</span>
-                </span>
-                {selected && <CheckCircle2 className="h-4 w-4 shrink-0 text-violet-400" />}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Credentials */}
-        <div className="relative mb-4 grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Username</label>
-            <div className="relative">
-              <AtSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" placeholder="grace.teacher" className={`${inputCls} pl-9`} />
-            </div>
+        {/* Role highlights */}
+        <div className="relative mb-7 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/8 p-4">
+            <p className="text-lg">📚</p>
+            <p className="mt-2 text-sm font-bold text-white">Students</p>
+            <p className="mt-0.5 text-[12px] text-slate-400">Join live classes, take quizzes, track progress</p>
           </div>
-          <div>
-            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Password</label>
-            <div className="relative">
-              <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" placeholder="••••••" className={`${inputCls} pl-9 pr-10`} />
-              <button type="button" onClick={() => setShowPw((c) => !c)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 hover:text-violet-300">
-                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/8 p-4">
+            <p className="text-lg">🎓</p>
+            <p className="mt-2 text-sm font-bold text-white">Teachers</p>
+            <p className="mt-0.5 text-[12px] text-slate-400">Host classes, set quizzes, manage students</p>
           </div>
         </div>
 
-        {error && (
-          <p className="mb-3 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-center text-xs font-medium text-rose-300">{error}</p>
-        )}
-
-        {/* CTA */}
-        <button
-          type="button"
-          onClick={handleSignIn}
-          disabled={loading || users.length === 0}
-          className="relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl px-5 py-3 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-          style={{ background: "linear-gradient(135deg, #06b6d4 0%, #8b5cf6 55%, #ec4899 100%)", boxShadow: "0 8px 32px rgba(139,92,246,0.35)" }}
-        >
-          {loading ? "Signing in…" : (active?.username === username && active?.role === "teacher") ? "Open teacher room" : "Sign in"}
-          <ArrowRight className="h-3.5 w-3.5" />
-        </button>
-
-        {/* Footer links */}
-        <div className="mt-4 flex items-center justify-center gap-6 border-t border-white/8 pt-4 text-xs font-medium">
-          <Link href="/register" className="text-cyan-400 transition hover:text-cyan-300">Create account</Link>
-          <span className="text-slate-700">·</span>
-          <Link href="/forgot-password" className="text-slate-500 transition hover:text-slate-300">Forgot password?</Link>
+        {/* CTAs */}
+        <div className="relative space-y-3">
+          <Link
+            href="/sign-in"
+            className="relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl px-5 py-3.5 text-sm font-bold text-white transition hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #06b6d4 0%, #8b5cf6 55%, #ec4899 100%)", boxShadow: "0 8px 32px rgba(139,92,246,0.35)" }}
+          >
+            Sign in to ElimuPawa
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/sign-up"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+          >
+            Create a free account
+          </Link>
         </div>
+
+        {/* Footer */}
+        <p className="relative mt-5 text-center text-[11px] text-slate-600">
+          Used by schools across Kenya · Secure · No credit card needed
+        </p>
       </div>
     </div>
   );
 }
 
 export function LandingPage() {
-  const [users, setUsers] = useState<DemoUser[]>(demoUsersFallback);
-  useEffect(() => { getDemoUsers().then(setUsers).catch(() => {}); }, []);
-
   return (
     <div className="min-h-screen w-full overflow-x-hidden" style={{ background: "linear-gradient(160deg, #060b18 0%, #09142a 45%, #0b1630 100%)" }}>
 
-      {/* ── Rich multi-colour background glows ── */}
+      {/* Background glows */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
         <div className="absolute -left-48 -top-24 h-[700px] w-[700px] rounded-full bg-cyan-500/10 blur-[140px]" />
         <div className="absolute right-0 top-1/4 h-[500px] w-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
@@ -235,7 +151,7 @@ export function LandingPage() {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
 
-        {/* ── Navbar ── */}
+        {/* Navbar */}
         <nav className="flex items-center justify-between py-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl shadow-lg" style={{ background: "linear-gradient(135deg, #06b6d4, #8b5cf6)" }}>
@@ -251,7 +167,7 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href="/register"
+              href="/sign-up"
               className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 sm:block"
               style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.2), rgba(139,92,246,0.2))", border: "1px solid rgba(139,92,246,0.3)" }}
             >
@@ -261,7 +177,7 @@ export function LandingPage() {
           </div>
         </nav>
 
-        {/* ── Hero ── */}
+        {/* Hero */}
         <div className="grid items-center gap-6 pb-10 pt-6 lg:grid-cols-[1fr_430px] lg:gap-14 lg:pb-16 lg:pt-10">
 
           {/* Left — copy */}
@@ -286,7 +202,7 @@ export function LandingPage() {
               polls, and a collaborative whiteboard — all in one focused screen built for Kenyan schools.
             </p>
 
-            {/* Trust badges — each a different colour */}
+            {/* Trust badges */}
             <div className="flex flex-wrap gap-2.5">
               {trustItems.map(({ icon: Icon, label, color }) => (
                 <span
@@ -299,7 +215,7 @@ export function LandingPage() {
               ))}
             </div>
 
-            {/* Stats — each with its own gradient colour */}
+            {/* Stats */}
             <div className="grid grid-cols-2 gap-3 pt-1 sm:grid-cols-4">
               {stats.map(({ value, label, gradient, shadow }) => (
                 <div
@@ -318,14 +234,14 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* Right — sign-in card */}
-          <SignInCard users={users} />
+          {/* Right — CTA card */}
+          <CTACard />
         </div>
 
-        {/* ── Coloured gradient divider ── */}
+        {/* Divider */}
         <div className="h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(6,182,212,0.4), rgba(139,92,246,0.5), rgba(236,72,153,0.4), transparent)" }} />
 
-        {/* ── Features ── */}
+        {/* Features */}
         <div className="py-14 lg:py-20">
           <div className="mb-12 text-center">
             <p
@@ -349,7 +265,6 @@ export function LandingPage() {
                 className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
               >
-                {/* Per-card corner glow */}
                 <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full blur-[30px]" style={{ background: glow }} aria-hidden />
                 <span
                   className="relative mb-4 flex h-10 w-10 items-center justify-center rounded-xl"
@@ -364,10 +279,10 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* ── Coloured footer divider ── */}
+        {/* Footer divider */}
         <div className="h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(236,72,153,0.3), rgba(139,92,246,0.4), rgba(6,182,212,0.3), transparent)" }} />
 
-        {/* ── Footer ── */}
+        {/* Footer */}
         <div className="py-8 text-center">
           <p className="text-[12px] text-slate-700">
             © {new Date().getFullYear()} ElimuPawa · Built for learners everywhere

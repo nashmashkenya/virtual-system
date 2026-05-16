@@ -1,48 +1,49 @@
+import { useUser } from "@clerk/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { TeacherDashboard } from "@/components/teacher/teacher-dashboard";
-import { getCurrentDemoUser, getTeacherDashboard, getTeacherSessions } from "@/lib/api";
+import { getTeacherDashboard, getTeacherSessions } from "@/lib/api";
 import { teacherDashboardFallback } from "@/lib/mock-data";
 import type { DemoUser, TeacherDashboardData, TeacherSession } from "@/lib/types";
 
 export function TeacherPage() {
+  const { user, isLoaded } = useUser();
   const [, navigate] = useLocation();
-  const [currentUser, setCurrentUser] = useState<DemoUser | null>(null);
   const [dashboard, setDashboard] = useState<TeacherDashboardData>(teacherDashboardFallback);
   const [sessions, setSessions] = useState<TeacherSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dashLoading, setDashLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const user = await getCurrentDemoUser();
-      if (!user) {
-        navigate("/");
-        return;
-      }
-      if (user.role === "student") {
-        navigate("/student");
-        return;
-      }
-      setCurrentUser(user);
-      const [dashData, sessData] = await Promise.all([
-        getTeacherDashboard(),
-        getTeacherSessions(),
-      ]);
-      setDashboard(dashData);
-      setSessions(sessData);
-      setLoading(false);
+    if (!isLoaded) return;
+    if (!user) {
+      navigate("/");
+      return;
     }
-    load().catch(() => setLoading(false));
-  }, [navigate]);
+    Promise.all([getTeacherDashboard(), getTeacherSessions()])
+      .then(([dashData, sessData]) => {
+        setDashboard(dashData);
+        setSessions(sessData);
+      })
+      .catch(() => {})
+      .finally(() => setDashLoading(false));
+  }, [isLoaded, user, navigate]);
 
-  if (loading || !currentUser) {
+  if (!isLoaded || dashLoading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
       </div>
     );
   }
+
+  const currentUser: DemoUser = {
+    username: user?.username ?? user?.id ?? "teacher",
+    full_name: user?.fullName ?? "Teacher",
+    email: user?.emailAddresses?.[0]?.emailAddress ?? "",
+    role: "teacher",
+    organizations: [],
+  };
 
   return (
     <DashboardShell
@@ -56,7 +57,7 @@ export function TeacherPage() {
         dashboard={dashboard}
         sessions={sessions}
         currentUsername={currentUser.username}
-        organizations={currentUser.organizations ?? []}
+        organizations={[]}
       />
     </DashboardShell>
   );
