@@ -123,22 +123,39 @@ function defaultStartsAtForNewSession(): string {
   return d.toISOString().slice(0, 16);
 }
 
+type FromLessonContext = {
+  lesson_id: number;
+  title: string;
+  starts_at: string;
+  duration_minutes: number;
+};
+
 export function TeacherDashboard({
   dashboard,
   sessions: initialSessions,
   currentUsername,
   accessToken,
   organizations = [],
+  fromLesson,
 }: {
   dashboard: TeacherDashboardData;
   sessions: TeacherSession[];
   currentUsername: string;
   accessToken?: string;
   organizations?: OrganizationSummary[];
+  fromLesson?: FromLessonContext;
 }) {
   const [title, setTitle] = useState(dashboard.form_defaults.title);
   const [youtubeLink, setYoutubeLink] = useState(dashboard.form_defaults.youtube_link);
   const [startsAt, setStartsAt] = useState(dashboard.form_defaults.starts_at);
+  const [lessonBannerVisible, setLessonBannerVisible] = useState(!!fromLesson);
+
+  useEffect(() => {
+    if (!fromLesson) return;
+    setLessonBannerVisible(true);
+    const timer = setTimeout(() => setLessonBannerVisible(false), 4000);
+    return () => clearTimeout(timer);
+  }, [fromLesson]);
   const [deliveryMode, setDeliveryMode] = useState<"interactive" | "broadcast">(
     dashboard.form_defaults.delivery_mode,
   );
@@ -5116,6 +5133,27 @@ export function TeacherDashboard({
 
         {activePanel === "session" ? (
           <div className="rounded-2xl border border-white/10 bg-[#16191f] p-5 text-white">
+              {lessonBannerVisible && fromLesson && (
+                <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-violet-500/30 bg-violet-600/10 px-4 py-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <svg className="h-4 w-4 shrink-0 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-medium text-violet-200 truncate">
+                      Loaded from scheduled lesson: <span className="font-semibold text-white">{fromLesson.title}</span>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLessonBannerVisible(false)}
+                    className="shrink-0 rounded-lg p-1 text-violet-400 transition hover:bg-violet-500/20 hover:text-white"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
               <div className="mb-5 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="text-base font-bold tracking-tight text-white">Your class</h2>

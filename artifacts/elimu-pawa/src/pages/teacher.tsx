@@ -7,12 +7,20 @@ import { getTeacherDashboard, getTeacherSessions } from "@/lib/api";
 import { teacherDashboardFallback } from "@/lib/mock-data";
 import type { DemoUser, TeacherDashboardData, TeacherSession } from "@/lib/types";
 
+export type FromLessonContext = {
+  lesson_id: number;
+  title: string;
+  starts_at: string;
+  duration_minutes: number;
+};
+
 export function TeacherPage() {
   const { user, isLoaded } = useUser();
   const [, navigate] = useLocation();
   const [dashboard, setDashboard] = useState<TeacherDashboardData>(teacherDashboardFallback);
   const [sessions, setSessions] = useState<TeacherSession[]>([]);
   const [dashLoading, setDashLoading] = useState(true);
+  const [fromLesson, setFromLesson] = useState<FromLessonContext | null>(null);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -22,6 +30,28 @@ export function TeacherPage() {
     }
     Promise.all([getTeacherDashboard(), getTeacherSessions()])
       .then(([dashData, sessData]) => {
+        const params = new URLSearchParams(window.location.search);
+        const lessonId = params.get("lesson_id");
+        const lessonTitle = params.get("title");
+        const lessonStartsAt = params.get("starts_at");
+        const lessonDuration = params.get("duration_minutes");
+        if (lessonTitle && lessonId) {
+          const ctx: FromLessonContext = {
+            lesson_id: Number(lessonId),
+            title: lessonTitle,
+            starts_at: lessonStartsAt ?? "",
+            duration_minutes: lessonDuration ? Number(lessonDuration) : 60,
+          };
+          dashData = {
+            ...dashData,
+            form_defaults: {
+              ...dashData.form_defaults,
+              title: ctx.title,
+              ...(ctx.starts_at ? { starts_at: ctx.starts_at } : {}),
+            },
+          };
+          setFromLesson(ctx);
+        }
         setDashboard(dashData);
         setSessions(sessData);
       })
@@ -58,6 +88,7 @@ export function TeacherPage() {
         sessions={sessions}
         currentUsername={currentUser.username}
         organizations={[]}
+        fromLesson={fromLesson ?? undefined}
       />
     </DashboardShell>
   );
