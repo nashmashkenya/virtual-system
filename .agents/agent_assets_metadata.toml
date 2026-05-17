@@ -4,7 +4,7 @@ uploads = []
 id = "KsM0xC4-D1HCsedzyh4Qq"
 uri = "file://artifacts/elimu-pawa-mobile/assets/images/icon.png"
 type = "image"
-title = "elimupawa app icon"
+title = "generated_image"
 
 [[generated]]
 id = "wqpCLK_WSgrOs7TDK9-pr"

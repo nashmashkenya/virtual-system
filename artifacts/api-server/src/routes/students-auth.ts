@@ -23,6 +23,14 @@ function cookieOpts() {
   };
 }
 
+function extractToken(req: Request): string | undefined {
+  const fromCookie = req.cookies?.[COOKIE_NAME] as string | undefined;
+  if (fromCookie) return fromCookie;
+  const auth = req.headers.authorization;
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  return undefined;
+}
+
 /* ── POST /api/students/register ── */
 router.post("/students/register", async (req: Request, res: Response) => {
   const { adm_no, first_name, last_name, class_level, parent_phone } = req.body as {
@@ -58,6 +66,7 @@ router.post("/students/register", async (req: Request, res: Response) => {
   res.cookie(COOKIE_NAME, token, cookieOpts());
   return res.status(201).json({
     message: "Account created.",
+    token,
     student: {
       id: student.id,
       adm_no: student.admNo,
@@ -88,6 +97,7 @@ router.post("/students/login", async (req: Request, res: Response) => {
   res.cookie(COOKIE_NAME, token, cookieOpts());
   return res.json({
     message: "Logged in.",
+    token,
     student: {
       id: student.id,
       adm_no: student.admNo,
@@ -100,7 +110,7 @@ router.post("/students/login", async (req: Request, res: Response) => {
 
 /* ── POST /api/students/logout ── */
 router.post("/students/logout", async (req: Request, res: Response) => {
-  const token = req.cookies?.[COOKIE_NAME] as string | undefined;
+  const token = extractToken(req);
   if (token) {
     await db.delete(studentSessions).where(eq(studentSessions.token, token));
   }
@@ -110,7 +120,7 @@ router.post("/students/logout", async (req: Request, res: Response) => {
 
 /* ── GET /api/students/me ── */
 router.get("/students/me", async (req: Request, res: Response) => {
-  const token = req.cookies?.[COOKIE_NAME] as string | undefined;
+  const token = extractToken(req);
   if (!token) return res.status(401).json({ message: "Not authenticated." });
 
   const [session] = await db
@@ -136,7 +146,7 @@ router.get("/students/me", async (req: Request, res: Response) => {
 
 /* ── GET /api/students/dashboard ── */
 router.get("/students/dashboard", async (req: Request, res: Response) => {
-  const token = req.cookies?.[COOKIE_NAME] as string | undefined;
+  const token = extractToken(req);
   if (!token) return res.status(401).json({ message: "Not authenticated." });
 
   const [session] = await db
