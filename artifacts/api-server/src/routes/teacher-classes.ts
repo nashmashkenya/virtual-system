@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { teacherClasses, lessons, lessonStudents, students } from "@workspace/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -25,7 +25,20 @@ router.get("/teacher/classes", async (req: Request, res: Response) => {
   const teacherId = requireTeacher(req, res);
   if (!teacherId) return;
 
-  const rows = await db.select().from(teacherClasses).where(eq(teacherClasses.teacherId, teacherId));
+  const rows = await db
+    .select({
+      id: teacherClasses.id,
+      teacher_id: teacherClasses.teacherId,
+      teacher_name: teacherClasses.teacherName,
+      subject: teacherClasses.subject,
+      class_level: teacherClasses.classLevel,
+      description: teacherClasses.description,
+      created_at: teacherClasses.createdAt,
+      lesson_count: sql<number>`(select count(*)::int from ${lessons} where ${lessons.classId} = ${teacherClasses.id})`,
+    })
+    .from(teacherClasses)
+    .where(eq(teacherClasses.teacherId, teacherId));
+
   return res.json({ classes: rows });
 });
 
@@ -75,9 +88,22 @@ router.get("/teacher/lessons", async (req: Request, res: Response) => {
   if (!teacherId) return;
 
   const classId = req.query["class_id"] ? Number(req.query["class_id"]) : null;
+  const baseQuery = db
+    .select({
+      id: lessons.id,
+      class_id: lessons.classId,
+      teacher_id: lessons.teacherId,
+      title: lessons.title,
+      scheduled_at: lessons.scheduledAt,
+      duration_minutes: lessons.durationMinutes,
+      created_at: lessons.createdAt,
+      approved_count: sql<number>`(select count(*)::int from ${lessonStudents} where ${lessonStudents.lessonId} = ${lessons.id})`,
+    })
+    .from(lessons);
+
   const rows = classId
-    ? await db.select().from(lessons).where(and(eq(lessons.teacherId, teacherId), eq(lessons.classId, classId)))
-    : await db.select().from(lessons).where(eq(lessons.teacherId, teacherId));
+    ? await baseQuery.where(and(eq(lessons.teacherId, teacherId), eq(lessons.classId, classId)))
+    : await baseQuery.where(eq(lessons.teacherId, teacherId));
 
   return res.json({ lessons: rows });
 });

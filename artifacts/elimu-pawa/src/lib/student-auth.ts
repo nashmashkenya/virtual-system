@@ -80,6 +80,7 @@ export interface TeacherClass {
   description: string;
   teacher_name: string;
   created_at: string;
+  lesson_count?: number;
 }
 
 export interface ScheduledLesson {
@@ -89,6 +90,7 @@ export interface ScheduledLesson {
   scheduled_at: string;
   duration_minutes: number;
   created_at: string;
+  approved_count?: number;
 }
 
 export async function getTeacherClasses(): Promise<TeacherClass[]> {
