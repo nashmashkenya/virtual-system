@@ -1,12 +1,5 @@
 [build]
-# Corepack and pnpm 11 are disabled to prevent Node 20 compatibility errors (ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING).
-# The build will run directly using Railway's default pnpm 9.x.
-builder = "nixpacks"
-buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @workspace/elimu-pawa run build && pnpm --filter @workspace/api-server run build"
+builder = "railpack"
 
-[deploy]
-startCommand = "NODE_ENV=production pnpm --filter @workspace/api-server run start"
-healthcheckPath = "/api/healthz"
-healthcheckTimeout = 30
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+[build.railpack]
+packageManager = "pnpm"
