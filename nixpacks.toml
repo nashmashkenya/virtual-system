@@ -1,0 +1,2 @@
+[build]
+cmds = ["pnpm install --frozen-lockfile", "pnpm --filter @workspace/elimu-pawa run build", "pnpm --filter @workspace/api-server run build"]
