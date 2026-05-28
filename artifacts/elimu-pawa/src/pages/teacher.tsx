@@ -10,6 +10,9 @@ import type { DemoUser, TeacherDashboardData, TeacherSession } from "@/lib/types
 export type FromLessonContext = {
   lesson_id: number;
   title: string;
+  subject: string;
+  class_level: string;
+  teacher_name: string;
   starts_at: string;
   duration_minutes: number;
 };
@@ -33,12 +36,18 @@ export function TeacherPage() {
         const params = new URLSearchParams(window.location.search);
         const lessonId = params.get("lesson_id");
         const lessonTitle = params.get("title");
+        const lessonSubject = params.get("subject");
+        const lessonClassLevel = params.get("class_level");
+        const lessonTeacherName = params.get("teacher_name");
         const lessonStartsAt = params.get("starts_at");
         const lessonDuration = params.get("duration_minutes");
         if (lessonTitle && lessonId) {
           const ctx: FromLessonContext = {
             lesson_id: Number(lessonId),
             title: lessonTitle,
+            subject: lessonSubject ?? "",
+            class_level: lessonClassLevel ?? "",
+            teacher_name: lessonTeacherName ?? "",
             starts_at: lessonStartsAt ?? "",
             duration_minutes: lessonDuration ? Number(lessonDuration) : 60,
           };
@@ -77,8 +86,8 @@ export function TeacherPage() {
 
   return (
     <DashboardShell
-      title="Teacher meeting room"
-      subtitle="Run the class with the live room in focus."
+      title={fromLesson ? `${fromLesson.class_level} — ${fromLesson.subject}` : "Teacher meeting room"}
+      subtitle={fromLesson ? `Topic: ${fromLesson.title} · Teacher: ${fromLesson.teacher_name}` : "Run the class with the live room in focus."}
       role="Teacher room"
       currentUser={currentUser}
       layoutVariant="meeting"

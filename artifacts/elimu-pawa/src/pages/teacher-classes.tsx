@@ -277,6 +277,9 @@ export function TeacherClassesPage() {
         title: lesson.title,
         starts_at: lesson.scheduled_at,
         duration_minutes: String(lesson.duration_minutes),
+        subject: selectedClass?.subject ?? "",
+        class_level: selectedClass?.class_level ?? "",
+        teacher_name: selectedClass?.teacher_name ?? "",
       });
       navigate(`/teacher?${params.toString()}`);
     }, 300);

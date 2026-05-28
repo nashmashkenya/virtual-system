@@ -187,6 +187,7 @@ export type StudentDashboardData = {
     youtube_embed_url: string;
     room_code: string;
     is_live: boolean;
+    status: string;
     price_label: string;
     payment_required: boolean;
     student_paid: boolean;

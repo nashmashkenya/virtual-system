@@ -12,7 +12,14 @@ const COOKIE = "admin_token";
 const SESSION_DAYS = 1;
 
 function cookieOpts() {
-  return { httpOnly: true, sameSite: "none" as const, secure: true, maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000, path: "/" };
+  const isProduction = process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    secure: isProduction,
+    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
+    path: "/",
+  };
 }
 
 async function requireAdmin(req: Request, res: Response): Promise<boolean> {

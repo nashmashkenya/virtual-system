@@ -172,7 +172,7 @@ function roomCode() {
 }
 
 /* ── Seed sessions ── */
-const sessionsStore = new Map<number, TeacherSession>([
+export const sessionsStore = new Map<number, TeacherSession>([
   [
     1,
     {
@@ -245,12 +245,12 @@ const programsStore = new Map<number, LearningProgram>([
   ],
 ]);
 
-const roomStatesStore = new Map<number, RoomState>([
+export const roomStatesStore = new Map<number, RoomState>([
   [1, defaultRoomState()],
   [2, defaultRoomState()],
 ]);
 
-const whiteboardsStore = new Map<number, WhiteboardState>([
+export const whiteboardsStore = new Map<number, WhiteboardState>([
   [1, defaultWhiteboard()],
   [2, defaultWhiteboard()],
 ]);
@@ -268,7 +268,7 @@ const enrollmentsStore = new Map<number, SessionEnrollment[]>([
   [2, []],
 ]);
 
-const pollsStore = new Map<number, TeacherPoll[]>([
+export const pollsStore = new Map<number, TeacherPoll[]>([
   [
     1,
     [
@@ -288,7 +288,7 @@ const pollsStore = new Map<number, TeacherPoll[]>([
   [2, []],
 ]);
 
-const quizzesStore = new Map<number, TeacherQuiz[]>([
+export const quizzesStore = new Map<number, TeacherQuiz[]>([
   [
     1,
     [
@@ -313,7 +313,7 @@ const resourcesStore = new Map<number, SessionResourceItem[]>([
   [2, []],
 ]);
 
-const chatStore = new Map<number, ClassroomMessage[]>([
+export const chatStore = new Map<number, ClassroomMessage[]>([
   [
     1,
     [
@@ -421,9 +421,20 @@ function buildDashboard(sessionId: number, session?: TeacherSession) {
   };
 }
 
-function getActiveSession(): TeacherSession {
-  return sessionsStore.get(1)!;
+let activeSessionId = 1;
+
+export function getActiveSessionId(): number {
+  return activeSessionId;
 }
+
+export function setActiveSessionId(id: number): void {
+  activeSessionId = id;
+}
+
+function getActiveSession(): TeacherSession {
+  return sessionsStore.get(activeSessionId) || sessionsStore.get(1)!;
+}
+
 
 /* ─────────────────────────────────────────────────────────────
    GET /api/teacher/dashboard/
@@ -469,6 +480,7 @@ router.post("/teacher/sessions", (req, res) => {
     created_at: new Date().toISOString(),
   };
   sessionsStore.set(id, session);
+  activeSessionId = id;
   roomStatesStore.set(id, defaultRoomState());
   whiteboardsStore.set(id, defaultWhiteboard());
   enrollmentsStore.set(id, []);
@@ -490,6 +502,7 @@ router.get("/teacher/sessions/:id/", (req: Request, res: Response) => {
   const id = Number(req.params["id"]);
   const session = sessionsStore.get(id);
   if (!session) return res.status(404).json({ message: "Session not found." });
+  activeSessionId = id;
   res.json({ session, dashboard: buildDashboard(id, session) });
 });
 
@@ -503,6 +516,7 @@ router.patch("/teacher/sessions/:id", (req: Request, res: Response) => {
   const body = req.body as Partial<TeacherSession>;
   const updated: TeacherSession = { ...session, ...body, id };
   sessionsStore.set(id, updated);
+  activeSessionId = id;
   res.json({ message: "Session updated.", session: updated });
 });
 

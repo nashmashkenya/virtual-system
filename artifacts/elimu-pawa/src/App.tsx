@@ -20,11 +20,15 @@ import { OnboardingPage } from "@/pages/onboarding";
 import { AdminPage } from "@/pages/admin";
 import { TeacherGuidePage } from "@/pages/teacher-guide";
 
+const skipClerk = import.meta.env.VITE_SKIP_CLERK === "true";
+
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname.
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+const clerkPubKey = skipClerk
+  ? ""
+  : publishableKeyFromHost(
+      window.location.hostname,
+      import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+    );
 
 // REQUIRED — copy verbatim. Empty in dev (intentional), auto-set in prod.
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
@@ -37,7 +41,7 @@ function stripBase(path: string): string {
     : path;
 }
 
-if (!clerkPubKey) {
+if (!skipClerk && !clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY");
 }
 
@@ -224,6 +228,55 @@ function HomeRedirect() {
   return <LandingPage />;
 }
 
+function TeacherClerkUnavailable() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+      <div className="max-w-md rounded-2xl border border-slate-700/50 bg-slate-900 p-8 text-center">
+        <p className="text-lg font-semibold text-white">Teacher sign-in needs Clerk</p>
+        <p className="mt-2 text-sm text-slate-400">
+          Add VITE_CLERK_PUBLISHABLE_KEY to artifacts/elimu-pawa/.env.local and restart.
+        </p>
+        <Link
+          href="/"
+          className="mt-6 inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        >
+          Back to home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function LocalDevRoutes() {
+  return (
+    <ThemeProvider>
+      <Switch>
+        <Route path="/" component={LandingPage} />
+        <Route path="/student/sign-in" component={StudentSignInPage} />
+        <Route path="/student/sign-up" component={StudentSignUpPage} />
+        <Route path="/student/dashboard" component={StudentDashboardPage} />
+        <Route path="/teacher/sign-in/*?" component={() => <RedirectTo to="/teacher/classes" />} />
+        <Route path="/teacher/sign-up/*?" component={() => <RedirectTo to="/teacher/classes" />} />
+        <Route path="/teacher/classes" component={TeacherClassesPage} />
+        <Route path="/admin" component={AdminPage} />
+        <Route path="/docs/teacher-guide" component={TeacherGuidePage} />
+        <Route path="/sign-in/*?" component={() => <RedirectTo to="/" />} />
+        <Route path="/sign-up/*?" component={() => <RedirectTo to="/" />} />
+        <Route path="/login" component={() => <RedirectTo to="/" />} />
+        <Route path="/register" component={() => <RedirectTo to="/" />} />
+        <Route path="/onboarding" component={OnboardingPage} />
+        <Route path="/student/home" component={StudentHomePage} />
+        <Route path="/student" component={StudentPage} />
+        <Route path="/teacher" component={TeacherPage} />
+        <Route path="/settings" component={SettingsPage} />
+        <Route path="/payments" component={PaymentsPage} />
+        <Route component={NotFoundPage} />
+      </Switch>
+      <ToastStack />
+    </ThemeProvider>
+  );
+}
+
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
@@ -296,7 +349,7 @@ function ClerkProviderWithRoutes() {
 function App() {
   return (
     <WouterRouter base={basePath}>
-      <ClerkProviderWithRoutes />
+      {skipClerk ? <LocalDevRoutes /> : <ClerkProviderWithRoutes />}
     </WouterRouter>
   );
 }

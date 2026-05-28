@@ -14,10 +14,11 @@ function genToken() {
 }
 
 function cookieOpts() {
+  const isProduction = process.env.NODE_ENV === "production";
   return {
     httpOnly: true,
-    sameSite: "none" as const,
-    secure: true,
+    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    secure: isProduction,
     maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
     path: "/",
   };

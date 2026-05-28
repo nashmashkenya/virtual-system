@@ -122,6 +122,7 @@ export const studentDashboardFallback: StudentDashboardData = {
     youtube_embed_url: "https://www.youtube.com/embed/jfKfPfyJRdk?rel=0",
     room_code: "data-analytics-bootcamp",
     is_live: true,
+    status: "Live",
     price_label: "KSh 3,500",
     payment_required: true,
     student_paid: false,

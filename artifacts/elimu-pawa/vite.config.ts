@@ -36,6 +36,13 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      ...(process.env.VITE_SKIP_CLERK === "true"
+        ? {
+            "@clerk/react/internal": path.resolve(import.meta.dirname, "src/lib/clerk-mock-internal.ts"),
+            "@clerk/react": path.resolve(import.meta.dirname, "src/lib/clerk-mock.tsx"),
+            "@clerk/themes": path.resolve(import.meta.dirname, "src/lib/clerk-mock-themes.ts"),
+          }
+        : {}),
     },
     dedupe: ["react", "react-dom"],
   },

@@ -1,5 +1,10 @@
+import "./load-env";
 import app from "./app";
 import { logger } from "./lib/logger";
+import { seedDatabase } from "./lib/db-seed";
+
+// Auto-seed the database with curriculum subjects
+seedDatabase();
 
 const rawPort = process.env["PORT"];
 

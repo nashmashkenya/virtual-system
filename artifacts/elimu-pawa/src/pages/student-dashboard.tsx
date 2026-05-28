@@ -62,6 +62,16 @@ export function StudentDashboardPage() {
   const display = activeTab === "upcoming" ? upcoming : past;
   const initials = `${student.first_name[0] ?? ""}${student.last_name[0] ?? ""}`.toUpperCase();
 
+  const liveLesson = lessons.find((l) => isLive(l.scheduled_at, l.duration_minutes));
+
+  const liveBannerPanel: React.CSSProperties = {
+    background: "linear-gradient(135deg, rgba(16,185,129,0.92) 0%, rgba(14,165,233,0.95) 100%)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    border: "1px solid rgba(255,255,255,0.25)",
+    boxShadow: "0 10px 30px rgba(16,185,129,0.25)",
+  };
+
   return (
     <div
       className="min-h-screen pb-28"
@@ -106,6 +116,37 @@ export function StudentDashboardPage() {
 
       {/* ── Main — full-width, no max-w on mobile ── */}
       <main className="relative space-y-4 px-4 pt-3 sm:mx-auto sm:max-w-2xl">
+
+        {/* Pulsing Live Class Banner */}
+        {liveLesson && (
+          <div className="overflow-hidden rounded-3xl p-5 text-white transition-all duration-300 hover:shadow-xl" style={liveBannerPanel}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 relative flex h-3 w-3 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[11px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
+                    Live Now
+                  </span>
+                  <h2 className="mt-1.5 text-[1.15rem] font-black leading-snug">
+                    {liveLesson.lesson_title}
+                  </h2>
+                  <p className="text-white/90 text-[13px] font-bold mt-0.5">
+                    {liveLesson.subject} • {liveLesson.teacher_name}
+                  </p>
+                </div>
+              </div>
+              <Link href="/student" className="shrink-0 flex items-center justify-center gap-1.5 rounded-2xl bg-white text-emerald-700 hover:bg-slate-50 transition-all font-black text-[14px] px-5 py-3 shadow-lg active:scale-95">
+                <span>Enter Classroom</span>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Profile hero */}
         <div className="overflow-hidden rounded-3xl" style={glassPanel}>

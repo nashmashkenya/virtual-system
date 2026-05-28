@@ -37,14 +37,30 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
-      process.env.CLERK_PUBLISHABLE_KEY,
-    ),
-  })),
-);
+const skipClerk =
+  process.env.SKIP_CLERK_AUTH === "true" ||
+  !process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_");
+
+if (skipClerk) {
+  logger.warn(
+    "Clerk middleware disabled — mocking teacher auth.",
+  );
+  app.use((req: any, res, next) => {
+    req.auth = {
+      userId: "mock_teacher_id",
+    };
+    next();
+  });
+} else {
+  app.use(
+    clerkMiddleware((req) => ({
+      publishableKey: publishableKeyFromHost(
+        getClerkProxyHost(req) ?? "",
+        process.env.CLERK_PUBLISHABLE_KEY,
+      ),
+    })),
+  );
+}
 
 app.use("/api", router);
 
