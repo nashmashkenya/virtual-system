@@ -1,0 +1,16 @@
+# Ignore node_modules and build outputs
+node_modules
+dist
+.artifacts
+.env
+.env.*
+.vscode
+.DS_Store
+.git
+.gitignore
+.pnpm-store
+.pnpm-debug.log
+coverage
+
+# pnpm cache
+.pnpm

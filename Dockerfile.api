@@ -1,0 +1,36 @@
+# Build stage
+FROM node:24-alpine AS build
+WORKDIR /app
+
+# Enable corepack + pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy lockfiles & workspace config first for caching
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+
+# Copy the rest of the repo
+COPY . .
+
+# Install deps (frozen lockfile) and build the api package
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @workspace/api-server run build
+
+# Runtime stage
+FROM node:24-alpine AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -S app && adduser -S app -G app
+
+# Copy built artifact
+COPY --from=build /app/artifacts/api-server/dist ./dist
+
+# Copy production node_modules from build to runtime (workspace-compatible)
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+
+ENV PORT=8080
+EXPOSE 8080
+
+USER app
+CMD ["node", "--enable-source-maps", "dist/index.mjs"]
