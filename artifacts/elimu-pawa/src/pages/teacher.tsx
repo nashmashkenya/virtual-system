@@ -15,6 +15,9 @@ export type FromLessonContext = {
   teacher_name: string;
   starts_at: string;
   duration_minutes: number;
+  delivery_mode?: string;
+  youtube_link?: string;
+  expected_participants?: number;
 };
 
 export function TeacherPage() {
@@ -41,6 +44,9 @@ export function TeacherPage() {
         const lessonTeacherName = params.get("teacher_name");
         const lessonStartsAt = params.get("starts_at");
         const lessonDuration = params.get("duration_minutes");
+        const lessonDeliveryMode = params.get("delivery_mode");
+        const lessonYoutubeLink = params.get("youtube_link");
+        const lessonExpectedParticipants = params.get("expected_participants");
         if (lessonTitle && lessonId) {
           const ctx: FromLessonContext = {
             lesson_id: Number(lessonId),
@@ -50,6 +56,9 @@ export function TeacherPage() {
             teacher_name: lessonTeacherName ?? "",
             starts_at: lessonStartsAt ?? "",
             duration_minutes: lessonDuration ? Number(lessonDuration) : 60,
+            delivery_mode: lessonDeliveryMode ?? "interactive",
+            youtube_link: lessonYoutubeLink ?? "",
+            expected_participants: lessonExpectedParticipants ? Number(lessonExpectedParticipants) : 50,
           };
           dashData = {
             ...dashData,

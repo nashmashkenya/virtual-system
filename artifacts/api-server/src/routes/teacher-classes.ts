@@ -109,6 +109,9 @@ router.get("/teacher/lessons", async (req: Request, res: Response) => {
       title: lessons.title,
       scheduled_at: lessons.scheduledAt,
       duration_minutes: lessons.durationMinutes,
+      delivery_mode: lessons.deliveryMode,
+      youtube_link: lessons.youtubeLink,
+      expected_participants: lessons.expectedParticipants,
       created_at: lessons.createdAt,
       approved_count: sql<number>`(select count(*)::int from ${lessonStudents} where ${lessonStudents.lessonId} = ${lessons.id})`,
     })
@@ -126,11 +129,14 @@ router.post("/teacher/lessons", async (req: Request, res: Response) => {
   const teacherId = requireTeacher(req, res);
   if (!teacherId) return;
 
-  const { class_id, title, scheduled_at, duration_minutes } = req.body as {
+  const { class_id, title, scheduled_at, duration_minutes, delivery_mode, youtube_link, expected_participants } = req.body as {
     class_id?: number;
     title?: string;
     scheduled_at?: string;
     duration_minutes?: number;
+    delivery_mode?: string;
+    youtube_link?: string;
+    expected_participants?: number;
   };
 
   if (!class_id) return res.status(400).json({ message: "Class is required." });
@@ -147,6 +153,9 @@ router.post("/teacher/lessons", async (req: Request, res: Response) => {
     title: title.trim(),
     scheduledAt: new Date(scheduled_at),
     durationMinutes: duration_minutes ?? 60,
+    deliveryMode: delivery_mode ?? "interactive",
+    youtubeLink: youtube_link ?? "",
+    expectedParticipants: expected_participants ?? 50,
   }).returning();
 
   return res.status(201).json({ message: "Lesson scheduled.", lesson });

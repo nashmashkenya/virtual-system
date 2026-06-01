@@ -91,6 +91,9 @@ export interface ScheduledLesson {
   duration_minutes: number;
   created_at: string;
   approved_count?: number;
+  delivery_mode?: string;
+  youtube_link?: string;
+  expected_participants?: number;
 }
 
 export async function getTeacherClasses(): Promise<TeacherClass[]> {
@@ -123,7 +126,15 @@ export async function getTeacherLessons(class_id?: number): Promise<ScheduledLes
   return d.lessons ?? [];
 }
 
-export async function createLesson(data: { class_id: number; title: string; scheduled_at: string; duration_minutes: number }): Promise<{ ok: boolean; message: string; lesson?: ScheduledLesson }> {
+export async function createLesson(data: {
+  class_id: number;
+  title: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  delivery_mode?: string;
+  youtube_link?: string;
+  expected_participants?: number;
+}): Promise<{ ok: boolean; message: string; lesson?: ScheduledLesson }> {
   const r = await fetch(`${API}/api/teacher/lessons`, {
     method: "POST",
     credentials: "include",

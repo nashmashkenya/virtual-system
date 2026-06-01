@@ -105,7 +105,14 @@ export function TeacherClassesPage() {
   const [classErr, setClassErr] = useState("");
 
   const [lessonFormOpen, setLessonFormOpen] = useState(false);
-  const [lessonForm, setLessonForm] = useState({ title: "", scheduled_at: "", duration_minutes: "60" });
+  const [lessonForm, setLessonForm] = useState({
+    title: "",
+    scheduled_at: "",
+    duration_minutes: "60",
+    delivery_mode: "interactive",
+    youtube_link: "",
+    expected_participants: "50",
+  });
   const [lessonErr, setLessonErr] = useState("");
 
   const [studentsSheetOpen, setStudentsSheetOpen] = useState(false);
@@ -208,11 +215,21 @@ export function TeacherClassesPage() {
       title: lessonForm.title.trim(),
       scheduled_at: lessonForm.scheduled_at,
       duration_minutes: Number(lessonForm.duration_minutes) || 60,
+      delivery_mode: lessonForm.delivery_mode,
+      youtube_link: lessonForm.delivery_mode === "broadcast" ? lessonForm.youtube_link.trim() : "",
+      expected_participants: Number(lessonForm.expected_participants) || 50,
     });
     setSaving(false);
     if (!res.ok) return setLessonErr(res.message);
     setLessonFormOpen(false);
-    setLessonForm({ title: "", scheduled_at: "", duration_minutes: "60" });
+    setLessonForm({
+      title: "",
+      scheduled_at: "",
+      duration_minutes: "60",
+      delivery_mode: "interactive",
+      youtube_link: "",
+      expected_participants: "50",
+    });
     setLessonErr("");
     setLessons(await getTeacherLessons(selectedClass.id));
   }
@@ -280,6 +297,9 @@ export function TeacherClassesPage() {
         subject: selectedClass?.subject ?? "",
         class_level: selectedClass?.class_level ?? "",
         teacher_name: selectedClass?.teacher_name ?? "",
+        delivery_mode: lesson.delivery_mode ?? "interactive",
+        youtube_link: lesson.youtube_link ?? "",
+        expected_participants: String(lesson.expected_participants ?? 50),
       });
       navigate(`/teacher?${params.toString()}`);
     }, 300);
@@ -692,6 +712,56 @@ export function TeacherClassesPage() {
                 />
               </div>
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">Classroom Mode</label>
+              <select
+                value={lessonForm.delivery_mode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  const defaultSize = mode === "broadcast" ? "200" : "50";
+                  setLessonForm((f) => ({
+                    ...f,
+                    delivery_mode: mode,
+                    expected_participants: defaultSize,
+                  }));
+                }}
+                className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-violet-500"
+              >
+                <option value="interactive">Interactive room (10-200 people)</option>
+                <option value="broadcast">Broadcast lecture (200-5000 people)</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
+                Expected class size ({lessonForm.delivery_mode === "broadcast" ? "200-5000" : "10-200"})
+              </label>
+              <input
+                type="number"
+                min={lessonForm.delivery_mode === "broadcast" ? 200 : 10}
+                max={lessonForm.delivery_mode === "broadcast" ? 5000 : 200}
+                value={lessonForm.expected_participants}
+                onChange={(e) => {
+                  const val = Number(e.target.value) || 0;
+                  const min = lessonForm.delivery_mode === "broadcast" ? 200 : 10;
+                  const max = lessonForm.delivery_mode === "broadcast" ? 5000 : 200;
+                  const clamped = Math.min(max, Math.max(min, val));
+                  setLessonForm((f) => ({ ...f, expected_participants: String(clamped) }));
+                }}
+                className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-violet-500"
+              />
+            </div>
+            {lessonForm.delivery_mode === "broadcast" && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-400">YouTube Live stream URL (Optional)</label>
+                <input
+                  type="text"
+                  value={lessonForm.youtube_link}
+                  onChange={(e) => setLessonForm((f) => ({ ...f, youtube_link: e.target.value }))}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/40"
+                />
+              </div>
+            )}
             {lessonErr && <p className="text-sm text-red-400">{lessonErr}</p>}
             <DialogFooter>
               <button

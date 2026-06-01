@@ -35,6 +35,9 @@ export const lessons = pgTable("lessons", {
   title: text("title").notNull(),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
   durationMinutes: integer("duration_minutes").notNull().default(60),
+  deliveryMode: text("delivery_mode").notNull().default("interactive"),
+  youtubeLink: text("youtube_link").notNull().default(""),
+  expectedParticipants: integer("expected_participants").notNull().default(50),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

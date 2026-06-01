@@ -129,6 +129,9 @@ type FromLessonContext = {
   title: string;
   starts_at: string;
   duration_minutes: number;
+  delivery_mode?: "interactive" | "broadcast";
+  youtube_link?: string;
+  expected_participants?: number;
 };
 
 export function TeacherDashboard({
@@ -147,7 +150,9 @@ export function TeacherDashboard({
   fromLesson?: FromLessonContext;
 }) {
   const [title, setTitle] = useState(dashboard.form_defaults.title);
-  const [youtubeLink, setYoutubeLink] = useState(dashboard.form_defaults.youtube_link);
+  const [youtubeLink, setYoutubeLink] = useState(
+    fromLesson?.youtube_link ?? dashboard.form_defaults.youtube_link,
+  );
   const [startsAt, setStartsAt] = useState(dashboard.form_defaults.starts_at);
   const [lessonBannerVisible, setLessonBannerVisible] = useState(!!fromLesson);
 
@@ -158,12 +163,14 @@ export function TeacherDashboard({
     return () => clearTimeout(timer);
   }, [fromLesson]);
   const [deliveryMode, setDeliveryMode] = useState<"interactive" | "broadcast">(
-    dashboard.form_defaults.delivery_mode,
+    fromLesson?.delivery_mode ?? dashboard.form_defaults.delivery_mode,
   );
   const [expectedParticipants, setExpectedParticipants] = useState(
-    dashboard.form_defaults.delivery_mode === "broadcast"
-      ? Math.min(5000, Math.max(200, dashboard.form_defaults.expected_participants))
-      : Math.min(200, Math.max(10, dashboard.form_defaults.expected_participants)),
+    fromLesson?.expected_participants ?? (
+      (fromLesson?.delivery_mode ?? dashboard.form_defaults.delivery_mode) === "broadcast"
+        ? Math.min(5000, Math.max(200, dashboard.form_defaults.expected_participants))
+        : Math.min(200, Math.max(10, dashboard.form_defaults.expected_participants))
+    )
   );
   const [sessions, setSessions] = useState(initialSessions);
   const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
@@ -1723,11 +1730,11 @@ export function TeacherDashboard({
     try {
       const response = await createSession({
         title: `${fromLesson.class_level} ${fromLesson.subject}: ${fromLesson.title}`,
-        youtube_link: "",
+        youtube_link: fromLesson.youtube_link ?? "",
         starts_at: fromLesson.starts_at,
         description: `Live lesson for ${fromLesson.class_level} ${fromLesson.subject} taught by ${fromLesson.teacher_name}`,
-        delivery_mode: "interactive",
-        expected_participants: 40,
+        delivery_mode: fromLesson.delivery_mode ?? "interactive",
+        expected_participants: fromLesson.expected_participants ?? 50,
         open_enrollment: true,
       });
       setSessions((current) => [response.session, ...current]);
@@ -4353,7 +4360,7 @@ export function TeacherDashboard({
           : ""
       }`}
     >
-      <section className="space-y-0 sm:space-y-4">
+      <section className="mx-auto max-w-5xl w-full space-y-0 sm:space-y-4">
         <div className="rounded-none border-b border-white/10 bg-white/[0.04] shadow-sm backdrop-blur-sm sm:rounded-2xl sm:border">
           <div className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2.5`}>
             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
