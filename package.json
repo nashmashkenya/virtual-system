@@ -5,6 +5,7 @@
   "scripts": {
     "preinstall": "echo 'Preinstall check complete.'",
     "build": "npm exec --package=pnpm -- pnpm install --frozen-lockfile && npm exec --package=pnpm -- pnpm --filter @workspace/elimu-pawa run build && npm exec --package=pnpm -- pnpm --filter @workspace/api-server run build",
+    "prestart": "npm exec --package=pnpm -- pnpm --filter @workspace/db run push",
     "start": "NODE_ENV=production npm exec --package=pnpm -- pnpm --filter @workspace/api-server run start",
     "typecheck:libs": "tsc --build",
     "typecheck": "npm exec --package=pnpm -- pnpm run typecheck:libs && npm exec --package=pnpm -- pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"

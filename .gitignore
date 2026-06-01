@@ -53,3 +53,11 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Large untracked or backup project directories
+frontend/
+backend/
+.next/
+**/.next/
+**/node_modules/
+
