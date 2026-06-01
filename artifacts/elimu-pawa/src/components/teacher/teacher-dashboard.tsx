@@ -167,7 +167,13 @@ export function TeacherDashboard({
   );
   const [sessions, setSessions] = useState(initialSessions);
   const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
-  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(initialSessions[0]?.id ?? null);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(() => {
+    if (fromLesson?.lesson_id) {
+      const match = initialSessions.find((s) => s.id === fromLesson.lesson_id);
+      if (match) return match.id;
+    }
+    return initialSessions[0]?.id ?? null;
+  });
   const [description, setDescription] = useState("");
   const [sessionOrgId, setSessionOrgId] = useState<number | null>(null);
   const [openEnrollment, setOpenEnrollment] = useState(true);
@@ -226,7 +232,7 @@ export function TeacherDashboard({
   const [draftingNewSession, setDraftingNewSession] = useState(false);
   /** Jitsi-style: toolbar auto-hides unless pinned or “More” is open */
   const [simpleToolbarVisible, setSimpleToolbarVisible] = useState(true);
-  const [simpleToolbarPinned, setSimpleToolbarPinned] = useState(false);
+  const [simpleToolbarPinned, setSimpleToolbarPinned] = useState(true);
   const [hoveredDockControl, setHoveredDockControl] = useState<string | null>(null);
   const simpleToolbarHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -347,6 +353,18 @@ export function TeacherDashboard({
       setSessionOrgId((prev) => prev ?? organizations[0].id);
     }
   }, [organizations]);
+
+  useEffect(() => {
+    if (fromLesson && sessions.length > 0) {
+      let match = sessions.find((s) => s.id === fromLesson.lesson_id);
+      if (!match) {
+        match = sessions.find((s) => s.title.toLowerCase().includes(fromLesson.title.toLowerCase()));
+      }
+      if (match) {
+        setSelectedSessionId(match.id);
+      }
+    }
+  }, [fromLesson, sessions]);
 
   useEffect(() => {
     let active = true;
@@ -1698,6 +1716,39 @@ export function TeacherDashboard({
     Boolean(selectedSessionId) && realtimeStatus !== "connected",
     5000,
   );
+
+  const handleAutoCreateFromLesson = async () => {
+    if (!fromLesson) return;
+    setSaving(true);
+    try {
+      const response = await createSession({
+        title: `${fromLesson.class_level} ${fromLesson.subject}: ${fromLesson.title}`,
+        youtube_link: "",
+        starts_at: fromLesson.starts_at,
+        description: `Live lesson for ${fromLesson.class_level} ${fromLesson.subject} taught by ${fromLesson.teacher_name}`,
+        delivery_mode: "interactive",
+        expected_participants: 40,
+        open_enrollment: true,
+      });
+      setSessions((current) => [response.session, ...current]);
+      setSelectedSessionId(response.session.id);
+      addNotification({
+        id: `auto-session-${Date.now()}`,
+        title: "Class room ready",
+        message: `Your live room for ${fromLesson.title} is now open.`,
+        tone: "success",
+      });
+    } catch (err) {
+      addNotification({
+        id: `auto-session-error-${Date.now()}`,
+        title: "Failed to start room",
+        message: "Could not create the live class room. Please try again.",
+        tone: "warning",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handlePublish = async () => {
     if (!editingSessionId && !title.trim()) {
@@ -3088,16 +3139,28 @@ export function TeacherDashboard({
     }
 
     setCameraBusy(true);
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: false,
       });
       const videoTrack = stream.getVideoTracks()[0];
       if (!videoTrack || videoTrack.readyState !== "live") {
-        stream.getTracks().forEach((track) => track.stop());
         throw new Error("Camera track did not start.");
       }
+
+      if (selectedSessionId) {
+        const response = await updateTeacherRoomState(selectedSessionId, {
+          stage_mode: "camera",
+          teacher_camera_enabled: true,
+        });
+        setCurrentDashboard((state) => ({
+          ...state,
+          room_state: response.room_state,
+        }));
+      }
+
       closeAllCameraPeers();
       cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
       cameraStreamRef.current = stream;
@@ -3115,19 +3178,6 @@ export function TeacherDashboard({
         }
       };
       setCameraEnabled(true);
-      if (selectedSessionId) {
-        void updateTeacherRoomState(selectedSessionId, {
-          stage_mode: "camera",
-          teacher_camera_enabled: true,
-        })
-          .then((response) => {
-            setCurrentDashboard((state) => ({
-              ...state,
-              room_state: response.room_state,
-            }));
-          })
-          .catch(() => undefined);
-      }
       addNotification({
         id: `camera-on-${Date.now()}`,
         title: "Camera on",
@@ -3135,10 +3185,13 @@ export function TeacherDashboard({
         tone: "success",
       });
     } catch {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
       addNotification({
         id: `camera-error-${Date.now()}`,
         title: "Camera blocked",
-        message: "Allow camera access in the browser to use the meeting controls.",
+        message: "Allow camera access in the browser or check server connectivity.",
         tone: "warning",
       });
     } finally {
@@ -3188,14 +3241,17 @@ export function TeacherDashboard({
     }
 
     setMicBusy(true);
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: false,
       });
-      micStreamRef.current?.getTracks().forEach((track) => track.stop());
-      micStreamRef.current = stream;
-      setMicEnabled(true);
+      const audioTrack = stream.getAudioTracks()[0];
+      if (!audioTrack || audioTrack.readyState !== "live") {
+        throw new Error("Microphone track did not start.");
+      }
+
       if (selectedSessionId) {
         const response = await updateTeacherRoomState(selectedSessionId, {
           teacher_mic_enabled: true,
@@ -3205,6 +3261,16 @@ export function TeacherDashboard({
           room_state: response.room_state,
         }));
       }
+
+      closeAllMicPeers();
+      micStreamRef.current?.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = stream;
+      
+      audioTrack.onended = () => {
+        setMicEnabled(false);
+      };
+      
+      setMicEnabled(true);
       addNotification({
         id: `mic-on-${Date.now()}`,
         title: "Microphone on",
@@ -3212,10 +3278,13 @@ export function TeacherDashboard({
         tone: "success",
       });
     } catch {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
       addNotification({
         id: `mic-error-${Date.now()}`,
         title: "Microphone blocked",
-        message: "Allow microphone access in the browser to use this control.",
+        message: "Allow microphone access in the browser or check server connectivity.",
         tone: "warning",
       });
     } finally {
@@ -3275,26 +3344,17 @@ export function TeacherDashboard({
     }
 
     setScreenShareBusy(true);
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
+      stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: false,
       });
-      closeAllScreenSharePeers();
-      screenStreamRef.current?.getTracks().forEach((track) => track.stop());
-      screenStreamRef.current = stream;
-      if (screenVideoRef.current) {
-        screenVideoRef.current.srcObject = stream;
+      const videoTrack = stream.getVideoTracks()[0];
+      if (!videoTrack || videoTrack.readyState !== "live") {
+        throw new Error("Screen share track did not start.");
       }
 
-      const [videoTrack] = stream.getVideoTracks();
-      if (videoTrack) {
-        videoTrack.onended = () => {
-          void stopScreenShare();
-        };
-      }
-
-      setScreenShareEnabled(true);
       if (selectedSessionId) {
         const response = await updateTeacherRoomState(selectedSessionId, {
           stage_mode: "screenshare",
@@ -3305,6 +3365,19 @@ export function TeacherDashboard({
           room_state: response.room_state,
         }));
       }
+
+      closeAllScreenSharePeers();
+      screenStreamRef.current?.getTracks().forEach((track) => track.stop());
+      screenStreamRef.current = stream;
+      if (screenVideoRef.current) {
+        screenVideoRef.current.srcObject = stream;
+      }
+
+      videoTrack.onended = () => {
+        void stopScreenShare();
+      };
+
+      setScreenShareEnabled(true);
       addNotification({
         id: `screenshare-on-${Date.now()}`,
         title: "Presenting now",
@@ -3312,6 +3385,9 @@ export function TeacherDashboard({
         tone: "success",
       });
     } catch {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
       addNotification({
         id: `screenshare-error-${Date.now()}`,
         title: "Screen share blocked",
@@ -4473,20 +4549,50 @@ export function TeacherDashboard({
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-xl">
                     <CalendarDays className="h-8 w-8 text-indigo-300" />
                   </div>
-                  <div>
-                    <p className="text-xl font-bold tracking-tight">No room selected</p>
-                    <p className="mt-2 max-w-xs text-sm text-slate-400">
-                      Open Class tools, fill in a class name, and tap <strong className="text-white">Create class now</strong> to launch your room.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void toggleClassToolsModal()}
-                    className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/40 transition hover:bg-indigo-500 active:scale-95"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    Open Class tools
-                  </button>
+                  {fromLesson ? (
+                    <>
+                      <div>
+                        <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
+                          🟢 Ready to Start
+                        </span>
+                        <p className="text-2xl font-bold tracking-tight text-white">
+                          {fromLesson.class_level} — {fromLesson.subject}
+                        </p>
+                        <p className="mt-2 text-lg text-indigo-200">
+                          Topic: "{fromLesson.title}"
+                        </p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Scheduled for {new Date(fromLesson.starts_at).toLocaleString()} ({fromLesson.duration_minutes} minutes)
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleAutoCreateFromLesson()}
+                        disabled={saving}
+                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 active:scale-95 disabled:opacity-50"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        {saving ? "Creating room..." : "Start Live Class Room Now"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-xl font-bold tracking-tight">No room selected</p>
+                        <p className="mt-2 max-w-xs text-sm text-slate-400">
+                          Open Class tools, fill in a class name, and tap <strong className="text-white">Create class now</strong> to launch your room.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void toggleClassToolsModal()}
+                        className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/40 transition hover:bg-indigo-500 active:scale-95"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        Open Class tools
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -5247,11 +5353,14 @@ export function TeacherDashboard({
                   {...dockHoverHandlers(micEnabled ? "Mute microphone" : "Unmute microphone")}
                 >
                   {micEnabled ? <Mic className="h-[18px] w-[18px]" /> : <MicOff className="h-[18px] w-[18px]" />}
+                  <span className="text-[9px] font-bold mt-0.5">
+                    {micEnabled ? "Mic On" : "Mic Off"}
+                  </span>
                   <span className={getDockLabelClass(micEnabled ? "Mute microphone" : "Unmute microphone")}>
                     {micEnabled ? "Mute microphone" : "Unmute microphone"}
                   </span>
                   {micEnabled ? (
-                    <span className="inline-flex h-2.5 items-end gap-px" aria-hidden="true">
+                    <span className="absolute bottom-1 right-2 inline-flex h-2.5 items-end gap-px" aria-hidden="true">
                       <span
                         className={`w-px rounded-full bg-white/90 ${micSpeaking ? "opacity-100" : "opacity-40"}`}
                         style={{ height: `${3 + micInputLevel * 5}px` }}
@@ -5259,10 +5368,6 @@ export function TeacherDashboard({
                       <span
                         className={`w-px rounded-full bg-white/90 ${micSpeaking ? "opacity-100" : "opacity-40"}`}
                         style={{ height: `${4 + micInputLevel * 7}px` }}
-                      />
-                      <span
-                        className={`w-px rounded-full bg-white/90 ${micSpeaking ? "opacity-100" : "opacity-40"}`}
-                        style={{ height: `${3 + micInputLevel * 6}px` }}
                       />
                     </span>
                   ) : null}
@@ -5277,9 +5382,29 @@ export function TeacherDashboard({
                   {...dockHoverHandlers(cameraEnabled ? "Turn camera off" : "Turn camera on")}
                 >
                   {cameraEnabled ? <Video className="h-[18px] w-[18px]" /> : <VideoOff className="h-[18px] w-[18px]" />}
+                  <span className="text-[9px] font-bold mt-0.5">
+                    {cameraEnabled ? "Video On" : "Video Off"}
+                  </span>
                   <span className={getDockLabelClass(cameraEnabled ? "Turn camera off" : "Turn camera on")}>
                     {cameraEnabled ? "Turn camera off" : "Turn camera on"}
                   </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextMode = currentDashboard.room_state.stage_mode === "whiteboard" ? "camera" : "whiteboard";
+                    void handleStageModeChange(nextMode);
+                  }}
+                  disabled={mutatingRoomState || savingWhiteboard || broadcastOnlyClassroom}
+                  title="Toggle whiteboard stage"
+                  className={`${jitsiDockBtn} ${
+                    currentDashboard.room_state.stage_mode === "whiteboard" ? jitsiDockBtnOn : jitsiDockBtnOff
+                  }`}
+                  {...dockHoverHandlers("Toggle whiteboard stage")}
+                >
+                  <BookOpenText className="h-[18px] w-[18px]" />
+                  <span className="text-[9px] font-bold mt-0.5">Whiteboard</span>
+                  <span className={getDockLabelClass("Toggle whiteboard stage")}>Toggle whiteboard stage</span>
                 </button>
                 <button
                   type="button"
@@ -5293,6 +5418,7 @@ export function TeacherDashboard({
                   {...dockHoverHandlers(screenShareEnabled ? "Stop presenting" : "Start presenting")}
                 >
                   <LayoutPanelLeft className="h-[18px] w-[18px]" />
+                  <span className="text-[9px] font-bold mt-0.5">Share Screen</span>
                   <span className={getDockLabelClass(screenShareEnabled ? "Stop presenting" : "Start presenting")}>
                     {screenShareEnabled ? "Stop presenting" : "Start presenting"}
                   </span>
@@ -5306,161 +5432,46 @@ export function TeacherDashboard({
                   title="Open participants panel"
                   aria-label="Participants"
                   className={`${jitsiDockBtn} ${
-                    activePanel === "students" ? jitsiDockBtnAccent : jitsiDockBtnOff
+                    activePanel === "students" && showRightPanel ? jitsiDockBtnAccent : jitsiDockBtnOff
                   }`}
                   {...dockHoverHandlers("Open participants panel")}
                 >
                   <UsersRound className="h-[18px] w-[18px]" />
+                  <span className="text-[9px] font-bold mt-0.5">Students</span>
                   <span className={getDockLabelClass("Open participants panel")}>Open participants panel</span>
                 </button>
-                {showAdvancedControls ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void handleToggleStudentPermission(
-                          "student_raise_hand_enabled",
-                          !currentDashboard.room_state.student_raise_hand_enabled,
-                          {
-                            on: "Hand raise on",
-                            off: "Hand raise off",
-                            failure: "Hand raise permission failed",
-                          },
-                        )
-                      }
-                      disabled={mutatingRoomState}
-                      title={
-                        currentDashboard.room_state.student_raise_hand_enabled
-                          ? "Disable raised hands"
-                          : "Enable raised hands"
-                      }
-                      className={`${jitsiDockBtn} ${
-                        currentDashboard.room_state.student_raise_hand_enabled ? jitsiDockBtnOn : jitsiDockBtnOff
-                      }`}
-                      {...dockHoverHandlers(
-                        currentDashboard.room_state.student_raise_hand_enabled
-                          ? "Disable raised hands"
-                          : "Enable raised hands",
-                      )}
-                    >
-                      <Hand className="h-[18px] w-[18px]" />
-                      <span
-                        className={getDockLabelClass(
-                          currentDashboard.room_state.student_raise_hand_enabled
-                            ? "Disable raised hands"
-                            : "Enable raised hands",
-                        )}
-                      >
-                        {currentDashboard.room_state.student_raise_hand_enabled ? "Disable raised hands" : "Enable raised hands"}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void handleToggleStudentPermission(
-                          "student_chat_enabled",
-                          !currentDashboard.room_state.student_chat_enabled,
-                          {
-                            on: "Student chat on",
-                            off: "Student chat off",
-                            failure: "Chat permission failed",
-                          },
-                        )
-                      }
-                      disabled={mutatingRoomState}
-                      title={
-                        currentDashboard.room_state.student_chat_enabled
-                          ? "Disable student chat"
-                          : "Enable student chat"
-                      }
-                      className={`${jitsiDockBtn} ${
-                        currentDashboard.room_state.student_chat_enabled ? jitsiDockBtnOn : jitsiDockBtnOff
-                      }`}
-                      {...dockHoverHandlers(
-                        currentDashboard.room_state.student_chat_enabled
-                          ? "Disable student chat"
-                          : "Enable student chat",
-                      )}
-                    >
-                      <MessageSquareText className="h-[18px] w-[18px]" />
-                      <span
-                        className={getDockLabelClass(
-                          currentDashboard.room_state.student_chat_enabled
-                            ? "Disable student chat"
-                            : "Enable student chat",
-                        )}
-                      >
-                        {currentDashboard.room_state.student_chat_enabled ? "Disable student chat" : "Enable student chat"}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleToggleChatSlowMode()}
-                      disabled={mutatingRoomState || !currentDashboard.room_state.student_chat_enabled}
-                      title={
-                        currentDashboard.room_state.chat_slow_mode ? "Disable slow mode" : "Enable slow mode"
-                      }
-                      className={`${jitsiDockBtn} ${
-                        currentDashboard.room_state.chat_slow_mode
-                          ? "bg-amber-600 hover:bg-amber-500"
-                          : jitsiDockBtnOff
-                      }`}
-                      {...dockHoverHandlers(
-                        currentDashboard.room_state.chat_slow_mode ? "Disable slow mode" : "Enable slow mode",
-                      )}
-                    >
-                      <BadgeHelp className="h-[18px] w-[18px]" />
-                      <span
-                        className={getDockLabelClass(
-                          currentDashboard.room_state.chat_slow_mode ? "Disable slow mode" : "Enable slow mode",
-                        )}
-                      >
-                        {currentDashboard.room_state.chat_slow_mode ? "Disable slow mode" : "Enable slow mode"}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActivePanel("engagement");
-                        setShowRightPanel(true);
-                      }}
-                      title="Open activity tools"
-                      className={`${jitsiDockBtn} ${
-                        activePanel === "engagement" ? jitsiDockBtnAccent : jitsiDockBtnOff
-                      }`}
-                      {...dockHoverHandlers("Open activity tools")}
-                    >
-                      <ClipboardList className="h-[18px] w-[18px]" />
-                      <span className={getDockLabelClass("Open activity tools")}>Open activity tools</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void toggleClassToolsModal()}
-                      title={showRightPanel ? "Close class tools" : "Open class tools"}
-                      className={`${jitsiDockBtn} ${showRightPanel ? jitsiDockBtnAccent : jitsiDockBtnOff}`}
-                      {...dockHoverHandlers(showRightPanel ? "Close class tools" : "Open class tools")}
-                    >
-                      <Sidebar className="h-[18px] w-[18px]" />
-                      <span className={getDockLabelClass(showRightPanel ? "Close tools" : "Class tools")}>
-                        {showRightPanel ? "Close tools" : "Class tools"}
-                      </span>
-                    </button>
-                  </>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePanel("engagement");
+                    setShowRightPanel(true);
+                  }}
+                  title="Open activity tools"
+                  aria-label="Activities"
+                  className={`${jitsiDockBtn} ${
+                    activePanel === "engagement" && showRightPanel ? jitsiDockBtnAccent : jitsiDockBtnOff
+                  }`}
+                  {...dockHoverHandlers("Open activity tools")}
+                >
+                  <ClipboardList className="h-[18px] w-[18px]" />
+                  <span className="text-[9px] font-bold mt-0.5">Activities</span>
+                  <span className={getDockLabelClass("Open activity tools")}>Open activity tools</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowAdvancedControls((current) => !current)}
                   aria-expanded={showAdvancedControls}
-                  title={showAdvancedControls ? "Hide more controls" : "Show more controls"}
+                  title={showAdvancedControls ? "Hide advanced options" : "Show advanced options"}
                   aria-label="More options"
                   className={`${jitsiDockBtn} ${
                     showAdvancedControls ? jitsiDockBtnAccent : jitsiDockBtnOff
                   }`}
-                  {...dockHoverHandlers(showAdvancedControls ? "Hide more controls" : "Show more controls")}
+                  {...dockHoverHandlers(showAdvancedControls ? "Hide advanced options" : "Show advanced options")}
                 >
                   <Settings2 className="h-[18px] w-[18px]" />
-                  <span className={getDockLabelClass(showAdvancedControls ? "Hide more controls" : "Show more controls")}>
-                    {showAdvancedControls ? "Hide more controls" : "Show more controls"}
+                  <span className="text-[9px] font-bold mt-0.5">More Options</span>
+                  <span className={getDockLabelClass(showAdvancedControls ? "Hide advanced options" : "Show advanced options")}>
+                    {showAdvancedControls ? "Hide advanced options" : "Show advanced options"}
                   </span>
                 </button>
                 <button
@@ -5476,6 +5487,9 @@ export function TeacherDashboard({
                   {...dockHoverHandlers(simpleToolbarPinned ? "Unpin toolbar" : "Pin toolbar")}
                 >
                   {simpleToolbarPinned ? <Pin className="h-[18px] w-[18px]" /> : <PinOff className="h-[18px] w-[18px]" />}
+                  <span className="text-[9px] font-bold mt-0.5">
+                    {simpleToolbarPinned ? "Keep Visible" : "Auto Hide"}
+                  </span>
                   <span className={getDockLabelClass(simpleToolbarPinned ? "Unpin toolbar" : "Pin toolbar")}>
                     {simpleToolbarPinned ? "Unpin toolbar" : "Pin toolbar"}
                   </span>
@@ -5484,10 +5498,11 @@ export function TeacherDashboard({
                   type="button"
                   onClick={handleLeaveCall}
                   title="Leave class"
-                  className="group inline-flex h-12 min-w-[4.4rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl bg-rose-600 shadow-sm shadow-rose-950/35 px-3 text-[10px] font-semibold leading-tight text-white transition hover:bg-rose-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="group inline-flex h-14 min-w-[4.4rem] sm:min-w-[4.8rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl bg-rose-600 shadow-sm shadow-rose-950/35 px-2 text-[9px] font-bold leading-tight text-white transition hover:bg-rose-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                   {...dockHoverHandlers("Leave class")}
                 >
                   <PhoneOff className="h-[18px] w-[18px]" />
+                  <span className="text-[9px] font-bold mt-0.5">Leave Class</span>
                   <span className={getDockLabelClass("Leave class")}>Leave class</span>
                 </button>
               </div>

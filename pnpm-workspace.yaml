@@ -75,5 +75,5 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 allowBuilds:
-  '@clerk/shared': false
+  '@clerk/shared': true
   esbuild: true
