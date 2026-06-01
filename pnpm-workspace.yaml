@@ -77,3 +77,9 @@ onlyBuiltDependencies:
 allowBuilds:
   '@clerk/shared': true
   esbuild: true
+
+overrides:
+  "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
+  esbuild: "0.27.3"
+  path-to-regexp: "^6.2.0"
+
