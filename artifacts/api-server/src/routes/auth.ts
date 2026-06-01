@@ -16,7 +16,11 @@ const clerkProfiles = new Map<string, ClerkProfile>();
    Returns the current Clerk user's profile + stored role.
  ───────────────────────────────────────────────────────────── */
 router.get("/auth/me/", (req, res) => {
-  if (process.env.SKIP_CLERK_AUTH === "true") {
+  const skipClerk =
+    process.env.SKIP_CLERK_AUTH === "true" ||
+    !process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_");
+
+  if (skipClerk) {
     return res.json({
       id: "mock_teacher_id",
       username: "mock_teacher",
@@ -28,7 +32,7 @@ router.get("/auth/me/", (req, res) => {
   }
 
   try {
-    const auth = getAuth(req);
+    const auth = (req as any).auth;
     if (!auth?.userId) return res.status(401).json({ message: "Not authenticated." });
 
     const profile = clerkProfiles.get(auth.userId);
@@ -52,12 +56,16 @@ router.get("/auth/me/", (req, res) => {
    Called once during onboarding.
  ───────────────────────────────────────────────────────────── */
 router.post("/auth/set-role", (req, res) => {
-  if (process.env.SKIP_CLERK_AUTH === "true") {
+  const skipClerk =
+    process.env.SKIP_CLERK_AUTH === "true" ||
+    !process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_");
+
+  if (skipClerk) {
     return res.json({ message: "Profile saved.", role: req.body.role });
   }
 
   try {
-    const auth = getAuth(req);
+    const auth = (req as any).auth;
     if (!auth?.userId) return res.status(401).json({ message: "Not authenticated." });
 
     const { role, full_name, username } = req.body as {

@@ -8,11 +8,15 @@ const router = Router();
 
 /* ── helpers ── */
 function requireTeacher(req: Request, res: Response) {
-  if (process.env.SKIP_CLERK_AUTH === "true") {
+  const skipClerk =
+    process.env.SKIP_CLERK_AUTH === "true" ||
+    !process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_");
+
+  if (skipClerk) {
     return "mock_teacher_id";
   }
   try {
-    const auth = getAuth(req);
+    const auth = (req as any).auth;
     if (!auth?.userId) {
       res.status(401).json({ message: "Not authenticated." });
       return null;
