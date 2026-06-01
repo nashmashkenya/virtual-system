@@ -36,7 +36,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
-      ...(process.env.VITE_SKIP_CLERK === "true"
+      ...(process.env.VITE_SKIP_CLERK === "true" ||
+      !process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+      !process.env.VITE_CLERK_PUBLISHABLE_KEY.startsWith("pk_")
         ? {
             "@clerk/react/internal": path.resolve(import.meta.dirname, "src/lib/clerk-mock-internal.ts"),
             "@clerk/react": path.resolve(import.meta.dirname, "src/lib/clerk-mock.tsx"),
