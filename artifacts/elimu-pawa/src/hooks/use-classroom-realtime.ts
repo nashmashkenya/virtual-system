@@ -63,6 +63,12 @@ export function useClassroomRealtime<T>({
     let reconnectAttempts = 0;
     let socket: WebSocket | null = null;
 
+    const pingIntervalId = window.setInterval(() => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 30000);
+
     const connect = () => {
       if (!isActive) {
         return;
@@ -116,6 +122,7 @@ export function useClassroomRealtime<T>({
       if (reconnectTimeoutId !== null) {
         window.clearTimeout(reconnectTimeoutId);
       }
+      window.clearInterval(pingIntervalId);
       socket?.close();
     };
   }, [accessToken, enabled, role, roomCode, username]);

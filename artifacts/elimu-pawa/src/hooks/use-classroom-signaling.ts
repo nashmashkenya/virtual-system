@@ -41,6 +41,12 @@ export function useClassroomSignaling({
     let reconnectTimeoutId: number | null = null;
     let reconnectAttempts = 0;
 
+    const pingIntervalId = window.setInterval(() => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        socketRef.current.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 30000);
+
     const connect = () => {
       if (!isActive) {
         return;
@@ -93,6 +99,7 @@ export function useClassroomSignaling({
       if (reconnectTimeoutId !== null) {
         window.clearTimeout(reconnectTimeoutId);
       }
+      window.clearInterval(pingIntervalId);
       socketRef.current?.close();
       socketRef.current = null;
     };
