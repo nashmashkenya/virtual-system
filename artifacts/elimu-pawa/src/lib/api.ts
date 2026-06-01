@@ -393,10 +393,8 @@ export async function sendTeacherChatMessage(payload: { sessionId: number; messa
 
 export async function getTeacherWhiteboard(sessionId: number): Promise<WhiteboardState> {
   return fetchWithFallback<WhiteboardState>(`/api/teacher/sessions/${sessionId}/whiteboard/`, {
-    shapes: [],
-    zoom: 1,
-    pan_x: 0,
-    pan_y: 0,
+    pages: [],
+    active_page: 0,
   });
 }
 

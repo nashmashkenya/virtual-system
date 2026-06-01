@@ -2,6 +2,9 @@ import "./load-env";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { seedDatabase } from "./lib/db-seed";
+import http from "node:http";
+import { WebSocketServer } from "ws";
+import { initWebSocketServer } from "./lib/socket";
 
 // Auto-seed the database with curriculum subjects
 seedDatabase();
@@ -20,11 +23,17 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
+const server = http.createServer(app);
+const wss = new WebSocketServer({ noServer: true });
 
-  logger.info({ port }, "Server listening");
+initWebSocketServer(wss);
+
+server.on("upgrade", (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit("connection", ws, request);
+  });
+});
+
+server.listen(port, () => {
+  logger.info({ port }, "Server listening (with WebSockets active)");
 });

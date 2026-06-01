@@ -14,7 +14,7 @@ export function buildRealtimeUrl(
   const baseUrl =
     import.meta.env.VITE_EDUSTREAM_WS_BASE_URL ??
     import.meta.env.VITE_EDUSTREAM_API_BASE_URL ??
-    "http://127.0.0.1:8000";
+    window.location.origin;
   const url = new URL(baseUrl, window.location.origin);
 
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";

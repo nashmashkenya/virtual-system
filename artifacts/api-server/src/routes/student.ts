@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { sessionsStore, roomStatesStore, whiteboardsStore, chatStore, pollsStore, quizzesStore, getActiveSessionId } from "./teacher";
+import { sessionsStore, roomStatesStore, whiteboardsStore, chatStore, pollsStore, quizzesStore, getActiveSessionId, buildDashboard, enrollmentsStore } from "./teacher";
+import { broadcastToAll, broadcastToTeacher } from "../lib/socket";
 
 const router: IRouter = Router();
 
@@ -185,6 +186,11 @@ router.post("/student/poll-vote", (req: Request, res: Response) => {
       activePoll.response_count += 1;
       const opt = activePoll.options.find((o) => o.id === option_id);
       if (opt) opt.value += 1;
+      broadcastToTeacher(activeSession.room_code, {
+        dashboard: buildDashboard(activeSession.id, activeSession),
+        enrollments: enrollmentsStore.get(activeSession.id) ?? [],
+        session: activeSession,
+      });
       res.json({ message: "Vote recorded.", poll: activePoll });
       return;
     }
@@ -207,6 +213,11 @@ router.post("/student/quiz-submit", (req: Request, res: Response) => {
     const activeQuizzes = quizzesStore.get(activeSession.id) || [];
     const activeQuiz = activeQuizzes.find(q => q.is_active);
     if (activeQuiz) {
+      broadcastToTeacher(activeSession.room_code, {
+        dashboard: buildDashboard(activeSession.id, activeSession),
+        enrollments: enrollmentsStore.get(activeSession.id) ?? [],
+        session: activeSession,
+      });
       res.json({ message: "Answer submitted.", quiz: activeQuiz });
       return;
     }
@@ -236,6 +247,10 @@ router.post("/student/chat-message", (req: Request, res: Response) => {
     const msgs = chatStore.get(activeSession.id) || [];
     msgs.push(msg);
     chatStore.set(activeSession.id, msgs);
+    broadcastToAll(activeSession.room_code, {
+      event: "message_created",
+      message: msg,
+    });
     res.json({ message: "Message sent.", chat_message: msg });
     return;
   }

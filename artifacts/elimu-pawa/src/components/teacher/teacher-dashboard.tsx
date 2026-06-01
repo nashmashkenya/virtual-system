@@ -127,6 +127,9 @@ function defaultStartsAtForNewSession(): string {
 type FromLessonContext = {
   lesson_id: number;
   title: string;
+  subject: string;
+  class_level: string;
+  teacher_name: string;
   starts_at: string;
   duration_minutes: number;
   delivery_mode?: "interactive" | "broadcast";

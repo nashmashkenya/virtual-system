@@ -1,5 +1,8 @@
 import { Router, type IRouter } from "express";
 import { getAuth } from "@clerk/express";
+import { db } from "@workspace/db";
+import { students, studentSessions } from "@workspace/db/schema";
+import { eq, and, gt } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -13,9 +16,38 @@ const clerkProfiles = new Map<string, ClerkProfile>();
 
 /* ─────────────────────────────────────────────────────────────
    GET /api/auth/me/
-   Returns the current Clerk user's profile + stored role.
+   Returns the current user's profile (student via cookie, or teacher via Clerk).
  ───────────────────────────────────────────────────────────── */
-router.get("/auth/me/", (req, res) => {
+router.get("/auth/me/", async (req, res) => {
+  // 1. Check if student token cookie exists and is valid
+  const studentToken = req.cookies?.["student_token"] as string | undefined;
+  if (studentToken) {
+    try {
+      const [session] = await db
+        .select({ studentId: studentSessions.studentId })
+        .from(studentSessions)
+        .where(and(eq(studentSessions.token, studentToken), gt(studentSessions.expiresAt, new Date())))
+        .limit(1);
+
+      if (session) {
+        const [student] = await db.select().from(students).where(eq(students.id, session.studentId)).limit(1);
+        if (student) {
+          return res.json({
+            id: student.id,
+            username: student.admNo,
+            full_name: `${student.firstName} ${student.lastName}`,
+            email: `${student.admNo.toLowerCase()}@elimu.local`,
+            role: "student",
+            organizations: [],
+          });
+        }
+      }
+    } catch (err) {
+      req.log?.error({ err }, "Error checking student session in GET /auth/me/");
+    }
+  }
+
+  // 2. Fall back to Clerk auth or mock teacher
   const skipClerk =
     process.env.SKIP_CLERK_AUTH === "true" ||
     !process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_");

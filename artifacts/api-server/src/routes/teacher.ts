@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { randomBytes } from "crypto";
+import { broadcastToStudents, broadcastToAll } from "../lib/socket";
 
 const router: IRouter = Router();
 
@@ -255,7 +256,7 @@ export const whiteboardsStore = new Map<number, WhiteboardState>([
   [2, defaultWhiteboard()],
 ]);
 
-const enrollmentsStore = new Map<number, SessionEnrollment[]>([
+export const enrollmentsStore = new Map<number, SessionEnrollment[]>([
   [
     1,
     [
@@ -346,7 +347,7 @@ const breakoutsStore = new Map<number, TeacherBreakoutRoom[]>([
   [2, []],
 ]);
 
-const attendanceStore = new Map<number, Array<{ student_id: number; name: string; joined_at: string; status: string; payment: string }>>([
+export const attendanceStore = new Map<number, Array<{ student_id: number; name: string; joined_at: string; status: string; payment: string }>>([
   [
     1,
     [
@@ -370,7 +371,7 @@ const raiseHandStore = new Map<number, Array<{ id: number; student_id: number; n
   [2, []],
 ]);
 
-const waitingRoomStore = new Map<number, Array<{ id: number; student_id: number; name: string; school_class?: string; reason: string; wait: string }>>([
+export const waitingRoomStore = new Map<number, Array<{ id: number; student_id: number; name: string; school_class?: string; reason: string; wait: string }>>([
   [1, [{ id: 1, student_id: 5, name: "Mary Wambui", reason: "Waiting to join class", wait: "1m" }]],
   [2, []],
 ]);
@@ -378,7 +379,7 @@ const waitingRoomStore = new Map<number, Array<{ id: number; student_id: number;
 /* ─────────────────────────────────────────────────────────────
    Helper: build TeacherDashboardData for a session
 ───────────────────────────────────────────────────────────── */
-function buildDashboard(sessionId: number, session?: TeacherSession) {
+export function buildDashboard(sessionId: number, session?: TeacherSession) {
   const s = session ?? sessionsStore.get(1)!;
   return {
     form_defaults: {
@@ -538,6 +539,15 @@ router.patch("/teacher/sessions/:id/room-state", (req: Request, res: Response) =
   const current = roomStatesStore.get(id) ?? defaultRoomState();
   const updated: RoomState = { ...current, ...(req.body as Partial<RoomState>) };
   roomStatesStore.set(id, updated);
+
+  const session = sessionsStore.get(id);
+  if (session) {
+    broadcastToStudents(session.room_code, {
+      event: "room_state_updated",
+      room_state: updated,
+    });
+  }
+
   res.json({ message: "Room state updated.", room_state: updated });
 });
 
@@ -640,6 +650,15 @@ router.post("/teacher/sessions/:id/chat-message", (req: Request, res: Response) 
   const msgs = chatStore.get(id) ?? [];
   msgs.push(msg);
   chatStore.set(id, msgs);
+
+  const session = sessionsStore.get(id);
+  if (session) {
+    broadcastToAll(session.room_code, {
+      event: "message_created",
+      message: msg,
+    });
+  }
+
   res.json({ message: "Message sent.", chat_message: msg });
 });
 
@@ -843,6 +862,12 @@ router.patch("/teacher/sessions/:id/polls", (req: Request, res: Response) => {
   list.forEach((p) => (p.is_active = p.id === poll_id));
   pollsStore.set(id, list);
   const poll = list.find((p) => p.id === poll_id);
+
+  const session = sessionsStore.get(id);
+  if (session) {
+    broadcastToStudents(session.room_code, { event: "refresh_required" });
+  }
+
   res.json({ message: "Poll activated.", poll: poll ? { id: poll.id, question: poll.question, is_active: poll.is_active } : null });
 });
 
@@ -889,6 +914,12 @@ router.patch("/teacher/sessions/:id/quizzes", (req: Request, res: Response) => {
   list.forEach((q) => (q.is_active = q.id === quiz_id));
   quizzesStore.set(id, list);
   const quiz = list.find((q) => q.id === quiz_id);
+
+  const session = sessionsStore.get(id);
+  if (session) {
+    broadcastToStudents(session.room_code, { event: "refresh_required" });
+  }
+
   res.json({ message: "Quiz activated.", quiz: quiz ? { id: quiz.id, question: quiz.question, is_active: quiz.is_active } : null });
 });
 

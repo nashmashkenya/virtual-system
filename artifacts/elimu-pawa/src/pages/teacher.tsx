@@ -15,7 +15,7 @@ export type FromLessonContext = {
   teacher_name: string;
   starts_at: string;
   duration_minutes: number;
-  delivery_mode?: string;
+  delivery_mode?: "interactive" | "broadcast";
   youtube_link?: string;
   expected_participants?: number;
 };
@@ -56,7 +56,7 @@ export function TeacherPage() {
             teacher_name: lessonTeacherName ?? "",
             starts_at: lessonStartsAt ?? "",
             duration_minutes: lessonDuration ? Number(lessonDuration) : 60,
-            delivery_mode: lessonDeliveryMode ?? "interactive",
+            delivery_mode: (lessonDeliveryMode === "broadcast" ? "broadcast" : "interactive"),
             youtube_link: lessonYoutubeLink ?? "",
             expected_participants: lessonExpectedParticipants ? Number(lessonExpectedParticipants) : 50,
           };

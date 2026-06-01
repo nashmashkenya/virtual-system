@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
