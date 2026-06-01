@@ -65,6 +65,7 @@ export function LiveClassroom({
 
   const [cameraActive, setCameraActive] = useState(false);
   const [screenActive, setScreenActive] = useState(false);
+  const [audioActive, setAudioActive] = useState(false);
 
   // WebRTC Stream Refs
   const remoteCameraVideoElementRef = useRef<HTMLVideoElement | null>(null);
@@ -152,6 +153,7 @@ export function LiveClassroom({
     if (remoteAudioRef.current) {
       remoteAudioRef.current.srcObject = null;
     }
+    setAudioActive(false);
   }, []);
 
   const clearLiveScreen = useCallback(() => {
@@ -189,6 +191,7 @@ export function LiveClassroom({
       });
       const playPromise = remoteAudioRef.current?.play();
       void playPromise?.catch(() => undefined);
+      setAudioActive(true);
     };
 
     peerConnection.onconnectionstatechange = () => {
@@ -544,6 +547,7 @@ export function LiveClassroom({
   // Video and audio dynamic subscription based on teacher flags and data saver state
   useEffect(() => {
     if (broadcastOnlyClassroom) return;
+    if (screenActive) return;
     if (
       dataSaverEnabled ||
       removedFromRoom ||
@@ -568,10 +572,12 @@ export function LiveClassroom({
     sendSignalMessage,
     signalingStatus,
     dataSaverEnabled,
+    screenActive,
   ]);
 
   useEffect(() => {
     if (broadcastOnlyClassroom) return;
+    if (cameraActive) return;
     if (
       dataSaverEnabled ||
       removedFromRoom ||
@@ -594,10 +600,12 @@ export function LiveClassroom({
     sendSignalMessage,
     signalingStatus,
     dataSaverEnabled,
+    cameraActive,
   ]);
 
   useEffect(() => {
     if (broadcastOnlyClassroom) return;
+    if (audioActive) return;
     if (
       removedFromRoom ||
       signalingStatus !== "connected" ||
@@ -618,6 +626,7 @@ export function LiveClassroom({
     removedFromRoom,
     sendSignalMessage,
     signalingStatus,
+    audioActive,
   ]);
 
   usePollingRefresh(
