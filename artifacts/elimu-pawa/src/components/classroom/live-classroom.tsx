@@ -63,8 +63,17 @@ export function LiveClassroom({
   const [isHydrated, setIsHydrated] = useState(false);
   const [dataSaverEnabled, setDataSaverEnabled] = useState(false);
 
+  const [cameraActive, setCameraActive] = useState(false);
+  const [screenActive, setScreenActive] = useState(false);
+
   // WebRTC Stream Refs
-  const remoteCameraVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteCameraVideoElementRef = useRef<HTMLVideoElement | null>(null);
+  const remoteCameraVideoRef = useCallback((node: HTMLVideoElement | null) => {
+    remoteCameraVideoElementRef.current = node;
+    if (node) {
+      node.srcObject = remoteCameraStreamRef.current;
+    }
+  }, []);
   const remoteCameraStreamRef = useRef<MediaStream | null>(null);
   const cameraPeerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
@@ -72,7 +81,13 @@ export function LiveClassroom({
   const remoteAudioStreamRef = useRef<MediaStream | null>(null);
   const audioPeerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
-  const remoteScreenVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteScreenVideoElementRef = useRef<HTMLVideoElement | null>(null);
+  const remoteScreenVideoRef = useCallback((node: HTMLVideoElement | null) => {
+    remoteScreenVideoElementRef.current = node;
+    if (node) {
+      node.srcObject = remoteScreenStreamRef.current;
+    }
+  }, []);
   const remoteScreenStreamRef = useRef<MediaStream | null>(null);
   const screenPeerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
@@ -122,10 +137,11 @@ export function LiveClassroom({
     cameraPeerConnectionRef.current = null;
     remoteCameraStreamRef.current?.getTracks().forEach((track) => track.stop());
     remoteCameraStreamRef.current = null;
-    if (remoteCameraVideoRef.current) {
-      remoteCameraVideoRef.current.srcObject = null;
+    if (remoteCameraVideoElementRef.current) {
+      remoteCameraVideoElementRef.current.srcObject = null;
     }
     setStudentMicLive(false);
+    setCameraActive(false);
   }, []);
 
   const clearLiveAudio = useCallback(() => {
@@ -143,9 +159,10 @@ export function LiveClassroom({
     screenPeerConnectionRef.current = null;
     remoteScreenStreamRef.current?.getTracks().forEach((track) => track.stop());
     remoteScreenStreamRef.current = null;
-    if (remoteScreenVideoRef.current) {
-      remoteScreenVideoRef.current.srcObject = null;
+    if (remoteScreenVideoElementRef.current) {
+      remoteScreenVideoElementRef.current.srcObject = null;
     }
+    setScreenActive(false);
   }, []);
 
   const ensureAudioPeerConnection = useCallback(() => {
@@ -190,21 +207,22 @@ export function LiveClassroom({
     const peerConnection = new RTCPeerConnection({ iceServers: getIceServers() });
     const remoteStream = new MediaStream();
     remoteCameraStreamRef.current = remoteStream;
-    if (remoteCameraVideoRef.current) {
-      remoteCameraVideoRef.current.srcObject = remoteStream;
+    if (remoteCameraVideoElementRef.current) {
+      remoteCameraVideoElementRef.current.srcObject = remoteStream;
     }
 
     peerConnection.ontrack = (event) => {
       const stream = remoteCameraStreamRef.current ?? new MediaStream();
       remoteCameraStreamRef.current = stream;
-      if (remoteCameraVideoRef.current && remoteCameraVideoRef.current.srcObject !== stream) {
-        remoteCameraVideoRef.current.srcObject = stream;
+      if (remoteCameraVideoElementRef.current && remoteCameraVideoElementRef.current.srcObject !== stream) {
+        remoteCameraVideoElementRef.current.srcObject = stream;
       }
       event.streams[0]?.getTracks().forEach((track) => {
         if (!stream.getTracks().some((et) => et.id === track.id)) {
           stream.addTrack(track);
         }
       });
+      setCameraActive(true);
     };
 
     peerConnection.onconnectionstatechange = () => {
@@ -223,21 +241,22 @@ export function LiveClassroom({
     const peerConnection = new RTCPeerConnection({ iceServers: getIceServers() });
     const remoteStream = new MediaStream();
     remoteScreenStreamRef.current = remoteStream;
-    if (remoteScreenVideoRef.current) {
-      remoteScreenVideoRef.current.srcObject = remoteStream;
+    if (remoteScreenVideoElementRef.current) {
+      remoteScreenVideoElementRef.current.srcObject = remoteStream;
     }
 
     peerConnection.ontrack = (event) => {
       const stream = remoteScreenStreamRef.current ?? new MediaStream();
       remoteScreenStreamRef.current = stream;
-      if (remoteScreenVideoRef.current && remoteScreenVideoRef.current.srcObject !== stream) {
-        remoteScreenVideoRef.current.srcObject = stream;
+      if (remoteScreenVideoElementRef.current && remoteScreenVideoElementRef.current.srcObject !== stream) {
+        remoteScreenVideoElementRef.current.srcObject = stream;
       }
       event.streams[0]?.getTracks().forEach((track) => {
         if (!stream.getTracks().some((et) => et.id === track.id)) {
           stream.addTrack(track);
         }
       });
+      setScreenActive(true);
     };
 
     peerConnection.onconnectionstatechange = () => {
@@ -920,9 +939,13 @@ export function LiveClassroom({
 
           ) : currentDashboard.room_state.stage_mode === "screenshare" ? (
             <div className="absolute inset-0 bg-slate-950">
-              {remoteScreenVideoRef.current?.srcObject ? (
-                <video ref={remoteScreenVideoRef} className="h-full w-full object-contain" autoPlay playsInline />
-              ) : (
+              <video
+                ref={remoteScreenVideoRef}
+                className={`h-full w-full object-contain ${screenActive ? "block" : "hidden"}`}
+                autoPlay
+                playsInline
+              />
+              {!screenActive && (
                 <div className="flex h-full flex-col items-center justify-center gap-3">
                   <div className="rounded-full bg-white/5 p-6 border border-white/10 animate-pulse">
                     <Video className="h-8 w-8 text-slate-400" />
@@ -931,25 +954,29 @@ export function LiveClassroom({
                 </div>
               )}
               {/* Teacher picture-in-picture camera */}
-              {remoteCameraVideoRef.current?.srcObject ? (
-                <div className={`absolute bottom-4 right-4 overflow-hidden rounded-2xl border bg-slate-950 shadow-2xl transition-all duration-300 ${
-                  teacherSpotlightActive ? "border-amber-400/80 ring-2 ring-amber-400/40" : "border-white/15"
-                }`}>
-                  <video
-                    ref={remoteCameraVideoRef}
-                    className={`${teacherSpotlightActive ? "h-28 w-48 sm:h-36 sm:w-60" : "h-20 w-32 sm:h-24 sm:w-40"} object-cover`}
-                    autoPlay
-                    playsInline
-                  />
-                </div>
-              ) : null}
+              <div className={`absolute bottom-4 right-4 overflow-hidden rounded-2xl border bg-slate-950 shadow-2xl transition-all duration-300 ${
+                cameraActive ? "block" : "hidden"
+              } ${
+                teacherSpotlightActive ? "border-amber-400/80 ring-2 ring-amber-400/40" : "border-white/15"
+              }`}>
+                <video
+                  ref={remoteCameraVideoRef}
+                  className={`${teacherSpotlightActive ? "h-28 w-48 sm:h-36 sm:w-60" : "h-20 w-32 sm:h-24 sm:w-40"} object-cover`}
+                  autoPlay
+                  playsInline
+                />
+              </div>
             </div>
 
           ) : currentDashboard.room_state.stage_mode === "camera" ? (
             <div className="absolute inset-0 bg-slate-950">
-              {remoteCameraVideoRef.current?.srcObject ? (
-                <video ref={remoteCameraVideoRef} className="h-full w-full object-cover" autoPlay playsInline />
-              ) : (
+              <video
+                ref={remoteCameraVideoRef}
+                className={`h-full w-full object-cover ${cameraActive ? "block" : "hidden"}`}
+                autoPlay
+                playsInline
+              />
+              {!cameraActive && (
                 <div className="flex h-full flex-col items-center justify-center gap-3">
                   <div className="rounded-full bg-white/5 p-6 border border-white/10 animate-pulse">
                     <Video className="h-8 w-8 text-slate-400" />
