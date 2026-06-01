@@ -20,7 +20,10 @@ import { OnboardingPage } from "@/pages/onboarding";
 import { AdminPage } from "@/pages/admin";
 import { TeacherGuidePage } from "@/pages/teacher-guide";
 
-const skipClerk = import.meta.env.VITE_SKIP_CLERK === "true";
+const skipClerk =
+  import.meta.env.VITE_SKIP_CLERK === "true" ||
+  !import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  !import.meta.env.VITE_CLERK_PUBLISHABLE_KEY.startsWith("pk_");
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname.
 const clerkPubKey = skipClerk
