@@ -76,6 +76,7 @@ if (process.env.NODE_ENV === "production") {
 
   if (fs.existsSync(frontendDist)) {
     app.use(express.static(frontendDist));
+    // Cache bust: Force rebuild without cached Express router layer
     app.use((_req, res) => {
       res.sendFile(path.join(frontendDist, "index.html"));
     });
