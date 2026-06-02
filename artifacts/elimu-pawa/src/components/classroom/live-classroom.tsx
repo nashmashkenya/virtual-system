@@ -546,18 +546,27 @@ export function LiveClassroom({
 
   // Video and audio dynamic subscription based on teacher flags and data saver state
   useEffect(() => {
-    if (broadcastOnlyClassroom) return;
-    if (screenActive) return;
-    if (
-      dataSaverEnabled ||
-      removedFromRoom ||
-      signalingStatus !== "connected" ||
-      currentDashboard.room_state.stage_mode !== "screenshare" ||
-      !currentDashboard.room_state.screen_share_enabled
-    ) {
+    if (broadcastOnlyClassroom) {
       clearLiveScreen();
       return;
     }
+
+    const shouldBeActive =
+      !dataSaverEnabled &&
+      !removedFromRoom &&
+      signalingStatus === "connected" &&
+      currentDashboard.room_state.stage_mode === "screenshare" &&
+      currentDashboard.room_state.screen_share_enabled;
+
+    if (!shouldBeActive) {
+      if (screenActive) {
+        clearLiveScreen();
+      }
+      return;
+    }
+
+    if (screenActive) return;
+
     sendSignalMessage({
       type: "signal",
       target_role: "teacher",
@@ -576,17 +585,32 @@ export function LiveClassroom({
   ]);
 
   useEffect(() => {
-    if (broadcastOnlyClassroom) return;
-    if (cameraActive) return;
-    if (
-      dataSaverEnabled ||
-      removedFromRoom ||
-      signalingStatus !== "connected" ||
-      !currentDashboard.room_state.teacher_camera_enabled
-    ) {
+    if (broadcastOnlyClassroom) {
       clearLiveCamera();
       return;
     }
+
+    const isCameraNeeded =
+      currentDashboard.room_state.stage_mode === "camera" ||
+      (currentDashboard.room_state.stage_mode === "screenshare" &&
+        currentDashboard.room_state.screen_share_enabled);
+
+    const shouldBeActive =
+      !dataSaverEnabled &&
+      !removedFromRoom &&
+      signalingStatus === "connected" &&
+      isCameraNeeded &&
+      currentDashboard.room_state.teacher_camera_enabled;
+
+    if (!shouldBeActive) {
+      if (cameraActive) {
+        clearLiveCamera();
+      }
+      return;
+    }
+
+    if (cameraActive) return;
+
     sendSignalMessage({
       type: "signal",
       target_role: "teacher",
@@ -596,6 +620,7 @@ export function LiveClassroom({
     broadcastOnlyClassroom,
     clearLiveCamera,
     currentDashboard.room_state.teacher_camera_enabled,
+    currentDashboard.room_state.stage_mode,
     removedFromRoom,
     sendSignalMessage,
     signalingStatus,
@@ -604,16 +629,25 @@ export function LiveClassroom({
   ]);
 
   useEffect(() => {
-    if (broadcastOnlyClassroom) return;
-    if (audioActive) return;
-    if (
-      removedFromRoom ||
-      signalingStatus !== "connected" ||
-      !currentDashboard.room_state.teacher_mic_enabled
-    ) {
+    if (broadcastOnlyClassroom) {
       clearLiveAudio();
       return;
     }
+
+    const shouldBeActive =
+      !removedFromRoom &&
+      signalingStatus === "connected" &&
+      currentDashboard.room_state.teacher_mic_enabled;
+
+    if (!shouldBeActive) {
+      if (audioActive) {
+        clearLiveAudio();
+      }
+      return;
+    }
+
+    if (audioActive) return;
+
     sendSignalMessage({
       type: "signal",
       target_role: "teacher",
